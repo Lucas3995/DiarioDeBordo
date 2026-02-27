@@ -1,0 +1,89 @@
+name: Frontend CI
+
+on:
+  push:
+    branches: [develop, main]
+    paths: ['frontend/**', 'docker/**', '.github/workflows/frontend-ci.yml']
+  pull_request:
+    branches: [develop, main]
+    paths: ['frontend/**', 'docker/**', '.github/workflows/frontend-ci.yml']
+
+defaults:
+  run:
+    working-directory: frontend
+
+jobs:
+  lint-build-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Chrome for unit tests
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y chromium-browser || sudo apt-get install -y chromium
+          echo "CHROME_BIN=/usr/bin/chromium-browser" >> $GITHUB_ENV || echo "CHROME_BIN=/usr/bin/chromium" >> $GITHUB_ENV
+
+      - name: Lint
+        run: npm run lint
+        continue-on-error: true
+
+      - name: Unit tests
+        run: npm run test
+
+      - name: Coverage (summary)
+        run: npm run test:coverage
+        continue-on-error: true
+
+      - name: Build
+        run: npm run build
+
+      - name: Security audit
+        run: npm audit --audit-level=high
+        continue-on-error: true
+
+  e2e:
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright browsers (e2e)
+        run: npx playwright install --with-deps chromium
+
+      - name: Build frontend
+        run: npm run build
+
+      - name: Install serve
+        run: npm install -g serve
+
+      - name: Run e2e tests
+        run: |
+          serve -s dist/frontend/browser -l 4200 &
+          sleep 5
+          BASE_URL=http://localhost:4200 npx playwright test --config=e2e/playwright.config.ts
+        env:
+          CI: true

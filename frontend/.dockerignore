@@ -1,0 +1,14 @@
+node_modules
+.angular
+dist
+.git
+*.log
+.env
+.env.local
+.env.*.local
+coverage
+.idea
+.vscode
+*.md
+e2e
+out-tsc

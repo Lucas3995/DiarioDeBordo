@@ -117,7 +117,7 @@ Detalhes nas regras em [.cursor/rules](.cursor/rules).
 ### Pré-requisitos
 
 - .NET 8 SDK  
-- Node.js (compatível com Angular 21)  
+- Node.js 20.19+ ou 22+ (compatível com Angular 21)  
 - Docker Desktop (recomendado para frontend one-click)  
 - Banco de dados (ex.: PostgreSQL) conforme configuração do backend  
 
@@ -145,7 +145,7 @@ npm ci
 npm start
 ```
 
-Configure a URL da API (backend serverless ou local) via variáveis de ambiente ou proxy (ex.: `ng serve --proxy-config proxy.conf.json`).
+**Configuração da URL da API:** a URL da API (backend serverless ou local) é configurada **em tela por um usuário administrador**: acesse o menu **Configurações** na aplicação e informe a URL do backend. O valor é armazenado localmente no navegador (localStorage). Não é definida por variável de ambiente no build.
 
 ### One-click (Docker – frontend local)
 
@@ -155,7 +155,7 @@ Comando para subir o frontend (e, em dev, opcionalmente banco) em localhost. O b
 docker-compose -f docker/docker-compose.yml up -d
 ```
 
-Portas típicas: frontend 4200; API via URL do backend serverless.
+Portas típicas: frontend 4200; API via URL do backend serverless. Após abrir a aplicação no browser, configure a URL da API em **Configurações** (admin).
 
 ### Migrations (EF Core)
 
@@ -166,6 +166,8 @@ dotnet ef migrations add NomeDaMigration --project src/DiarioDeBordo.Persistence
 # Aplicar migrations (usar connection string via variável de ambiente ou secrets)
 dotnet ef database update --project src/DiarioDeBordo.Persistence --startup-project src/DiarioDeBordo.Api
 ```
+
+**Testes (frontend):** testes unitários com Karma/Jasmine (`npm run test`), cobertura com `npm run test:coverage`; testes e2e com Playwright (`npm run e2e`). O pipeline em [.github/workflows/frontend-ci.yml](.github/workflows/frontend-ci.yml) executa lint, testes unitários, build e e2e (job e2e não bloqueante no primeiro PR).
 
 Nunca incluir credenciais no repositório; usar variáveis de ambiente ou GitHub Secrets no pipeline.
 
