@@ -18,17 +18,18 @@ module.exports = function (config) {
       reporters: [{ type: 'html' }, { type: 'text-summary' }],
     },
     reporters: ['progress'],
-    browsers: ['ChromeHeadless'],
+    browsers: ['ChromeHeadlessCI'],
     customLaunchers: {
-      ChromeHeadless: {
+      ChromeHeadlessCI: {
         base: 'Chrome',
         flags: [
           '--headless',
           '--disable-gpu',
           '--no-sandbox',
+          '--disable-setuid-sandbox',
           '--remote-debugging-port=9222',
+          '--disable-dev-shm-usage',
         ],
-        binary: process.env.CHROME_BIN || undefined,
       },
     },
     restartOnFileChange: true,

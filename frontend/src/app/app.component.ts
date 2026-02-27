@@ -8,6 +8,7 @@ import { RouterOutlet, RouterLink } from '@angular/router';
   template: `
     <nav>
       <a routerLink="/">Início</a>
+      <a routerLink="/obras">Obras</a>
       <a routerLink="/config">Configurações</a>
     </nav>
     <main>
