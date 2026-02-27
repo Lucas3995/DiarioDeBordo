@@ -1,0 +1,107 @@
+<div class="obras-container">
+  <h2 class="obras-titulo">Acompanhamento de Obras</h2>
+
+  @if (obras.length > 0) {
+    <table class="obras-tabela" data-testid="obras-tabela">
+      <thead>
+        <tr>
+          <th>Nome</th>
+          <th>Tipo</th>
+          <th>Última Atualização</th>
+          <th>Posição Atual</th>
+          <th>Previsão</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (obra of obras; track obra.id) {
+          <tr class="obra-linha">
+            <td>
+              <span data-testid="obra-nome">{{ obra.nome }}</span>
+            </td>
+            <td>
+              <span class="tipo-badge tipo-{{ obra.tipo }}" data-testid="obra-tipo">
+                {{ obra.tipo }}
+              </span>
+            </td>
+            <td>
+              <span
+                class="data-relativa"
+                data-testid="obra-ultima-atualizacao"
+                [title]="formatarDataTooltip(obra.ultimaAtualizacaoPosicao)"
+              >
+                {{ formatarDataRelativa(obra.ultimaAtualizacaoPosicao) }}
+              </span>
+            </td>
+            <td>
+              <span data-testid="obra-posicao">{{ formatarPosicaoObra(obra) }}</span>
+            </td>
+            <td>
+              <span data-testid="obra-previsao">
+                @if (obra.proximaInfo) {
+                  @if (obra.proximaInfo.tipo === 'dias_ate_proxima') {
+                    em {{ obra.proximaInfo.dias }} dia{{ obra.proximaInfo.dias === 1 ? '' : 's' }}
+                  } @else {
+                    +{{ obra.proximaInfo.quantidade }} parte{{ obra.proximaInfo.quantidade === 1 ? '' : 's' }}
+                  }
+                }
+              </span>
+            </td>
+            <td>
+              <button class="btn-ver-mais" data-testid="obra-ver-mais" title="Ver detalhes de {{ obra.nome }}">
+                Ver mais
+              </button>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+
+    <div class="paginacao">
+      <div class="paginacao-controles">
+        <label class="page-size-label">
+          Itens por página:
+          <select
+            class="page-size-select"
+            data-testid="page-size-select"
+            [value]="pageSize"
+            (change)="mudarPageSize(+$any($event.target).value)"
+          >
+            @for (opcao of pageSizeOptions; track opcao) {
+              <option [value]="opcao" data-testid="page-size-option">{{ opcao }}</option>
+            }
+          </select>
+        </label>
+      </div>
+
+      <div class="paginacao-info" data-testid="paginacao-total">
+        {{ primeiroItemDaPagina }}–{{ ultimoItemDaPagina }} de {{ totalCount }}
+      </div>
+
+      <div class="paginacao-botoes">
+        <button
+          class="btn-pagina"
+          data-testid="btn-anterior"
+          [disabled]="pageIndex === 0"
+          (click)="irParaPaginaAnterior()"
+          aria-label="Página anterior"
+        >
+          &#8592; Anterior
+        </button>
+        <button
+          class="btn-pagina"
+          data-testid="btn-proximo"
+          [disabled]="!temProximaPagina"
+          (click)="irParaProximaPagina()"
+          aria-label="Próxima página"
+        >
+          Próxima &#8594;
+        </button>
+      </div>
+    </div>
+  } @else {
+    <div class="lista-vazia" data-testid="lista-vazia">
+      <p>Nenhuma obra encontrada. Adicione suas primeiras obras!</p>
+    </div>
+  }
+</div>

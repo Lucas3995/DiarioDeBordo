@@ -7,8 +7,8 @@
     "start": "ng serve",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test --no-watch --browsers=ChromeHeadless",
-    "test:coverage": "ng test --no-watch --browsers=ChromeHeadless --configuration=coverage",
+    "test": "ng test --no-watch --browsers=ChromeHeadlessCI",
+    "test:coverage": "ng test --no-watch --browsers=ChromeHeadlessCI --configuration=coverage",
     "lint": "ng lint",
     "e2e": "playwright test --config=e2e/playwright.config.ts"
   },
