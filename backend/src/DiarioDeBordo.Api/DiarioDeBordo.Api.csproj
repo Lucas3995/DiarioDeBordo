@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="FluentValidation" Version="12.1.1" />
+    <PackageReference Include="MediatR" Version="14.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="9.0.3" />
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.3" />
+    <PackageReference Include="Scalar.AspNetCore" Version="2.12.48" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\DiarioDeBordo.Application\DiarioDeBordo.Application.csproj" />
+    <ProjectReference Include="..\DiarioDeBordo.Persistence\DiarioDeBordo.Persistence.csproj" />
+    <ProjectReference Include="..\DiarioDeBordo.Infrastructure\DiarioDeBordo.Infrastructure.csproj" />
+  </ItemGroup>
+
+</Project>
