@@ -11,8 +11,11 @@ describe('ConfigComponent', () => {
     apiConfigSpy = jasmine.createSpyObj<ApiConfigService>('ApiConfigService', [
       'getApiUrl',
       'setApiUrl',
+      'getToken',
+      'setToken',
     ]);
     apiConfigSpy.getApiUrl.and.returnValue('https://api.initial.com');
+    apiConfigSpy.getToken.and.returnValue('');
 
     await TestBed.configureTestingModule({
       imports: [ConfigComponent],
@@ -42,12 +45,12 @@ describe('ConfigComponent', () => {
 
     it('should set the confirmation message after save', () => {
       component.save();
-      expect(component.message).toBe('URL salva.');
+      expect(component.message).toBe('Configurações salvas.');
     });
 
     it('should clear the message after 3 seconds', fakeAsync(() => {
       component.save();
-      expect(component.message).toBe('URL salva.');
+      expect(component.message).toBe('Configurações salvas.');
       tick(3001);
       expect(component.message).toBe('');
     }));
