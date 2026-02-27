@@ -103,8 +103,10 @@ frontend/
 
 ### Pré-requisitos
 
-- **Node.js** 20.19+ ou 22+ (exigido pelo Angular 21)
+- **Node.js** 20.19+ ou 22+ (exigido pelo Angular CLI 21 para `npm install`, `npm run test`, `npm run build` e `ng serve`)
 - **npm** (ou outro gestor compatível)
+
+Se usar **nvm**, execute `nvm use` na pasta `frontend/` para ativar a versão definida em `.nvmrc` (Node 22).
 
 ### Instalação e desenvolvimento
 
