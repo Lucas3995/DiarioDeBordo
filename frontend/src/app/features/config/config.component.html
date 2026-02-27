@@ -1,0 +1,14 @@
+<h2>Configurações (Admin)</h2>
+<p>A URL da API é configurada aqui e armazenada localmente no navegador.</p>
+<label for="apiUrl">URL da API (backend):</label>
+<input
+  id="apiUrl"
+  type="url"
+  [(ngModel)]="apiUrl"
+  placeholder="https://api.exemplo.com"
+  (blur)="save()"
+/>
+<button type="button" (click)="save()">Salvar</button>
+@if (message) {
+  <p class="message">{{ message }}</p>
+}
