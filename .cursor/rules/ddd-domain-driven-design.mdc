@@ -98,6 +98,18 @@ Quando refatorar, busque aproximar o código de um bom modelo de domínio:
 5. **Detectar mistura de domínios**
    - Quando um módulo misturar preocupações de múltiplos subdomínios (ex.: cobrança + logística + cadastro), proponha separar em Bounded Contexts distintos.
 
+## Proporcionalidade e trade-off — evitar overengineering
+
+DDD traz benefício real quando há domínio suficientemente complexo para justificar o custo de modelagem. Aplique os building blocks de forma proporcional:
+
+- **Quando aplicar DDD completo no frontend**: apenas quando a UI tiver lógica de negócio própria (ex.: validações complexas, fluxos de estado, múltiplas telas que manipulem entidades como `Obra`, `Parte`, `Situacao`). Em telas simples de configuração ou shell mínimo, não criar entidades e value objects que não agregam valor.
+- **Estruturas vazias**: se `domain/` foi criado mas não contém nenhum modelo usado, revise: ou o projeto ainda não precisa dessa camada (remova ou deixe sem pastas declaradas) ou ela foi criada prematuramente por checklist. Entidades anêmicas e repositórios não usados são overengineering.
+- **Linguagem Ubíqua no frontend**: quando a UI já manipular conceitos do domínio (ex.: listas de obras, atualização de posição), use os termos do domínio (`Obra`, `Parte`, `Situacao`) nas interfaces TypeScript, DTOs e serviços — mesmo sem DDD completo.
+- **Regra de ouro**: "Se criou a camada de domínio, use-a. Se ainda não há lógica de domínio na UI, não force a estrutura — introduza quando a complexidade justificar."
+- Aplique cada exigência de forma proporcional ao tamanho e à complexidade do contexto; evite estrutura cujo custo de manutenção supere o benefício.
+
+---
+
 ## Integrações e Camada Anticorrupção
 
 Em integrações entre sistemas ou contextos diferentes:
@@ -116,4 +128,5 @@ Em integrações entre sistemas ou contextos diferentes:
 - **Arquitetura Limpa** ([clean-architecture.mdc](.cursor/rules/clean-architecture.mdc)): domínio nas camadas de Entidades e Casos de Uso; detalhes técnicos nas bordas.
 - **CQRS** ([cqrs-command-query-responsibility-segregation.mdc](.cursor/rules/cqrs-command-query-responsibility-segregation.mdc)): write model pode usar agregados e raiz de agregado; comandos expressam intenção de negócio.
 - **TDD** ([tdd-test-driven-development.mdc](.cursor/rules/tdd-test-driven-development.mdc)): testes protegem refatoração do domínio; camadas internas testáveis por interfaces e injeção de dependência.
+- **Angular Frontend** ([angular-frontend.mdc](.cursor/rules/angular-frontend.mdc)): aplica DDD e linguagem ubíqua no frontend Angular de forma proporcional; `domain/` com conteúdo real quando a UI manipular conceitos de domínio.
 
