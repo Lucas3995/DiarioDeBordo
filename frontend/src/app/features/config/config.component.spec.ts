@@ -1,5 +1,4 @@
-import { TestBed } from '@angular/core/testing';
-import { ComponentFixture } from '@angular/core/testing';
+import { TestBed, ComponentFixture, fakeAsync, tick } from '@angular/core/testing';
 import { ConfigComponent } from './config.component';
 import { ApiConfigService } from '../../core/api-config.service';
 
@@ -46,14 +45,11 @@ describe('ConfigComponent', () => {
       expect(component.message).toBe('URL salva.');
     });
 
-    it('should clear the message after 3 seconds', (done) => {
-      jasmine.clock().install();
+    it('should clear the message after 3 seconds', fakeAsync(() => {
       component.save();
       expect(component.message).toBe('URL salva.');
-      jasmine.clock().tick(3001);
+      tick(3001);
       expect(component.message).toBe('');
-      jasmine.clock().uninstall();
-      done();
-    });
+    }));
   });
 });
