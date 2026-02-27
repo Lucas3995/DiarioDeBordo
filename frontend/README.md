@@ -108,7 +108,7 @@ A aplicação fica em **http://localhost:4200**.
 npm run build
 ```
 
-Artefatos em `dist/frontend/browser/`.
+Artefatos em `dist/frontend/`.
 
 ### Testes
 
@@ -144,15 +144,49 @@ O valor é armazenado no **localStorage** do navegador e usado por serviços que
 
 ---
 
-## One-click com Docker
+## Execução via containerização (one-click)
 
-Para subir o frontend em container (sem instalar Node localmente):
+O frontend pode ser executado **sem instalar Node.js** na máquina, usando Docker. Estratégia **one-click**: um único comando na raiz do repositório sobe o container, faz o build da aplicação e expõe a interface na porta 4200.
+
+### Pré-requisitos
+
+- **Docker** e **Docker Compose** instalados (ex.: [Docker Desktop](https://www.docker.com/products/docker-desktop/)).
+
+### One-click: subir o frontend
+
+Na **raiz do repositório** (não dentro de `frontend/`):
 
 ```bash
-# Na raiz do repositório
-docker-compose -f docker/docker-compose.yml up -d
+docker compose -f docker/docker-compose.yml up -d --build
 ```
 
-O frontend fica disponível em **http://localhost:4200**. Configure a URL da API em **Configurações** após abrir a aplicação.
+- **`up -d`** — sobe o serviço em segundo plano (detached).
+- **`--build`** — garante que a imagem seja (re)construída com o código atual (útil na primeira vez ou após alterações).
+
+O primeiro build pode levar alguns minutos (download da imagem Node, `npm ci`, `ng build`). Os seguintes tendem a ser mais rápidos por uso de cache.
+
+### Acesso à aplicação
+
+- **URL:** [http://localhost:4200](http://localhost:4200)
+- A porta **4200** do host é mapeada para a porta 80 do nginx dentro do container.
+
+Após abrir no navegador, configure a URL da API em **Configurações** (menu da aplicação), se necessário.
+
+### Comandos úteis
+
+| Objetivo | Comando (na raiz do repo) |
+|----------|---------------------------|
+| Subir (e construir se precisar) | `docker compose -f docker/docker-compose.yml up -d --build` |
+| Parar o container | `docker compose -f docker/docker-compose.yml down` |
+| Ver logs | `docker compose -f docker/docker-compose.yml logs -f frontend` |
+| Reconstruir após mudar código | `docker compose -f docker/docker-compose.yml up -d --build` |
+
+### O que acontece no one-click
+
+1. O **Dockerfile** do frontend (multi-stage) usa Node 22 para instalar dependências e rodar `ng build`.
+2. O resultado do build é copiado para uma imagem **nginx:alpine**, que serve os arquivos estáticos.
+3. O **docker-compose** orquestra o build e a exposição da porta 4200.
+
+Não é necessária variável de ambiente no container para a URL da API; ela é configurada em tela pelo usuário admin (localStorage).
 
 Detalhes do Docker e do repositório estão no [README principal](../README.md).
