@@ -1,11 +1,12 @@
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ApiConfigService } from '../../core/api-config.service';
+import { LoginFormComponent } from '../auth/login-form.component';
 
 @Component({
   selector: 'app-config',
   standalone: true,
-  imports: [FormsModule],
+  imports: [FormsModule, LoginFormComponent],
   templateUrl: './config.component.html',
   styleUrl: './config.component.scss',
 })

@@ -103,6 +103,7 @@ Endpoints disponíveis:
 | `GET /health` | — | Health check básico |
 | `GET /status` | — | Versão, ambiente e hora do servidor |
 | `POST /echo` | — | Exemplo CQRS: ecoa mensagem (valida FluentValidation) |
+| `POST /api/auth/login` | — | Autentica usuário e retorna JWT (ver seção Autenticação) |
 | `GET /api/obras` | JWT Bearer | Lista obras paginadas (módulo Acompanhamento) |
 | `GET /openapi/v1.json` | — | Documento OpenAPI (apenas em Development) |
 | `GET /scalar/v1` | — | UI Scalar (apenas em Development) |
@@ -226,6 +227,70 @@ Resposta (200 OK):
 ### Seed de dados (Development)
 
 Em `ASPNETCORE_ENVIRONMENT=Development`, a aplicação popula automaticamente a tabela `Obras` com 12 registros de exemplo (equivalentes ao mock do frontend) na primeira inicialização quando a tabela estiver vazia.
+
+---
+
+## Módulo — Autenticação
+
+### Endpoint
+
+`POST /api/auth/login` (público — não requer `Authorization`)
+
+Request body:
+
+```json
+{
+  "login": "admin",
+  "senha": "camaradinha@123"
+}
+```
+
+Respostas:
+
+| Código | Significado |
+|--------|-------------|
+| 200 OK | Autenticação bem-sucedida — retorna token JWT |
+| 401 Unauthorized | Credenciais inválidas |
+| 400 Bad Request | Validação falhou (login/senha vazios ou muito longos) |
+
+Exemplo de resposta 200:
+
+```json
+{
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "expiresAt": "2026-02-28T05:46:38Z",
+  "requer2FA": false,
+  "sucesso": true,
+  "erro": null
+}
+```
+
+### Modelo de domínio — Usuario
+
+| Campo | Tipo | Descrição |
+|-------|------|-----------|
+| `Id` | Guid | Identificador único |
+| `Login` | string (max 100) | Nome de login (dado pessoal — LGPD) |
+| `SenhaHash` | string | Hash BCrypt (work factor 12) — nunca exposto em DTOs/logs |
+| `Ativo` | bool | Indica se o usuário pode autenticar |
+| `Requer2FA` | bool | Indica se o segundo fator é necessário (ver nota abaixo) |
+| `Perfil` | Perfil (enum) | Admin, Usuario |
+
+### Seed do usuário admin (Development)
+
+Em `ASPNETCORE_ENVIRONMENT=Development`, na primeira inicialização, é criado automaticamente:
+
+- **login:** `admin`
+- **senha:** `camaradinha@123`
+- **Requer2FA:** `false` (para facilitar o desenvolvimento)
+
+> **Nota de segurança:** O campo `Requer2FA = false` no admin é aceitável apenas para desenvolvimento.
+> Antes de expor para produção, habilitar 2FA via `HabilitarSegundoFator()` e implementar verificação TOTP (fase futura).
+> A senha é armazenada como hash BCrypt (work factor 12) — nunca em texto claro.
+
+### Mensagem de erro genérica (anti-enumeração)
+
+O endpoint retorna sempre `"Credenciais inválidas."` em caso de falha, sem distinguir entre "login não encontrado" e "senha incorreta", impedindo ataques de enumeração de usuários.
 
 ---
 

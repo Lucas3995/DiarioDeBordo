@@ -1,5 +1,6 @@
 using DiarioDeBordo.Api.Middleware;
 using DiarioDeBordo.Application;
+using DiarioDeBordo.Application.Auth;
 using DiarioDeBordo.Infrastructure;
 using DiarioDeBordo.Persistence;
 using DiarioDeBordo.Persistence.Seed;
@@ -31,7 +32,7 @@ builder.Services.AddCors(options =>
 builder.Services.AddControllers();
 
 builder.Services.AddApplication();
-builder.Services.AddInfrastructure();
+builder.Services.AddInfrastructure(builder.Configuration);
 
 var skipPersistence = builder.Environment.IsEnvironment("Testing");
 if (!skipPersistence)
@@ -97,7 +98,12 @@ if (app.Environment.IsDevelopment())
     using var scope = app.Services.CreateScope();
     var dbContext = scope.ServiceProvider.GetService<DiarioDeBordoDbContext>();
     if (dbContext is not null)
+    {
         await ObrasSeed.AplicarAsync(dbContext);
+
+        var passwordHasher = scope.ServiceProvider.GetRequiredService<IPasswordHasher>();
+        await UsuariosSeed.AplicarAsync(dbContext, passwordHasher);
+    }
 }
 
 if (app.Environment.IsDevelopment())

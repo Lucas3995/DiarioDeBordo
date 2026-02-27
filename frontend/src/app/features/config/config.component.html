@@ -12,19 +12,32 @@
   />
 </div>
 
-<div class="config-field">
-  <label for="jwtToken">Token JWT (Bearer):</label>
-  <input
-    id="jwtToken"
-    type="password"
-    [(ngModel)]="jwtToken"
-    placeholder="eyJhbGciOi..."
-    (blur)="save()"
-  />
-  <small>Obtido via endpoint de autenticação do backend. Necessário para acessar as rotas protegidas.</small>
-</div>
+<section class="config-section">
+  <h3 class="config-section__title">Autenticação</h3>
+  <p class="config-section__desc">
+    Autentique-se abaixo para obter o token automaticamente.
+    O token é salvo e utilizado nas requisições às rotas protegidas.
+  </p>
+  <app-login-form />
+</section>
 
-<button type="button" (click)="save()">Salvar</button>
-@if (message) {
-  <p class="message">{{ message }}</p>
-}
+<section class="config-section">
+  <h3 class="config-section__title">Token manual</h3>
+  <p class="config-section__desc">
+    Caso prefira, insira o token JWT manualmente (obtido via <code>POST /api/auth/login</code>).
+  </p>
+  <div class="config-field">
+    <label for="jwtToken">Token JWT (Bearer):</label>
+    <input
+      id="jwtToken"
+      type="password"
+      [(ngModel)]="jwtToken"
+      placeholder="eyJhbGciOi..."
+      (blur)="save()"
+    />
+  </div>
+  <button type="button" (click)="save()">Salvar token manualmente</button>
+  @if (message) {
+    <p class="message">{{ message }}</p>
+  }
+</section>
