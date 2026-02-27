@@ -123,14 +123,45 @@ Mantenha os testes legíveis organizando-os em três blocos claros:
 
 ---
 
-## 10. Regras duras
+## 10. Testes em frontends SPA (Angular, React, etc.)
+
+### Proporcionalidade e trade-off
+
+Aplicar TDD em frontends exige ponderar o trade-off entre cobertura e custo de manutenção. A regra não é "um teste por arquivo", mas "teste onde há risco ou lógica relevante".
+
+### O que testar prioritariamente
+
+- **Serviços com lógica ou efeitos** (persistência em localStorage, chamadas HTTP, configuração, validação): ao menos um teste cobrindo o comportamento crítico e os casos de borda.
+- **Componentes de página (features)** com lógica própria (formulários, validação, chamadas a serviços): ao menos um teste de criação e um de comportamento essencial.
+- **Casos de uso e serviços de aplicação**: testes unitários isolando lógica de negócio; mockar infraestrutura.
+
+### O que pode ser coberto de forma proporcional
+
+- **Componentes puramente presentacionais e triviais** (ex.: wrappers de layout sem lógica): podem ser cobertos por testes e2e ou ter cobertura unitária postergada sem bloquear PR; o custo de manter spec isolado pode superar o benefício.
+- **Shell e navegação**: testes e2e capturam esses fluxos melhor do que unitários de componente vazio.
+
+### Checklist para novos componentes/serviços Angular
+
+Antes de considerar um componente ou serviço "pronto para PR":
+
+- [ ] **Este componente/serviço tem lógica ou efeitos** (persistência, HTTP, validação, estado)?
+  - Sim → escreva ao menos um teste unitário antes do código (TDD).
+  - Não (puramente presentacional/trivial) → pode ser coberto em e2e ou na próxima iteração.
+- [ ] O teste valida **comportamento** (o quê), não detalhes de implementação (o como)?
+- [ ] O serviço com efeitos tem teste cobrindo o **caminho feliz** e ao menos um **caso de erro**?
+
+> Aplique exigências de teste de forma proporcional; evite overengineering com testes que não capturam regras ou riscos relevantes.
+
+---
+
+## 11. Regras duras
 
 - **Nunca** deixe um teste (unitário ou de integração) falhando "porque o ambiente está instável". Ou o ambiente é estável, ou o teste é removido/consertado.
 - **Nunca** entregue funcionalidade sem **testes unitários e testes de integração** criados conforme este guia.
 
 ---
 
-## 11. Checklists para a IA
+## 12. Checklists para a IA
 
 ### Ao criar nova funcionalidade
 
@@ -149,6 +180,8 @@ Mantenha os testes legíveis organizando-os em três blocos claros:
 
 ---
 
-## 12. Relação com outras regras
+## 13. Relação com outras regras
 
 Este guia **complementa** as regras de **Arquitetura Limpa** ([clean-architecture.mdc](.cursor/rules/clean-architecture.mdc)) e **DDD** ([ddd-domain-driven-design.mdc](.cursor/rules/ddd-domain-driven-design.mdc)) do projeto. A suíte de testes protege a refatoração e as dependências invertidas; código testável é sinal de bom design. Mantenha as camadas internas testáveis por interfaces e injeção de dependência.
+
+- **Angular Frontend** ([angular-frontend.mdc](.cursor/rules/angular-frontend.mdc)): detalha o checklist de testes para componentes e serviços Angular, com critérios de proporcionalidade (o que testar prioritariamente vs. o que pode ser postergado).

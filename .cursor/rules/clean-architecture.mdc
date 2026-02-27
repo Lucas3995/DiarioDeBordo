@@ -156,9 +156,28 @@ Considere sempre quatro camadas conceituais:
 
 ---
 
-## 6. Checklists para a IA
+## 6. Implementação efetiva vs. estrutura de pastas
 
-### 6.1 Ao criar nova funcionalidade
+Adotar Clean Architecture significa **implementar** as camadas com conteúdo real, não apenas criar pastas vazias como checklist de conformidade.
+
+### 6.1 O problema da "aderência apenas aparente"
+
+- **Não basta ter as pastas**: criar `domain/`, `application/`, `infrastructure/` sem código algum dentro é pior do que uma estrutura mais simples e honesta; transmite falsa segurança e dificulta diagnósticos.
+- **Camada criada = camada usada**: se uma camada foi introduzida, ela deve conter elementos que representem seu papel (modelos, casos de uso, adaptadores concretos). Camadas sem código devem ser removidas até que o projeto as demande.
+- **Declaração de aderência**: só afirme que o projeto segue Clean Architecture quando as camadas internas (Entidades e Casos de Uso) existirem e forem usadas de fato, inclusive no frontend.
+
+### 6.2 Proporcionalidade e trade-off (evitar overengineering)
+
+- **Projeto pequeno ou em fase inicial**: é aceitável uma estrutura mais plana (ex.: apenas `core/` e `features/`). Não introduzir camadas intermediárias antes de haver necessidade real — o custo de manutenção deve ser justificado pelo benefício.
+- **Projeto em crescimento**: quando surgirem múltiplas features, integração com API e regras de negócio na UI, aí sim introduzir `application/` e `infrastructure/` com conteúdo real.
+- **Regra de ouro**: "Se você criou as pastas, use-as. Se ainda não precisa delas, não as crie só por checklist."
+- Aplique cada exigência de camada de forma proporcional ao tamanho e à complexidade do módulo; evite estrutura cujo custo de manutenção supere o benefício no contexto atual.
+
+---
+
+## 7. Checklists para a IA
+
+### 7.1 Ao criar nova funcionalidade
 
 Confirme sempre:
 
@@ -186,7 +205,7 @@ Confirme sempre:
    - Consumidores dependem apenas do que realmente usam? (CRP)
    - O componente faz sentido como unidade de reúso/publicação? (REP)
 
-### 6.2 Ao refatorar código existente
+### 7.2 Ao refatorar código existente
 
 - Separe responsabilidades múltiplas por **atores/roles** e por **camadas**.
 - Remova dependências indevidas das regras de negócio para:
@@ -199,7 +218,7 @@ Confirme sempre:
 
 ---
 
-## 7. Regras duras (NUNCA viole)
+## 8. Regras duras (NUNCA viole)
 
 Ao gerar ou refatorar código, **não faça**:
 
@@ -216,10 +235,11 @@ Se parecer necessário violar qualquer princípio SOLID ou a direção de depend
 
 ---
 
-## 8. Relação com outras regras
+## 9. Relação com outras regras
 
 - **DDD** ([ddd-domain-driven-design.mdc](.cursor/rules/ddd-domain-driven-design.mdc)): entidades e agregados vivem nas camadas internas (Entidades e Casos de Uso).
 - **CQRS** ([cqrs-command-query-responsibility-segregation.mdc](.cursor/rules/cqrs-command-query-responsibility-segregation.mdc)): comandos e queries como Casos de Uso; adaptadores na borda.
 - **TDD** ([tdd-test-driven-development.mdc](.cursor/rules/tdd-test-driven-development.mdc)): testes protegem dependências invertidas; código testável é sinal de bom design.
 - **LGPD / DevSecOps** ([protecao-dados-lgpd-seguranca.mdc](.cursor/rules/protecao-dados-lgpd-seguranca.mdc), [devsecops.mdc](.cursor/rules/devsecops.mdc)): segredos e dados sensíveis nas bordas (adaptadores/infraestrutura), não no domínio.
+- **Angular Frontend** ([angular-frontend.mdc](.cursor/rules/angular-frontend.mdc)): aplica as camadas da Clean Architecture ao frontend Angular de forma proporcional; implementação efetiva, não apenas estrutura de pastas.
 

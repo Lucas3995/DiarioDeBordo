@@ -1,0 +1,99 @@
+name: Backend Deploy (Serverless)
+
+# Trigger em push na branch main após CI verde.
+# Secrets necessários (configurar em Settings > Secrets and variables > Actions):
+#   - AWS_ACCESS_KEY_ID        : chave de acesso AWS
+#   - AWS_SECRET_ACCESS_KEY    : chave secreta AWS
+#   - AWS_REGION               : região AWS (ex.: us-east-1)
+#   - DB_CONNECTION_STRING     : connection string do PostgreSQL de produção (TLS obrigatório)
+#   - JWT_KEY                  : chave JWT de produção (mínimo 32 bytes)
+#   - JWT_ISSUER               : issuer JWT de produção
+#   - JWT_AUDIENCE             : audience JWT de produção
+#
+# NUNCA commitar valores reais nos campos acima. Usar exclusivamente GitHub Secrets.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'backend/**'
+  workflow_dispatch:
+
+defaults:
+  run:
+    working-directory: backend
+
+jobs:
+  deploy:
+    name: Build, Publish e Deploy (AWS Serverless)
+    runs-on: ubuntu-latest
+    environment: production
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.x'
+
+      - name: Restore
+        run: dotnet restore
+
+      - name: Build Release
+        run: dotnet build --no-restore --configuration Release
+
+      - name: Testes (gate obrigatório antes do deploy)
+        run: >
+          dotnet test
+          --no-build
+          --configuration Release
+          --collect:"XPlat Code Coverage"
+        env:
+          DOTNET_ENVIRONMENT: Testing
+          Jwt__Key: ${{ secrets.JWT_KEY || 'chave-de-ci-com-tamanho-minimo-32x!' }}
+
+      - name: Publicar artefato
+        run: >
+          dotnet publish src/DiarioDeBordo.Api/DiarioDeBordo.Api.csproj
+          --no-build
+          --configuration Release
+          --output ./publish
+
+      # =====================================================================
+      # TODO: Substituir os steps abaixo pela estratégia de deploy escolhida.
+      # Opções documentadas (escolher UMA antes de implementar):
+      #
+      # Opção A — AWS Lambda com AWS Lambda .NET Tool:
+      #   - Instalar: dotnet tool install -g Amazon.Lambda.Tools
+      #   - Deploy:   dotnet lambda deploy-function DiarioDeBordo \
+      #               --region ${{ secrets.AWS_REGION }} ...
+      #
+      # Opção B — Container serverless (ECS Fargate / App Runner):
+      #   - Build da imagem Docker (Dockerfile na pasta backend/)
+      #   - Push para Amazon ECR
+      #   - Deploy via `aws ecs update-service` ou `aws apprunner update-service`
+      #
+      # Opção C — AWS Elastic Beanstalk ou outro serviço:
+      #   - Empacotar ./publish em .zip
+      #   - Fazer upload via AWS CLI / EB CLI
+      # =====================================================================
+
+      - name: "[PLACEHOLDER] Configurar credenciais AWS"
+        uses: aws-actions/configure-aws-credentials@v4
+        if: false  # Remover esta linha quando implementar
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: "[PLACEHOLDER] Deploy para AWS (substituir pela estratégia escolhida)"
+        if: false  # Remover esta linha quando implementar
+        run: echo "Implementar step de deploy aqui conforme estratégia escolhida."
+
+      - name: Health check pós-deploy
+        if: false  # Remover esta linha quando implementar
+        run: |
+          echo "Verificar URL da API após deploy:"
+          # curl -f https://<URL_DA_API>/health

@@ -48,15 +48,18 @@ flowchart LR
 ```
 DiarioDeBordo/
 ├── .github/                         # CI/CD (teste, build, deploy, secrets)
+├── backend/                         # Backend .NET 9 (ver backend/README.md)
+│   ├── DiarioDeBordo.sln
+│   ├── README.md
+│   └── src/
+│       ├── DiarioDeBordo.Api/           # Apresentação (Controllers, Middlewares)
+│       ├── DiarioDeBordo.Application/   # Casos de uso (Commands, Queries, Handlers, Validations)
+│       ├── DiarioDeBordo.Domain/        # Domínio (Entities, Value Objects, Interfaces)
+│       ├── DiarioDeBordo.Infrastructure/ # Serviços externos (email, arquivos, Flowpag, MFA)
+│       ├── DiarioDeBordo.Persistence/   # DbContext, Migrations
+│       └── DiarioDeBordo.Tests/         # Testes unitários e de integração
 ├── docker/                          # Docker Compose one-click (frontend local)
 ├── docs/                            # Documentação
-├── src/
-│   ├── DiarioDeBordo.Api/           # Apresentação (Controllers, Middlewares)
-│   ├── DiarioDeBordo.Application/   # Casos de uso (Commands, Queries, Handlers, Validations)
-│   ├── DiarioDeBordo.Domain/        # Domínio (Entities, Value Objects, Interfaces)
-│   ├── DiarioDeBordo.Infrastructure/ # Serviços externos (email, arquivos, Flowpag, MFA)
-│   ├── DiarioDeBordo.Persistence/   # DbContext, Migrations
-│   └── DiarioDeBordo.Tests/         # Testes unitários e de integração
 ├── frontend/                        # Angular 21 (on-premise na máquina do usuário)
 ├── guia                             # Guia de requisitos
 ├── README.md
@@ -123,17 +126,26 @@ Detalhes nas regras em [.cursor/rules](.cursor/rules).
 
 ### Backend (desenvolvimento local)
 
+O código e as instruções detalhadas de execução do backend estão em **[`backend/`](backend/)** — consulte o [`backend/README.md`](backend/README.md) para:
+- estrutura de projetos e camadas,
+- como configurar variáveis de ambiente (connection string, JWT),
+- como rodar migrations e subir a API,
+- fluxo de TDD para novas features.
+
+Resumo rápido:
+
 ```bash
 git clone <url-do-repositorio>
-cd DiarioDeBordo
-dotnet restore
-```
+cd DiarioDeBordo/backend
 
-Configure a connection string via variáveis de ambiente ou `appsettings` (nunca commitar senhas). Exemplo com variável de ambiente:
-
-```bash
+# Configurar variáveis (nunca commitar credenciais)
 export ConnectionStrings__DefaultConnection="Host=localhost;Database=diariodebordo;..."
-dotnet ef database update --project src/DiarioDeBordo.Persistence --startup-project src/DiarioDeBordo.Api
+export Jwt__Key="<chave-jwt-min-32-chars>"
+
+dotnet restore
+dotnet ef database update \
+  --project src/DiarioDeBordo.Persistence \
+  --startup-project src/DiarioDeBordo.Api
 dotnet run --project src/DiarioDeBordo.Api
 ```
 
@@ -159,15 +171,23 @@ Portas típicas: frontend 4200; API via URL do backend serverless. Após abrir a
 
 ### Migrations (EF Core)
 
+Execute a partir do diretório `backend/`:
+
 ```bash
 # Criar nova migration
-dotnet ef migrations add NomeDaMigration --project src/DiarioDeBordo.Persistence --startup-project src/DiarioDeBordo.Api
+dotnet ef migrations add NomeDaMigration \
+  --project src/DiarioDeBordo.Persistence \
+  --startup-project src/DiarioDeBordo.Api
 
-# Aplicar migrations (usar connection string via variável de ambiente ou secrets)
-dotnet ef database update --project src/DiarioDeBordo.Persistence --startup-project src/DiarioDeBordo.Api
+# Aplicar migrations (usar connection string via variável de ambiente)
+dotnet ef database update \
+  --project src/DiarioDeBordo.Persistence \
+  --startup-project src/DiarioDeBordo.Api
 ```
 
 **Testes (frontend):** testes unitários com Karma/Jasmine (`npm run test`), cobertura com `npm run test:coverage`; testes e2e com Playwright (`npm run e2e`). O pipeline em [.github/workflows/frontend-ci.yml](.github/workflows/frontend-ci.yml) executa lint, testes unitários, build e e2e (job e2e não bloqueante no primeiro PR).
+
+**Testes (backend):** `dotnet test` a partir de `backend/`. Ver [`backend/README.md`](backend/README.md).
 
 Nunca incluir credenciais no repositório; usar variáveis de ambiente ou GitHub Secrets no pipeline.
 
