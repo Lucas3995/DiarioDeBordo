@@ -21,7 +21,9 @@ describe('ConfigComponent', () => {
     apiConfigSpy.getToken.and.returnValue('');
 
     authServiceSpy = jasmine.createSpyObj<AuthService>('AuthService', ['login']);
-    authServiceSpy.login.and.returnValue(of({ sucesso: false }));
+    authServiceSpy.login.and.returnValue(
+      of({ sucesso: false, token: null, expiresAt: null, requer2FA: false, erro: null }),
+    );
 
     await TestBed.configureTestingModule({
       imports: [ConfigComponent],
