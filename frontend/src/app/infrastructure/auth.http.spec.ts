@@ -94,7 +94,7 @@ describe('AuthHttp', () => {
   // ────────────────── apiUrl não configurado ──────────────────
 
   it('quando apiUrl não configurado deve retornar erro sem fazer request HTTP', (done) => {
-    apiConfigSpy.getApiUrl.and.returnValue(null);
+    apiConfigSpy.getApiUrl.and.returnValue('');
 
     authHttp.login({ login: 'admin', senha: 'camaradinha@123' }).subscribe({
       error: (err) => {
