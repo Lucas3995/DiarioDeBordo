@@ -1,11 +1,14 @@
 import { TestBed, ComponentFixture, fakeAsync, tick } from '@angular/core/testing';
+import { of } from 'rxjs';
 import { ConfigComponent } from './config.component';
 import { ApiConfigService } from '../../core/api-config.service';
+import { AuthService } from '../../application/auth.service';
 
 describe('ConfigComponent', () => {
   let fixture: ComponentFixture<ConfigComponent>;
   let component: ConfigComponent;
   let apiConfigSpy: jasmine.SpyObj<ApiConfigService>;
+  let authServiceSpy: jasmine.SpyObj<AuthService>;
 
   beforeEach(async () => {
     apiConfigSpy = jasmine.createSpyObj<ApiConfigService>('ApiConfigService', [
@@ -17,9 +20,15 @@ describe('ConfigComponent', () => {
     apiConfigSpy.getApiUrl.and.returnValue('https://api.initial.com');
     apiConfigSpy.getToken.and.returnValue('');
 
+    authServiceSpy = jasmine.createSpyObj<AuthService>('AuthService', ['login']);
+    authServiceSpy.login.and.returnValue(of({ sucesso: false }));
+
     await TestBed.configureTestingModule({
       imports: [ConfigComponent],
-      providers: [{ provide: ApiConfigService, useValue: apiConfigSpy }],
+      providers: [
+        { provide: ApiConfigService, useValue: apiConfigSpy },
+        { provide: AuthService, useValue: authServiceSpy },
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(ConfigComponent);
