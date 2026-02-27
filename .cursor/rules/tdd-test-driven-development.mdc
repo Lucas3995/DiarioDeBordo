@@ -158,6 +158,7 @@ Antes de considerar um componente ou serviço "pronto para PR":
 
 - **Nunca** deixe um teste (unitário ou de integração) falhando "porque o ambiente está instável". Ou o ambiente é estável, ou o teste é removido/consertado.
 - **Nunca** entregue funcionalidade sem **testes unitários e testes de integração** criados conforme este guia.
+- **Nunca** fazer push ou abrir PR com a suíte de testes local falhando. Executar `npm run test` (frontend) ou `dotnet test` (backend) localmente antes de qualquer `git push`. O CI é a segunda linha de defesa, não a primeira.
 
 ---
 
@@ -171,12 +172,15 @@ Antes de considerar um componente ou serviço "pronto para PR":
 - [ ] **Foram criados testes unitários e testes de integração** para essa funcionalidade?
 - [ ] O teste valida **comportamento** (o quê), não detalhes de implementação (o como)?
 - [ ] O teste de integração foca na comunicação entre módulos e tem setup automatizado?
+- [ ] A suíte de testes foi executada localmente e está verde antes do push?
 
 ### Ao refatorar código existente
 
 - [ ] A suíte de testes está verde antes de começar?
 - [ ] Após a refatoração, **unitários e integração** continuam cobrindo o comportamento relevante?
 - [ ] Nenhum teste foi deixado falhando por "ambiente instável"?
+- [ ] Ao alterar o contrato público de um componente ou serviço (constructor, métodos, propriedades), o spec correspondente foi atualizado na mesma sessão?
+- [ ] A suíte de testes foi executada localmente e está verde antes do push?
 
 ---
 
