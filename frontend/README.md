@@ -2,6 +2,8 @@
 
 Aplicação Angular 21 que segue **Clean Architecture**, **DDD** e **modularização** (feature modules, core, shared). Execução **on-premise** na máquina do usuário; consome a API do backend (URL configurável em tela pelo admin).
 
+> **Convenções de código**: componentes Angular usam **`templateUrl` + `styleUrl`** com arquivos `.html` e `.scss` dedicados por padrão. A arquitetura de camadas (`domain/`, `application/`, `infrastructure/`) é introduzida de forma progressiva quando o conteúdo real justificar — não como estrutura de pastas vazia. Detalhes em [.cursor/rules/angular-frontend.mdc](../.cursor/rules/angular-frontend.mdc).
+
 ---
 
 ## Tecnologias
