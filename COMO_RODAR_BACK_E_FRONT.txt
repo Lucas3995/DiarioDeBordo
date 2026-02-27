@@ -23,7 +23,9 @@ Diretório: qualquer lugar
    sudo bash -c "echo \"listen_addresses = '*'\" >> /etc/postgresql/16/main/postgresql.conf"
 
 2. Adicionar permissão para a rede Docker em pg_hba.conf:
-   sudo bash -c "echo \"host    all    postgres    172.17.0.0/16    scram-sha-256\" >> /etc/postgresql/16/main/pg_hba.conf"
+   sudo bash -c "echo \"host    all    postgres    172.0.0.0/8    scram-sha-256\" >> /etc/postgresql/16/main/pg_hba.conf"
+   (172.0.0.0/8 cobre todas as subnets criadas pelo Docker Compose, que variam dinamicamente
+    entre 172.17.x, 172.18.x, 172.19.x etc.)
 
 3. Reiniciar o PostgreSQL:
    sudo systemctl restart postgresql
