@@ -21,6 +21,8 @@ Aplicação Angular 21 que segue **Clean Architecture**, **DDD** e **modulariza�
 
 Direção de dependência: **Frameworks → Adaptadores → Casos de Uso → Entidades**.
 
+> **Estado atual**: apenas as camadas de Frameworks e Drivers (`core/`, `features/`, `shared/`) estão ativas. As camadas de Adaptadores, Casos de Uso e Entidades serão preenchidas progressivamente quando features de domínio (obras, partes, situações) forem implementadas.
+
 ```mermaid
 flowchart TB
   subgraph frameworks [Frameworks e Drivers]
@@ -47,12 +49,11 @@ flowchart TB
 
 | Camada        | Pasta              | Conteúdo |
 |---------------|--------------------|----------|
-| Entidades     | `app/domain/`      | Modelos de domínio, value objects, interfaces (sem Angular/HTTP). |
-| Casos de Uso  | `app/application/` | Serviços de aplicação; dependem de interfaces do domain. |
-| Adaptadores   | `app/infrastructure/` | Implementações HTTP, repositórios, DTOs. |
 | Core          | `app/core/`        | Singletons: configuração (ex.: URL da API), guards, interceptors. |
 | Shared        | `app/shared/`      | Componentes, pipes e diretivas reutilizáveis. |
-| Features      | `app/features/`    | Um subdiretório por feature (home, config, …) com módulo e rotas. |
+| Features      | `app/features/`    | Um subdiretório por feature (home, config, …) com componente, rotas e testes. |
+
+> **Camadas futuras**: `app/domain/`, `app/application/` e `app/infrastructure/` serão introduzidas quando existirem modelos de domínio (Obra, Parte, Situação) e chamadas à API no frontend. Nesse momento, serviços de page devem migrar para essas camadas conforme [.cursor/rules/angular-frontend.mdc](../.cursor/rules/angular-frontend.mdc). Enquanto não existirem, essas pastas não são criadas (evitar estruturas vazias).
 
 ---
 
@@ -62,22 +63,33 @@ flowchart TB
 frontend/
 ├── src/
 │   ├── app/
-│   │   ├── core/           # Serviços singleton (ex.: ApiConfigService)
-│   │   ├── shared/         # Componentes/pipes/diretivas compartilhados
-│   │   ├── domain/         # Entidades, value objects, interfaces
-│   │   ├── application/    # Casos de uso
-│   │   ├── infrastructure/ # Adaptadores (HTTP, repositórios, DTOs)
+│   │   ├── core/                   # Serviços singleton (ex.: ApiConfigService)
+│   │   │   ├── api-config.service.ts
+│   │   │   └── api-config.service.spec.ts
+│   │   ├── shared/                 # Componentes/pipes/diretivas compartilhados
 │   │   ├── features/
-│   │   │   ├── home/       # Página inicial
-│   │   │   └── config/     # Configurações admin (URL da API)
+│   │   │   ├── home/               # Página inicial
+│   │   │   │   ├── home.component.ts
+│   │   │   │   ├── home.component.html
+│   │   │   │   ├── home.component.scss
+│   │   │   │   └── home.routes.ts
+│   │   │   └── config/             # Configurações admin (URL da API)
+│   │   │       ├── config.component.ts
+│   │   │       ├── config.component.html
+│   │   │       ├── config.component.scss
+│   │   │       ├── config.component.spec.ts
+│   │   │       └── config.routes.ts
 │   │   ├── app.config.ts
 │   │   ├── app.routes.ts
-│   │   └── app.component.ts
+│   │   ├── app.component.ts
+│   │   ├── app.component.html
+│   │   ├── app.component.scss
+│   │   └── app.component.spec.ts
 │   ├── assets/
 │   ├── index.html
 │   ├── main.ts
 │   └── styles.scss
-├── e2e/                    # Testes Playwright
+├── e2e/                            # Testes Playwright
 ├── angular.json
 ├── package.json
 ├── tsconfig.json
