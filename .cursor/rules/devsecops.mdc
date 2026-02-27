@@ -51,6 +51,15 @@ Não deixe o projeto sem mecanismo automatizado de teste, build, deploy e gestã
 - "Gates obrigatórios" significa: se existirem testes, eles **devem passar**; não exigir um número mínimo arbitrário de specs, mas sim que o conjunto existente esteja verde.
 - **PRs que criam novas camadas** (ex.: `domain/`, `application/`, `infrastructure/` no frontend) devem trazer uso efetivo dessas camadas no mesmo PR ou justificar explicitamente o adiamento; evitar estruturas mortas (pastas vazias declaradas como "em conformidade").
 
+### Monitoramento de jobs paralelos no CI
+
+Workflows podem executar jobs em paralelo com comportamentos diferentes:
+
+- **Jobs críticos** (sem `continue-on-error`): falha bloqueia o workflow e o merge. Agir imediatamente ao detectar falha, sem aguardar jobs opcionais ainda em andamento.
+- **Jobs opcionais** (`continue-on-error: true`): falha é informacional; nunca bloqueiam PR. Aguardá-los somente após os críticos estarem verdes, apenas para relato.
+
+Ao monitorar CI (ex.: com `gh run watch`), priorizar jobs críticos. Se um job crítico falhar, diagnosticar e corrigir antes de se preocupar com o status de jobs opcionais.
+
 ### Pre-commit hook (barreira local obrigatória)
 
 O CI é a segunda linha de defesa; a primeira é o ambiente local. O projeto deve configurar um hook de pre-commit para bloquear commits com testes ou lint falhando:

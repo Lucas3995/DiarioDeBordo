@@ -138,22 +138,41 @@ gh run list --branch "$BRANCH" --limit 20
 
 Se nenhum run aparecer ainda (GitHub Actions pode demorar alguns segundos para enfileirar), aguardar ~10s e repetir.
 
-### 4.2 Aguardar cada run pendente
+### 4.2 Monitorar runs em paralelo — críticos antes de opcionais
 
-Para cada run com status `in_progress` ou `queued`, executar:
+Os workflows deste projeto disparam jobs em paralelo. Classificar antes de aguardar:
+
+| Job | Tipo | Critério |
+|---|---|---|
+| `lint-build-test` | **crítico** | sem `continue-on-error` — falha bloqueia o workflow |
+| `e2e` | **opcional** | `continue-on-error: true` — falha é informacional, nunca bloqueia PR |
+
+**Passo a passo:**
+
+1. Identificar os IDs dos jobs críticos vs opcionais da listagem do passo 4.1.
+
+2. Assistir **apenas os jobs críticos** primeiro:
 
 ```bash
-gh run watch <run-id>
+gh run watch <run-id-critico>
 ```
 
-Se houver múltiplos runs pendentes, executar para cada ID. Obter IDs com:
+3. Se um job crítico terminar com **falha**:
+   - **Agir imediatamente** — obter logs via `gh run view <run-id> --log-failed`.
+   - **Não aguardar** os jobs opcionais ainda em andamento.
+   - Diagnosticar, corrigir, fazer novo push e retornar ao passo 4.1.
+
+4. Se todos os jobs críticos terminaram com **sucesso**:
+   - Verificar se algum job opcional ainda está rodando.
+   - Aguardá-lo apenas para **relato informacional** (não bloqueia a entrega).
 
 ```bash
+# Obter IDs separados por tipo
 gh run list --branch "$BRANCH" --limit 20 --json databaseId,status,name \
   | jq '.[] | select(.status == "in_progress" or .status == "queued") | .databaseId'
 ```
 
-Repetir até não haver mais runs pendentes.
+Repetir até não haver mais jobs críticos pendentes.
 
 ### 4.3 Verificar resultado final
 
