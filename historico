@@ -1,0 +1,67 @@
+
+
+
+
+Quando me refiro abaixo sobre arquitetura em camadas por responsabilidade me refiro a 
+    arquitetura apresentada pelo eduardo pires no video dele "Tutorial ASP.NET MVC 5 + DDD + EF + AutoMapper + IoC + Dicas e Truques"
+    no video ele tem 5 pastas nas quais ele distribui 6 csprojs da seguinte forma
+        0 - Presentation: csproj "MVC", que é o projeto da webapi + front
+        1 - Services: a camada 0 é usada para interaces visuais para usuarios humanos. essa camada é tbm uma interface, mas para ser usada como porta de entrada para outros sistemas, automações, etc
+        2 - Application: é uma camada de intermediação entre as camadas anteriores e a camada de Dominio. Mapeia entidades externas para internas, etc.
+        3 - Domain: onde ficam as entidades, os serviços com a regra de negocio, os contratos dos repositorios e classes com regras de validação de estado
+        4 - Infra/Data/Persistance: 
+            o projeto onde vai ficar tudo relacionado ao banco e a conexao com ele. aqui é onde são implementados os contratos de repositorio da camada 3 e onde tem os ORMs
+            Aqui tbm vai o projeto de "cross cutting", que e é onde ficam os utilitarios (classes de log, cache, custom exceptions, etc) que podem ser usados por todos os outros projetos
+
+
+
+no primeiro dia tentei uma abordagem de tentar criar pastas para as camadas da clean archtecture (a partir desse momento abreviada para "*C.A.")
+    cheguei numa separação sendo o menor numero a pasta com os módulos mais isolados (centrais, imutaveis) e o maior numero os módulos mais dependentes (perifericos, volateis)
+    0 - Base
+            classes base, que podem ser utilizadas pelas camadas de caso de uso de diversas aplicações diferentes.
+    1 - Intermediação
+            no momento da escrita desse documento a minha impressao é que essa camada e a camada "2 - Processos" esta trocada
+            ao ver o doc de referencia da *C.A. essa camada (1) deveria ter os casos de uso da aplicação, os processos especificos dessa aplicação
+            e a camada 2 era pra ser uma camada de adaptação entre as camadas 1 e 3, onde ficam mappers, codigos sql, formatadores (de data, moeda, etc)
+    2 - Processos
+            a ideia era q os modulos dessa pasta representassem os processos sendo automatizados, a ordenação dos módulos presentes nas camadas anteriores para trazer alguma utilidade para usuarios
+    3 - RecursosExternos
+            o html ou angular; drivers; bancos de dados; frameworks (webs, como o dotnet; console apps; etc)
+
+no segundo dia, 
+    após pensar vi que essa abordagem ia me induzir a 
+        sair de uma arquitetura limpa com módulos baseados nas regras dos processos sendo automatizados 
+            (ex de modulos: acompanhamento de obra, informações adicionais, gestao de usuario, etc)
+        e tender pra um tipo incompleto e estranho de arquitetura em camadas com modulos baseados em responsabilidades
+            (ex de modulos: nem tem como botar aqui, pq como vai ser apresentado mais abaixo o "ObrasEmAndamento" seria uma pasta e teria csprojs dentro dela representando submodulos)
+    então tentei bolar uma arquitetura com módulos baseados nos processos e acabei com a seguinte arvore de pastas
+        InterfaceWeb
+            Backend
+                Dotnet.WebApi
+        ObrasEmAcompanhamento
+            Entidades
+            Processos
+            Repositorio
+    a ideia aqui era que 
+        1. a pasta seria um módulo composto de submodulos, 
+        2. nome da pasta representaria a ideia do modulo 
+        3. os submodulos seriam, cada um, uma camada da *C.A.
+    tive problemas em planejar isso, me vi arranjando desculpas para criar módulos a fim de popular cada uma das camadas independente de serem precisos ou nao.
+    eu tinha muito claro que precisaria de 
+        um csproj pra guardar a entidade Obra, 
+        um csproj pra servir de repositorio, pra gerenciar a lista de obras
+        um csproj pra servir de API
+    e me senti obrigado a criar mais um csproj entre a api e o repositorio (por isso a criação do csproj "processos")
+    não gostei do resultado e não consegui deixar de pensar que essa abordagem não fazia sentido principalmente por jogar um csproj de entidades dentro da pasta de ObrasEmAndamento
+    e se eu precisasse da entidade de obra em outra parte? eu provavelmente vou ter outras partes usando ela.
+
+terceiro dia
+    parei pra refletir e cheguei a 2 conclusões
+        1. não tenho maturidade suficiente com arquitetura ainda pra prever antes de ter algum código feito quais pastas e csprojs vai ser preciso criar
+        2. a arvore de pastas, como o Martin ja tinha avisado no livro da *C.A. dele, não relação com a organização de módulos. 
+    eu estava tentando amarrar a arquitetura a uma organização de pastas e isso estava me confundindo. 
+    as pastas só vão servir depois pra dar uma agrupada nos modulos ou algo assim, não devem ser base para nada
+    além disso, é mais produtivo nesse momento eu começar pelas telas mesmo, num angular e depois quando precisar preencher as telas com dados do back ir fazer ele
+    inicialmente com uma arquitetura em camadas por responsabilidade e depois ir tirando delas os módulos finais
+    assim eu consigo iniciar rapido e em uma arquitetura que eu ja conheço e ir migrando pra *C.A. conforme vou trabalhando no projeto
+

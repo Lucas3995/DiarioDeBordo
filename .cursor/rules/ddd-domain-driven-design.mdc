@@ -1,0 +1,119 @@
+---
+description: Orienta a IA a escrever e refatorar código guiado por Domain-Driven Design (DDD)
+alwaysApply: true
+---
+
+# Domain-Driven Design (DDD) para escrita e refatoração de código
+
+Quando esta regra estiver ativa, você (IA) deve se comportar como um **assistente técnico especialista em DDD**, priorizando o domínio de negócio acima de frameworks, bancos de dados ou detalhes de infraestrutura.
+
+## Princípios estratégicos
+
+- **Foco no domínio**
+  - Trate o domínio de negócio como a razão principal do software existir.
+  - Antes de propor código, responda implicitamente: “Que regra ou processo de negócio isso representa?”.
+
+- **Linguagem Ubíqua**
+  - Use os mesmos termos que especialistas do negócio usam para nomear classes, métodos, módulos, eventos, comandos, DTOs e tabelas.
+  - Evite nomes genéricos (`Manager`, `Helper`, `Utils`) quando houver termos de domínio disponíveis.
+  - Resolva ambiguidades por **contexto delimitado** (por exemplo, `Usuario` em autenticação, `Cliente` em financeiro).
+
+- **Contextos Delimitados (Bounded Contexts)**
+  - Quando o domínio for amplo, proponha Bounded Contexts claros (por exemplo, `Biblioteca`, `Faturamento`, `Logistica`).
+  - Evite misturar regras e termos de contextos diferentes na mesma camada de domínio.
+
+## Building blocks táticos
+
+Ao modelar ou refatorar código, prefira estes blocos de construção:
+
+- **Entidades (Entities)**
+  - Possuem identidade estável (ex.: `Usuario`, `Livro`, `Pedido`).
+  - Contêm regras de negócio e invariantes locais.
+  - Devem ser independentes de detalhes de persistência (sem SQL/ORM/HTTP dentro da entidade).
+
+- **Objetos de Valor (Value Objects)**
+  - São imutáveis e definidos apenas por seus atributos (ex.: `Endereco`, `CPF`, `Dinheiro`, `Email`).
+  - Devem encapsular validações e formatações relativas ao valor.
+  - Use-os para substituir grupos recorrentes de tipos primitivos sem semântica.
+
+- **Serviços de Domínio (Domain Services)**
+  - Implementam operações de negócio que não pertencem claramente a uma única entidade ou Objeto de Valor.
+  - Devem ser `stateless`, recebendo tudo por parâmetros e retornos.
+  - Use-os especialmente quando regras envolverem múltiplos agregados.
+
+- **Agregados (Aggregates)**
+  - São conjuntos coerentes de entidades e Objetos de Valor vistos como uma unidade de consistência.
+  - Devem ter uma raiz de agregado (Aggregate Root) como única porta de entrada para código externo.
+  - Preserve invariantes do domínio ao modificar o agregado.
+
+- **Repositórios (Repositories)**
+  - São abstrações para persistir e recuperar entidades/agregados.
+  - Devem expor operações orientadas ao domínio (`findBy...`, `save`, `update`, `delete`) e esconder detalhes técnicos.
+  - Evite espalhar consultas de baixo nível pelo domínio; concentre-as em repositórios.
+
+## Ao escrever NOVO código
+
+Antes de gerar novo código, siga este checklist:
+
+1. **Identifique o domínio e o contexto delimitado**
+   - Deixe claro qual é o domínio (ex.: biblioteca, faturamento, logística).
+   - Identifique ou proponha um Bounded Context apropriado.
+
+2. **Aplique a Linguagem Ubíqua**
+   - Reutilize termos fornecidos em requisitos, user stories ou glossário.
+   - Use esses termos para nomear entidades, Objetos de Valor, serviços de domínio, eventos e rotas.
+
+3. **Modele entidades, Objetos de Valor e agregados**
+   - Separe o que é entidade (tem identidade) do que é Objeto de Valor (só estado).
+   - Defina agregados e sua raiz, codificando invariantes dentro do agregado.
+
+4. **Separe domínio de tecnologia**
+   - Coloque regras de negócio em entidades, VOs e serviços de domínio.
+   - Deixe detalhes técnicos (controllers, HTTP, ORM, fila, etc.) em camadas de aplicação/infraestrutura.
+
+5. **Explicite invariantes e regras de negócio**
+   - Codifique regras como “máximo de N empréstimos ativos”, “reserva de no máximo três itens” etc.
+   - Prefira expressar essas regras em métodos de domínio, não em controladores.
+
+## Ao REFATORAR código existente
+
+Quando refatorar, busque aproximar o código de um bom modelo de domínio:
+
+1. **Tornar explícitos conceitos de domínio**
+   - Substitua grupos de campos primitivos por Objetos de Valor (ex.: `Endereco`, `Periodo`, `Dinheiro`).
+   - Extraia entidades quando um conceito tiver identidade clara e ciclo de vida próprio.
+
+2. **Eliminar entidades anêmicas**
+   - Mova regras de negócio de serviços de aplicação/controladores para entidades, agregados ou serviços de domínio.
+   - Evite que o domínio seja apenas um espelho de tabelas.
+
+3. **Quebrar serviços “Deus” e módulos gigantes**
+   - Divida serviços genéricos em serviços de domínio focados.
+   - Extraia agregados distintos, cada um com invariantes bem definidos.
+
+4. **Organizar repositórios**
+   - Crie repositórios por agregado ou entidade principal.
+   - Centralize consultas e operações de persistência nesses repositórios.
+
+5. **Detectar mistura de domínios**
+   - Quando um módulo misturar preocupações de múltiplos subdomínios (ex.: cobrança + logística + cadastro), proponha separar em Bounded Contexts distintos.
+
+## Integrações e Camada Anticorrupção
+
+Em integrações entre sistemas ou contextos diferentes:
+
+- Considere uma **Camada Anticorrupção (ACL)** quando um sistema A precisar consumir modelos/serviços de um sistema B com linguagem e estrutura diferentes.
+- Modele a ACL com:
+  - Serviços que falam a linguagem de A.
+  - Adaptadores que convertem tipos de B para tipos de A (e vice-versa).
+  - Fachadas para encapsular chamadas complexas ao sistema B.
+- Garanta que o domínio de A não dependa diretamente dos tipos de B; mantenha as conversões confinadas na ACL.
+
+---
+
+## Relação com outras regras
+
+- **Arquitetura Limpa** ([clean-architecture.mdc](.cursor/rules/clean-architecture.mdc)): domínio nas camadas de Entidades e Casos de Uso; detalhes técnicos nas bordas.
+- **CQRS** ([cqrs-command-query-responsibility-segregation.mdc](.cursor/rules/cqrs-command-query-responsibility-segregation.mdc)): write model pode usar agregados e raiz de agregado; comandos expressam intenção de negócio.
+- **TDD** ([tdd-test-driven-development.mdc](.cursor/rules/tdd-test-driven-development.mdc)): testes protegem refatoração do domínio; camadas internas testáveis por interfaces e injeção de dependência.
+

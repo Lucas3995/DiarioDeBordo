@@ -1,0 +1,36 @@
+contexto:
+    tenho um bloco de notas onde coloco cada manga/manwha/anime/livro/filme/serie/etc (daqui em diante chamarei apenas de "obra") que to acompanhando com 
+        o link de onde to consumindo
+        o capitulo/episodio (que daqui em diante chamarei de apenas de "parte") onde parei 
+        comentarios sobre o que achei em cada parte
+        data que consumi o ultimo parte
+        tempo medio esperado entre o lançamento da ultima parte e a proxima
+        e ordenando para que as obras que eu mais gosto apareçam mais acima
+    quero fazer um sistema pra substituir esse bloco de notas
+processos p/ automatizar:
+-- processos minimos para substituir o bloco de notas
+    1 - acompanhemento de obras
+        preciso ver as obras q to acompanhando, 
+        ver a posição em que parei em cada uma delas
+        ter a lista de links de onde to acompanhando elas (caso tenha)
+        saber quanto é o tempo esperado para sair a proxima parte e/ou quantas partes é esperado que ja tenham sido lançadas desde a ultima lida
+    2 - atualizar a posição
+        preciso poder informar a obra por nome ou código,
+        a posição que parei nela,
+        opcionalmente informar um link novo
+        opcionalmente fazer um comentario sobre cada uma das partes consumidas desde a ultima atualizacao
+        ver uma previa das alterações antes (valor antigo -> valor novo) antes de salvar
+        caso a obra nao exista no sistema e tenha sido informado nome, criar nova com as infos preenchidas
+    3 - gestao de situação
+        preciso poder informar a obra ver a situação dela (parado, em andamento, concluida, em hiato, etc) e poder mudar para outra
+        preciso poder fazer um comentario geral sobre a obra e/ou adicionar sinopse e imagem de capa para ela
+-- processos para utilidades adicionais
+    4 - adicionar informações extras (imagem, nota 0 a 10, resumo/sinopse, comentario, data esperada de lançamento de novas posições em cada origem/link)
+    5 - permitir cadastrar comentarios em cada de posição ou atualização de posição
+    6 - acompanhamento historico (ver quando comecei, as datas em que fiz cada atualização de posição, mudanças de situação, etc) 
+    7 - colocar sistema pra rodar com 1 click igual o penpot, que tem um executavel que sobe uma instancia do serviço rodando com docker em uma porta do localhost
+
+
+
+
+

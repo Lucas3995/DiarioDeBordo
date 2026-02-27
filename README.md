@@ -1,0 +1,230 @@
+# Diário de Bordo
+
+Sistema de acompanhamento de obras (manga, manhwa, anime, livro, filme, série).
+
+[![.NET](https://img.shields.io/badge/.NET-8.0-blue.svg)](https://dotnet.microsoft.com/download)
+[![Angular](https://img.shields.io/badge/Angular-21-red.svg)](https://angular.io/)
+[![Architecture](https://img.shields.io/badge/Architecture-Clean%20Architecture-orange.svg)](https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html)
+[![Docker](https://img.shields.io/badge/Docker-Containerized-blue.svg)](https://www.docker.com/)
+[![Tests](https://img.shields.io/badge/Tests-GitHub%20Actions-brightgreen.svg)](.github/workflows/)
+[![Coverage](https://img.shields.io/badge/Coverage-Report-yellow.svg)](.github/workflows/)
+[![Deploy](https://img.shields.io/badge/Deploy-AWS%20Serverless-green.svg)](.github/workflows/)
+[![License](https://img.shields.io/badge/License-Dual%20License-green.svg)](LICENSE)
+
+Substitui o bloco de notas para acompanhar obras com posição atual, links de leitura/visualização, comentários por parte, datas e ordenação por preferência. Objetivo: listar obras, atualizar posição (com prévia), gerir situação e, opcionalmente, histórico e execução one-click com Docker.
+
+---
+
+## Arquitetura
+
+O projeto segue **Clean Architecture** com camadas bem definidas e dependência sempre para dentro (Entidades ← Casos de Uso ← Adaptadores ← Frameworks/Drivers).
+
+```mermaid
+flowchart LR
+  subgraph extern [Frameworks e Drivers]
+    API[API / Controllers]
+    DB[Persistência]
+  end
+  subgraph adapt [Adaptadores]
+    DTOs[DTOs / Mapeadores]
+  end
+  subgraph app [Casos de Uso]
+    Commands[Commands]
+    Queries[Queries]
+  end
+  subgraph domain [Entidades]
+    Entities[Entities / Value Objects]
+  end
+  API --> DTOs
+  DB --> DTOs
+  DTOs --> Commands
+  DTOs --> Queries
+  Commands --> Entities
+  Queries --> Entities
+```
+
+### Estrutura do projeto
+
+```
+DiarioDeBordo/
+├── .github/                         # CI/CD (teste, build, deploy, secrets)
+├── docker/                          # Docker Compose one-click (frontend local)
+├── docs/                            # Documentação
+├── src/
+│   ├── DiarioDeBordo.Api/           # Apresentação (Controllers, Middlewares)
+│   ├── DiarioDeBordo.Application/   # Casos de uso (Commands, Queries, Handlers, Validations)
+│   ├── DiarioDeBordo.Domain/        # Domínio (Entities, Value Objects, Interfaces)
+│   ├── DiarioDeBordo.Infrastructure/ # Serviços externos (email, arquivos, Flowpag, MFA)
+│   ├── DiarioDeBordo.Persistence/   # DbContext, Migrations
+│   └── DiarioDeBordo.Tests/         # Testes unitários e de integração
+├── frontend/                        # Angular 21 (on-premise na máquina do usuário)
+├── guia                             # Guia de requisitos
+├── README.md
+└── LICENSE
+```
+
+- **Backend**: deploy **serverless** (AWS); consumido pela API.
+- **Frontend**: execução **on-premise** na máquina do usuário (clone do repositório ou one-click Docker). Consome a API hospedada em ambiente serverless.
+
+---
+
+## Tecnologias e frameworks
+
+| Área | Tecnologias |
+|------|-------------|
+| **Backend** | .NET 8, C# 12, ASP.NET Core, MediatR (CQRS), FluentValidation, Swagger/OpenAPI, xUnit, Moq, FluentAssertions, Coverlet |
+| **Frontend** | Angular 21, Angular CLI |
+| **Banco** | PostgreSQL ou SQL Server com Entity Framework Core 8; conexões TLS; LGPD (criptografia em repouso/trânsito, mínimo de dados) |
+| **Infra** | Docker e Docker Compose para frontend local (one-click); backend serverless (AWS Lambda ou equivalente) |
+| **CI/CD** | GitHub Actions (teste, build, gestão de secrets, deploy do backend) |
+| **Autenticação** | JWT Bearer, MFA (autenticação de dois fatores) |
+| **Pagamentos (PJ)** | Flowpag (ou gateway equivalente) para cobrança da coparticipação de 5% de PJ com faturamento > 500k/ano |
+
+---
+
+## Técnicas e regras do projeto
+
+- **Clean Architecture**: camadas Entidades, Casos de Uso, Adaptadores, Frameworks/Drivers; dependência apenas para dentro.
+- **CQRS**: comandos (alteram estado) e consultas (apenas leitura); nenhuma query altera estado.
+- **DDD**: linguagem ubíqua (Obra, Parte, Situação, etc.), agregados, entidades, value objects, repositórios orientados ao domínio.
+- **TDD**: testes antes do código; Red-Green-Refactor; testes unitários e de integração; FIRST e AAA.
+- **Segurança e LGPD**: 2FA na autenticação; sem concatenação em SQL; minimização de dados; criptografia em repouso/trânsito e em campo para sensíveis; direitos do titular operacionalizáveis (acesso, correção, eliminação, portabilidade).
+- **DevSecOps**: pipelines para teste, build, deploy e gestão de secrets; Git com PRs, mensagens explícitas e SemVer quando aplicável.
+
+Detalhes nas regras em [.cursor/rules](.cursor/rules).
+
+---
+
+## Funcionalidades e modos a implementar
+
+### Mínimos
+
+1. **Acompanhamento de obras** – listar obras, posição atual, links, tempo esperado até próxima parte.
+2. **Atualizar posição** – por nome ou código da obra, parte atual, link opcional, comentários por parte, prévia antes de salvar; criar obra se não existir.
+3. **Gestão de situação** – status (parado, em andamento, concluída, em hiato), comentário geral, sinopse, imagem de capa.
+
+### Adicionais
+
+4. **Extras** – imagem, nota 0–10, sinopse, data esperada de lançamento por origem.
+5. **Comentários por posição/atualização**.
+6. **Histórico** – datas de início, atualizações de posição e mudanças de situação.
+7. **Execução one-click** – Docker em localhost para o frontend (estilo Penpot).
+
+---
+
+## Como executar
+
+### Pré-requisitos
+
+- .NET 8 SDK  
+- Node.js (compatível com Angular 21)  
+- Docker Desktop (recomendado para frontend one-click)  
+- Banco de dados (ex.: PostgreSQL) conforme configuração do backend  
+
+### Backend (desenvolvimento local)
+
+```bash
+git clone <url-do-repositorio>
+cd DiarioDeBordo
+dotnet restore
+```
+
+Configure a connection string via variáveis de ambiente ou `appsettings` (nunca commitar senhas). Exemplo com variável de ambiente:
+
+```bash
+export ConnectionStrings__DefaultConnection="Host=localhost;Database=diariodebordo;..."
+dotnet ef database update --project src/DiarioDeBordo.Persistence --startup-project src/DiarioDeBordo.Api
+dotnet run --project src/DiarioDeBordo.Api
+```
+
+### Frontend (on-premise na máquina do usuário)
+
+```bash
+cd frontend
+npm ci
+npm start
+```
+
+Configure a URL da API (backend serverless ou local) via variáveis de ambiente ou proxy (ex.: `ng serve --proxy-config proxy.conf.json`).
+
+### One-click (Docker – frontend local)
+
+Comando para subir o frontend (e, em dev, opcionalmente banco) em localhost. O backend em produção permanece em ambiente serverless (AWS).
+
+```bash
+docker-compose -f docker/docker-compose.yml up -d
+```
+
+Portas típicas: frontend 4200; API via URL do backend serverless.
+
+### Migrations (EF Core)
+
+```bash
+# Criar nova migration
+dotnet ef migrations add NomeDaMigration --project src/DiarioDeBordo.Persistence --startup-project src/DiarioDeBordo.Api
+
+# Aplicar migrations (usar connection string via variável de ambiente ou secrets)
+dotnet ef database update --project src/DiarioDeBordo.Persistence --startup-project src/DiarioDeBordo.Api
+```
+
+Nunca incluir credenciais no repositório; usar variáveis de ambiente ou GitHub Secrets no pipeline.
+
+---
+
+## Deploy: backend serverless e frontend on-premise
+
+### Backend (AWS serverless)
+
+O backend é implantado como **serverless** na AWS (ex.: AWS Lambda + API Gateway para a API .NET, ou container serverless).
+
+- **Pipeline**: trigger em push na branch `main` (ou conforme definido em [.github/workflows](.github/workflows)).
+- **Build e publicação**: testes, build e publicação da função/container via GitHub Actions.
+- **Configuração**: variáveis de ambiente e secrets (GitHub Secrets) para connection string, JWT, Flowpag, etc.
+- **Health check**: endpoint de saúde da API para validação pós-deploy.
+
+Referência a EC2 apenas se for usada para runners ou serviços auxiliares; o núcleo da API é serverless.
+
+### Frontend (on-premise)
+
+O frontend **não** é deployado na nuvem; roda **on-premise** na máquina do usuário.
+
+- **Obtenção**: clone do repositório ou pacote/instalador, se disponível.
+- **Configuração**: definir a URL da API (backend serverless) em variável de ambiente ou arquivo de configuração.
+- **Execução**: `npm start` / `ng serve` ou one-click com Docker em localhost.
+
+### Flowpag
+
+Integração com **Flowpag** (ou gateway equivalente) para cobrança da **coparticipação de 5%** para pessoas jurídicas com faturamento superior a 500.000 reais por ano (detalhes em [LICENSE](LICENSE)).
+
+### MFA
+
+Autenticação com **MFA** (autenticação de dois fatores): login, 2FA e tokens documentados na seção de autenticação da API (Swagger/endpoints).
+
+---
+
+## Banco de dados
+
+### Modelo conceitual (alto nível)
+
+- **Obra** – obra (manga, anime, livro, filme, série, etc.).
+- **Posição (Parte)** – capítulo/episódio/parte em que parou; data da última consumida; tempo esperado até próxima.
+- **Comentário** – comentários por parte ou gerais sobre a obra.
+- **Situação** – status (parado, em andamento, concluída, em hiato).
+- **Origem/Link** – links de onde a obra é acompanhada.
+
+Relacionamentos: uma obra possui N posições/comentários/origens; situação associada à obra.
+
+### Conformidade
+
+- Conexão com TLS.  
+- Criptografia em repouso.  
+- Dados que identifiquem o usuário em conformidade com LGPD (minimização, finalidade, direitos do titular: acesso, correção, eliminação, portabilidade).
+
+---
+
+## Licença
+
+- **Pessoas físicas**: uso livre.
+- **Pessoas jurídicas**: uso livre; se o **faturamento ou ganhos forem superiores a 500.000 (quinhentos mil) reais por ano**, é devida **coparticipação de 5%** sobre ganhos relacionados ao uso do software.
+
+Detalhes no arquivo [LICENSE](LICENSE).

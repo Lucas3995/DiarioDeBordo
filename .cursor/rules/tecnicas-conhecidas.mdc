@@ -1,0 +1,306 @@
+---
+description: Guia com catálogo incorporado de padrões de design, code smells e técnicas de refatoração para escrita e refatoração de código; sem dependência a sites externos.
+alwaysApply: true
+---
+
+# Guia de Técnicas Conhecidas para IA
+
+## 1. Objetivo desta regra
+
+Você (IA) deve **escrever e refatorar código** de forma que:
+
+- **Descubra problemas conhecidos** usando o catálogo de code smells incorporado neste guia.
+- **Aplique técnicas validadas** — refatorações e design patterns do catálogo incorporado, com intent e aplicabilidade descritos aqui.
+
+O guia é **autossuficiente**: todo o conteúdo necessário está neste ficheiro. Não dependa de consultar URLs ou sites externos para aplicar o catálogo.
+
+Trate estas regras como **obrigatórias**, não como sugestões.
+
+---
+
+## 2. O que é refatoração e código limpo
+
+Refatoração tem como propósito **combater a dívida técnica**: transformar código confuso em código limpo e design simples.
+
+**Código limpo:**
+
+- **É óbvio para outros programadores.** Nomes claros, classes e métodos enxutos, ausência de números mágicos; nada que torne o código difícil de entender.
+- **Não contém duplicação.** Alterar lógica em um sítio não exige lembrar de repetir a alteração noutros; reduz carga cognitiva e acelera mudanças.
+- **Contém o mínimo de classes e partes móveis.** Menos código = menos para manter na cabeça, menos manutenção, menos bugs. Código é passivo; mantenha-o curto e simples.
+- **Passa em todos os testes.** Código sujo revela-se quando só parte dos testes passa; ausência de testes é risco máximo.
+- **É mais fácil e barato de manter.**
+
+---
+
+## 3. Design patterns — catálogo incorporado
+
+**O que é um design pattern:** solução típica para um problema recorrente no desenho de software. Não é um pedaço de código para copiar, mas um **conceito de alto nível** para resolver um tipo de problema; a implementação concreta varia conforme o programa. Um pattern descreve intent, estrutura, motivação e aplicabilidade; use-o como blueprint, adaptando à realidade do seu código.
+
+### 3.1 Creational (criação de objetos)
+
+Mecanismos de criação de objetos que aumentam flexibilidade e reutilização.
+
+| Pattern | Intent | Quando usar |
+|--------|--------|-------------|
+| **Factory Method** | Interface para criar objetos numa superclasse; subclasses podem alterar o tipo de objetos criados. | Quando a classe não possa antecipar os tipos de objetos que precisa criar; quando queira que subclasses decidam o que instanciar. |
+| **Abstract Factory** | Produzir famílias de objetos relacionados sem especificar classes concretas. | Quando o código precise trabalhar com famílias de produtos relacionados sem depender de implementações concretas. |
+| **Builder** | Construir objetos complexos passo a passo; mesmo código de construção pode produzir representações diferentes. | Quando o construtor tiver muitos parâmetros opcionais ou quando a construção em etapas melhorar legibilidade. |
+| **Prototype** | Copiar objetos existentes sem tornar o código dependente das suas classes. | Quando a criação de instâncias for mais cara ou complexa do que clonar um protótipo existente. |
+| **Singleton** | Garantir que uma classe tenha uma única instância e um ponto de acesso global a ela. | Use com moderação; quando for realmente necessário exactamente uma instância (ex.: configuração, log, conexão). |
+
+### 3.2 Structural (estrutura de objetos e classes)
+
+Explicam como compor objetos e classes em estruturas maiores mantendo-as flexíveis e eficientes.
+
+| Pattern | Intent | Quando usar |
+|--------|--------|-------------|
+| **Adapter** | Permitir colaboração entre objetos com interfaces incompatíveis. | Quando precisar usar uma classe cuja interface não é a que o seu código espera. |
+| **Bridge** | Separar uma classe grande (ou conjunto de classes) em duas hierarquias — abstração e implementação — que evoluem independentemente. | Quando quiser evitar ligação permanente entre abstração e implementação; quando ambas possam variar. |
+| **Composite** | Compor objetos em estruturas em árvore e tratar essas estruturas como objetos individuais. | Quando o modelo possa ser representado em árvore e queira tratar nós e ramos de forma uniforme. |
+| **Decorator** | Anexar novos comportamentos a objetos colocando-os dentro de wrappers que contêm esses comportamentos. | Quando precisar estender comportamento em tempo de execução sem subclasses ou quando não puder fechar classes para herança. |
+| **Facade** | Interface simplificada para uma biblioteca, framework ou conjunto complexo de classes. | Quando precisar de uma interface simples para um subsistema complexo. |
+| **Flyweight** | Caber mais objetos na RAM partilhando partes comuns de estado entre vários objetos em vez de guardar tudo em cada um. | Quando a aplicação usar muitos objetos semelhantes e o custo de armazenamento for alto. |
+| **Proxy** | Fornecer um substituto ou placeholder para outro objeto; o proxy controla o acesso ao original (antes ou depois do pedido). | Quando precisar de controle de acesso, lazy initialization, logging, ou acesso remoto ao objeto real. |
+
+### 3.3 Behavioral (algoritmos e responsabilidades)
+
+Focam em algoritmos e na atribuição de responsabilidades entre objetos.
+
+| Pattern | Intent | Quando usar |
+|--------|--------|-------------|
+| **Chain of Responsibility** | Passar pedidos ao longo de uma cadeia de handlers; cada handler decide processar ou passar ao seguinte. | Quando vários handlers possam processar um pedido e o handler não seja conhecido à partida. |
+| **Command** | Transformar um pedido num objeto independente com toda a informação do pedido; permite passar pedidos como argumentos, atrasar ou enfileirar, e suportar operações desfazíveis. | Quando quiser parametrizar operações, enfileirar, agendar ou suportar undo/redo. |
+| **Iterator** | Percorrer elementos de uma coleção sem expor a representação interna (lista, pilha, árvore, etc.). | Quando a estrutura interna da coleção não deva ser exposta ou quando suportar várias formas de travessia. |
+| **Mediator** | Reduzir dependências caóticas entre objetos; restringe comunicação directa e obriga colaboração via um objeto mediador. | Quando muitos objetos se referenciam entre si e as dependências forem difíceis de manter. |
+| **Memento** | Guardar e restaurar o estado anterior de um objeto sem revelar detalhes da sua implementação. | Quando precisar de snapshot/restore de estado (ex.: undo) sem violar encapsulamento. |
+| **Observer** | Mecanismo de subscrição para notificar vários objetos sobre eventos do objeto observado. | Quando mudanças num objeto precisarem de ser propagadas a outros sem acoplamento forte. |
+| **State** | O objeto altera o comportamento quando o estado interno muda; parece que mudou de classe. | Quando o comportamento depender do estado e houver muitos condicionais sobre esse estado. |
+| **Strategy** | Definir uma família de algoritmos, colocar cada um numa classe separada e tornar os objectos intercambiáveis. | Quando existirem variantes de um algoritmo e quiser escolher em tempo de execução. |
+| **Template Method** | Definir o esqueleto de um algoritmo na superclasse; subclasses sobrescrevem passos específicos sem alterar a estrutura. | Quando várias classes tiverem lógica comum com pequenas variações em passos. |
+| **Visitor** | Separar algoritmos dos objetos sobre os quais operam. | Quando muitas operações distintas actuarem sobre uma estrutura de objetos estável e não quiser poluir as classes desses objetos. |
+
+---
+
+## 4. Code smells — catálogo incorporado
+
+Code smells são indícios de problemas no código. Use este catálogo para **detectar** problemas ao analisar ou gerar código. Para cada smell: nome, o que é, sinais no código, quando considerar que está presente.
+
+### 4.1 Bloaters
+
+Código, métodos ou classes que cresceram até dimensões difíceis de usar. Costumam acumular-se com o tempo quando ninguém os elimina.
+
+| Smell | O que é | Sinais / Quando considerar |
+|-------|---------|-----------------------------|
+| **Large Class** | Classe que faz demasiado ou tem demasiados campos/métodos. | Muitos campos/métodos; responsabilidades múltiplas; difícil dar um nome preciso à classe. |
+| **Long Method** | Método com muitas linhas; a lógica fica escondida e difícil de seguir. | Método com dezenas de linhas; vários níveis de indentação; necessidade de scroll para ver o fluxo. |
+| **Long Parameter List** | Método ou construtor com muitos parâmetros. | Listas de 4+ parâmetros; difícil lembrar a ordem; alterações frequentes na assinatura. |
+| **Primitive Obsession** | Uso de tipos primitivos (números, strings) em vez de pequenos objectos de valor com significado de domínio. | Grupos de parâmetros que “andam juntos”; validação/formatação espalhada para o mesmo conceito. |
+| **Data Clumps** | Grupos de dados que aparecem juntos em vários sítios (ex.: par de campos repetido em várias classes). | Mesmos 2–3 campos em vários métodos ou classes; poderiam formar um objecto de valor. |
+
+### 4.2 Object-Orientation Abusers
+
+Uso incompleto ou incorrecto de princípios de orientação a objetos.
+
+| Smell | O que é | Sinais / Quando considerar |
+|-------|---------|-----------------------------|
+| **Alternative Classes with Different Interfaces** | Duas classes fazem o mesmo (ou quase) mas expõem interfaces diferentes. | Mesma responsabilidade, métodos com nomes/assinaturas diferentes; duplicação de intenção. |
+| **Switch Statements** | Muitos `switch`/`if` sobre o mesmo tipo ou enum para escolher comportamento. | Comportamento que varia por tipo; adicionar novo caso obriga a tocar em vários sítios. |
+| **Refused Bequest** | Subclasse não usa parte da herança (métodos/camados da superclasse) ou rejeita a semântica. | Herança apenas para reutilizar código; subclasse sobrescreve muitos métodos com exceções ou vazios. |
+| **Temporary Field** | Campo de uma classe que só é usado em certas circunstâncias; fica null ou irrelevante no resto do tempo. | Campos preenchidos apenas em alguns fluxos; objecto “incompleto” na maior parte do tempo. |
+
+### 4.3 Change Preventers
+
+Se precisar mudar uma coisa num sítio, é obrigado a mudar em muitos outros. O desenvolvimento fica mais caro e complicado.
+
+| Smell | O que é | Sinais / Quando considerar |
+|-------|---------|-----------------------------|
+| **Divergent Change** | Uma classe é alterada por razões diferentes em momentos diferentes (ex.: regras de negócio e formato de relatório). | Várias “famílias” de mudanças que tocam na mesma classe; mais de uma razão para mudar. |
+| **Parallel Inheritance Hierarchies** | Cada vez que cria uma subclasse numa hierarquia, é obrigado a criar outra noutra hierarquia. | Duas árvores de herança que evoluem em paralelo; criar um tipo novo implica criar em ambas. |
+| **Shotgun Surgery** | Uma mudança exige pequenas alterações em muitas classes. | Alteração de uma regra ou dado dispersa por vários ficheiros; impacto amplo para uma única decisão. |
+
+### 4.4 Dispensables
+
+Algo desnecessário cuja ausência tornaria o código mais limpo, eficiente ou compreensível.
+
+| Smell | O que é | Sinais / Quando considerar |
+|-------|---------|-----------------------------|
+| **Duplicate Code** | O mesmo (ou quase o mesmo) código em mais de um sítio. | Blocos idênticos ou muito semelhantes; alteração tem de ser repetida em vários locais. |
+| **Comments** | Comentários que explicam “o quê” em vez de o código ser autoexplicativo; ou comentários obsoletos/ruidosos. | Comentários longos para explicar lógica confusa; código que deveria ter nome/clareza em vez de comentário. |
+| **Dead Code** | Código nunca executado ou inacessível (métodos, ramos, variáveis não usados). | Métodos nunca chamados; ramos de condicionais sempre falsos; imports ou variáveis não usados. |
+| **Data Class** | Classe que só tem dados (getters/setters) e nenhuma responsabilidade de negócio. | Apenas campos e accessors; comportamento relevante está noutras classes que “usam” estes dados. |
+| **Speculative Generality** | Abstrações “para o futuro” que não são usadas (ex.: hierarquias, parâmetros, hooks não necessários hoje). | Código preparado para casos que não existem; “YAGNI” violado. |
+| **Lazy Class** | Classe que faz pouco; o custo de a manter não se justifica. | Classe com um ou poucos métodos; poderia ser incorporada noutra. |
+
+### 4.5 Couplers
+
+Acoplamento excessivo entre classes ou substituição de acoplamento por delegação excessiva.
+
+| Smell | O que é | Sinais / Quando considerar |
+|-------|---------|-----------------------------|
+| **Inappropriate Intimacy** | Duas classes conhecem detalhes internos uma da outra (campos, implementação). | Acesso excessivo a membros internos; mudar uma implica mudar a outra. |
+| **Feature Envy** | Método de uma classe está mais interessado nos dados de outra classe do que nos seus. | Método que usa sobretudo getters de outro objecto; comportamento que “pertence” à outra classe. |
+| **Message Chains** | Encadeamento longo de chamadas (ex.: `a.getB().getC().getD()`). | Cliente depende da estrutura interna de uma cadeia de objectos; fragilidade perante mudanças. |
+| **Incomplete Library Class** | Biblioteca de terceiros não oferece o que precisa; estende-se com código repetido ou wrappers frágeis. | Falta de métodos ou comportamentos na lib; código de extensão espalhado ou difícil de reutilizar. |
+| **Middle Man** | Classe que só delega; não acrescenta valor. | Muitos métodos que apenas encaminham para outro objecto; a classe é só um “atravessador”. |
+
+---
+
+## 5. Técnicas de refatoração — catálogo incorporado
+
+Use estas técnicas para **resolver** os smells identificados. Cada entrada tem nome, objetivo e, quando aplicável, smells que a técnica costuma mitigar.
+
+### 5.1 Composing Methods
+
+Simplificar métodos, eliminar duplicação e preparar melhorias. Métodos longos são uma fonte comum de problemas.
+
+| Técnica | Objetivo | Smells que mitiga |
+|---------|----------|-------------------|
+| **Inline Temp** | Substituir uso de variável temporária pela expressão que a atribui (quando a variável atrapalha). | — |
+| **Extract Variable** | Dar nome a uma expressão complexa atribuindo-a a uma variável local com nome significativo. | Long Method (legibilidade). |
+| **Inline Method** | Substituir chamada a método pelo corpo do método quando o método não acrescenta clareza. | Lazy Class, Middle Man. |
+| **Extract Method** | Extrair um bloco de código para um novo método com nome que explique a intenção. | Long Method, Duplicate Code. |
+| **Remove Assignments to Parameters** | Não reatribuir parâmetros; usar variável local. | Confusão, efeitos colaterais. |
+| **Split Temporary Variable** | Uma variável temporária não deve ser atribuída mais de uma vez para significados diferentes; usar variáveis separadas. | Long Method. |
+| **Replace Temp with Query** | Extrair expressão que atribui a uma temp para um método (query) e usar a chamada no lugar da temp. | Long Method, duplicação de expressões. |
+| **Substitute Algorithm** | Substituir corpo de um método por outro algoritmo mais claro. | Long Method, complexidade. |
+| **Replace Method with Method Object** | Quando um método local é longo e usa muitas variáveis locais, extrair para um objecto que guarde essas variáveis e tenha um único método. | Long Method. |
+
+### 5.2 Moving Features between Objects
+
+Mover funcionalidade entre classes, criar novas classes e esconder detalhes de implementação.
+
+| Técnica | Objetivo | Smells que mitiga |
+|---------|----------|-------------------|
+| **Inline Class** | Mover membros de uma classe para outra e eliminar a classe original quando ela pouco faz. | Lazy Class. |
+| **Extract Class** | Criar nova classe e mover campos/métodos que representam um conjunto coeso de responsabilidades. | Large Class. |
+| **Move Field** | Mover campo para a classe onde é mais usado. | Feature Envy, Inappropriate Intimacy. |
+| **Move Method** | Mover método para a classe cujos dados usa mais. | Feature Envy, Long Method. |
+| **Remove Middle Man** | Cliente chamar directamente o objecto delegado em vez de passar por um intermediário inútil. | Middle Man. |
+| **Hide Delegate** | Esconder delegação: cliente usa apenas o objecto de fachada; este encaminha para o delegado. | Message Chains (quando controlável). |
+| **Introduce Local Extension** | Criar classe de extensão local (subclasse ou wrapper) para adicionar comportamento a uma biblioteca. | Incomplete Library Class. |
+| **Introduce Foreign Method** | Adicionar método à classe do cliente que recebe um objecto da lib como primeiro parâmetro (quando não pode alterar a lib). | Incomplete Library Class. |
+
+### 5.3 Organizing Data
+
+Tratar dados com mais clareza: substituir primitivos por objectos de valor, desembaraçar associações, encapsular.
+
+| Técnica | Objetivo | Smells que mitiga |
+|---------|----------|-------------------|
+| **Replace Array with Object** | Substituir array por objecto com campos nomeados. | Primitive Obsession. |
+| **Replace Data Value with Object** | Criar objecto para um valor que tenha dados ou comportamento associado. | Primitive Obsession, Data Clumps. |
+| **Self Encapsulate Field** | Aceder a um campo apenas através de getters/setters (próprios da classe). | — |
+| **Duplicate Observed Data** | Duplicar dados entre camada de UI e domínio, sincronizando, para desacoplar. | — |
+| **Change Reference to Value** | Converter referência partilhada em valor imutável (quando identidade não importa). | — |
+| **Change Value to Reference** | Partilhar uma única instância quando a identidade do objecto importa. | — |
+| **Replace Magic Number with Symbolic Constant** | Dar nome a números literais através de constantes. | Primitive Obsession, legibilidade. |
+| **Encapsulate Collection** | Encapsular colecções: não devolver referência mutável; fornecer métodos de acesso/add/remove. | — |
+| **Encapsulate Field** | Tornar campo privado e aceder via getters/setters. | — |
+| **Change Bidirectional Association to Unidirectional** | Remover navegação numa direcção quando não for necessária. | Inappropriate Intimacy. |
+| **Change Unidirectional Association to Bidirectional** | Adicionar navegação na direcção oposta quando for necessária. | — |
+| **Replace Subclass with Fields** | Substituir subclasses que só diferem em dados por campos na superclasse. | Lazy Class. |
+| **Replace Type Code with State/Strategy** | Substituir tipo/código que afecta comportamento por State ou Strategy. | Switch Statements. |
+| **Replace Type Code with Subclasses** | Substituir tipo/código por hierarquia de subclasses quando o comportamento variar por tipo. | Switch Statements. |
+| **Replace Type Code with Class** | Criar classe para o tipo/código quando for apenas dado (sem comportamento por tipo). | Primitive Obsession. |
+
+### 5.4 Simplifying Conditional Expressions
+
+Simplificar condicionais e reduzir complexidade em expressões booleanas.
+
+| Técnica | Objetivo | Smells que mitiga |
+|---------|----------|-------------------|
+| **Decompose Conditional** | Extrair condição, ramo then e ramo else para métodos com nomes claros. | Long Method. |
+| **Consolidate Duplicate Conditional Fragments** | Mover código duplicado que está em todos os ramos para fora do condicional. | Duplicate Code. |
+| **Consolidate Conditional Expression** | Unir condições que retornam o mesmo resultado numa única expressão ou método. | — |
+| **Replace Nested Conditional with Guard Clauses** | Usar cláusulas de guarda (early return) em vez de aninhamento. | Long Method. |
+| **Remove Control Flag** | Substituir variável de controlo de ciclo por break/return. | — |
+| **Replace Conditional with Polymorphism** | Mover ramos que dependem de tipo para hierarquia polimórfica. | Switch Statements. |
+| **Introduce Assertion** | Documentar e verificar pressupostos com asserções. | — |
+| **Introduce Null Object** | Fornecer objecto “nulo” com comportamento neutro em vez de null. | Condicionais repetidas para null. |
+
+### 5.5 Simplifying Method Calls
+
+Tornar chamadas e interfaces de métodos mais claras e consistentes.
+
+| Técnica | Objetivo | Smells que mitiga |
+|---------|----------|-------------------|
+| **Parameterize Method** | Unir métodos que diferem apenas em valores num método parametrizado. | Duplicate Code. |
+| **Separate Query from Modifier** | Métodos que devolvem valor não devem alterar estado visível; separar consulta de comando. | — |
+| **Rename Method** | Nome do método deve revelar a intenção. | — |
+| **Remove Parameter** | Remover parâmetros não usados. | Long Parameter List. |
+| **Add Parameter** | Adicionar parâmetro quando o método precisa de informação que não tinha. | — |
+| **Replace Parameter with Method Call** | Chamar método que devolve o valor em vez de receber o valor já calculado. | Long Parameter List. |
+| **Replace Parameter with Explicit Methods** | Criar método separado para cada valor significativo de um parâmetro. | Long Parameter List. |
+| **Remove Setting Method** | Remover setter quando o campo não deve mudar após criação. | — |
+| **Preserve Whole Object** | Passar o objecto inteiro em vez de vários valores extraídos. | Long Parameter List, Data Clumps. |
+| **Introduce Parameter Object** | Agrupar parâmetros relacionados num objecto. | Long Parameter List, Data Clumps. |
+| **Replace Exception with Test** | Verificar condição antes de executar em vez de depender de exceção para fluxo normal. | — |
+| **Replace Error Code with Exception** | Usar exceções em vez de códigos de erro quando apropriado. | — |
+| **Replace Constructor with Factory Method** | Encapsular criação em método estático com nome significativo. | — |
+| **Hide Method** | Tornar método privado quando não for usado fora da classe. | — |
+
+### 5.6 Dealing with Generalization
+
+Mover funcionalidade na hierarquia de herança, extrair interfaces/superclasses/subclasses, trocar herança por delegação e vice-versa.
+
+| Técnica | Objetivo | Smells que mitiga |
+|---------|----------|-------------------|
+| **Push Down Method** | Mover método da superclasse para a subclasse onde é usado. | — |
+| **Push Down Field** | Mover campo da superclasse para a subclasse onde é usado. | — |
+| **Pull Up Constructor Body** | Partilhar inicialização comum em superclasse. | Duplicate Code. |
+| **Pull Up Method** | Mover método comum de subclasses para superclasse. | Duplicate Code. |
+| **Pull Up Field** | Mover campo comum de subclasses para superclasse. | Duplicate Code. |
+| **Collapse Hierarchy** | Eliminar subclasse que não acrescenta valor. | Lazy Class. |
+| **Extract Interface** | Definir interface com o contrato que os clientes precisam. | Alternative Classes with Different Interfaces. |
+| **Extract Superclass** | Criar superclasse comum para classes com comportamento partilhado. | Duplicate Code, Divergent Change. |
+| **Extract Subclass** | Criar subclasse para um subconjunto de casos que usa apenas parte das características da classe. | Large Class. |
+| **Replace Delegation with Inheritance** | Quando o objecto delega tudo e não precisa de flexibilidade de delegação, usar herança. | Middle Man (quando a delegação é fixa). |
+| **Replace Inheritance with Delegation** | Quando a herança não modela bem “é-um”, usar composição/delegação. | Refused Bequest. |
+| **Form Template Method** | Unir métodos similares numa superclasse com Template Method; subclasses preenchem os passos. | Duplicate Code. |
+
+---
+
+## 6. Checklists para a IA
+
+### 6.1 Ao escrever código novo
+
+- [ ] Evitar smells desde o início: métodos curtos, poucos parâmetros, sem duplicação, nomes claros, sem números mágicos.
+- [ ] Se o problema for recorrente (criação de objectos, composição, comportamento variável), considerar um pattern do catálogo (secção 3).
+- [ ] Não introduzir Large Class, Long Method, Long Parameter List, Duplicate Code, Feature Envy, Message Chains.
+
+### 6.2 Ao refatorar código existente
+
+- [ ] Identificar um ou mais smells usando o catálogo (secção 4) antes de aplicar qualquer técnica.
+- [ ] Escolher técnica(s) do catálogo (secção 5) que mitiguem o(s) smell(s) identificado(s); preferir mapeamento smell → técnica indicado nas tabelas.
+- [ ] Manter ou adicionar testes; garantir que passam após cada passo.
+- [ ] Fazer refatorações em passos pequenos; cada passo deve manter o comportamento observável.
+
+---
+
+## 7. Regras duras (NUNCA viole)
+
+Ao gerar ou refatorar código, **não faça**:
+
+- **Refatorar sem identificar** pelo menos um smell ou padrão aplicável antes de aplicar uma técnica do catálogo.
+- **Introduzir um novo smell** ao aplicar uma técnica (ex.: criar Long Method ao extrair, ou Message Chain ao esconder delegate).
+- **Preferir refatorações ou soluções ad hoc** quando existir uma técnica ou pattern no catálogo que resolva o problema.
+- **Depender de consultar URLs ou sites externos** para aplicar este guia; o catálogo está incorporado neste ficheiro.
+
+Se parecer necessário violar alguma destas regras para cumprir um pedido, **reprojete a solução** usando o catálogo incorporado.
+
+---
+
+## 8. Relação com outras regras
+
+- **Este guia** responde ao **como** melhorar estrutura, legibilidade e manutenção: detecção de problemas conhecidos (smells) e aplicação de técnicas e padrões validados.
+- As regras de **Arquitetura Limpa** ([clean-architecture.mdc](.cursor/rules/clean-architecture.mdc)), **CQRS** ([cqrs-command-query-responsibility-segregation.mdc](.cursor/rules/cqrs-command-query-responsibility-segregation.mdc)), **DDD** ([ddd-domain-driven-design.mdc](.cursor/rules/ddd-domain-driven-design.mdc)) e **TDD** ([tdd-test-driven-development.mdc](.cursor/rules/tdd-test-driven-development.mdc)) respondem ao **onde** e ao **que**: camadas, comandos vs queries, domínio, testes. Use-as em conjunto: este guia não substitui a direção de dependência, a segregação CQRS, o modelo de domínio ou a disciplina de testes.
+
+---
+
+## 9. Referências (apenas fonte do material incorporado)
+
+O conteúdo deste guia foi sintetizado a partir das seguintes fontes; **não é necessário consultá-las** para usar o catálogo:
+
+- Design patterns (what is pattern, creational, structural, behavioral).
+- Refactoring (what is refactoring, code smells, refactoring techniques).
+
+As URLs originais estão listadas no ficheiro `TecnicasConhecidas` do workspace; o catálogo acima está incorporado neste ficheiro de forma autossuficiente.

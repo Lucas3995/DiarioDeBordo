@@ -1,0 +1,225 @@
+---
+description: Guia de Arquitetura Limpa, SOLID e modularização para orientar a IA
+alwaysApply: true
+---
+
+# Guia de Arquitetura Limpa para IA
+
+## 1. Objetivo desta regra
+
+Você (IA) deve **escrever e refatorar código** de forma que:
+
+- **Nunca viole os princípios SOLID.**
+- **Nunca viole a direção de dependência** da arquitetura limpa.
+- Mantenha o sistema **fácil de manter, testar, evoluir e entender**.
+- Deixe **detalhes de tecnologia (frameworks, UI, banco, drivers)** nas bordas, protegendo as **regras de negócio** no centro.
+
+Trate estas regras como **obrigatórias**, não como sugestões.
+
+---
+
+## 2. Modelo de camadas (Arquitetura Limpa)
+
+Considere sempre quatro camadas conceituais:
+
+1. **Entidades (Regras de negócio da EMPRESA)**
+   - Conceitos fundamentais da empresa: entidades de domínio, regras invariantes, papéis/atores.
+   - Podem ser reutilizadas por várias aplicações da mesma empresa.
+   - **Não podem depender de nenhuma outra camada.**
+
+2. **Casos de Uso (Regras de negócio da APLICAÇÃO)**
+   - Processos específicos daquela aplicação (aplicam regras da empresa para um fluxo concreto).
+   - Devem depender apenas de **Entidades** e de **abstrações** (interfaces) que representem gateways/adapters.
+   - Mudanças aqui **não podem forçar mudanças em Entidades**.
+
+3. **Adaptadores de Interface**
+   - Traduzem dados entre as camadas internas (Entidades/Casos de Uso) e o “mundo externo”.
+   - Exemplos: presenters, view models, DTOs, mapeadores para banco, adaptadores para serviços externos, validadores de entrada/saída.
+   - **Dependem das camadas internas via interfaces/contratos**, não o contrário.
+
+4. **Frameworks e Drivers**
+   - Tecnologias e detalhes de implementação: frameworks web, ORMs, drivers de banco, bibliotecas de UI, filas etc.
+   - Devem conter o mínimo de regra de negócio possível.
+   - Apenas “plugam” a infraestrutura ao restante do sistema.
+
+**Direção de dependência (regra dura):**
+
+- Permitido em código:  
+  `Frameworks/Drivers -> Adaptadores -> Casos de Uso -> Entidades`
+- **Nada nas camadas internas deve importar/conhecer diretamente as camadas externas.**
+- Sempre que precisar usar algo de fora para dentro, use **interfaces** definidas em camadas mais internas.
+
+---
+
+## 3. Princípios SOLID (como aplicar)
+
+### 3.1 SRP – Responsabilidade Única
+
+- Cada classe/módulo deve ter **uma única razão principal para mudar**, associada a um **grupo de atores/roles**.
+- Não misture na mesma classe:
+  - Regra de negócio + persistência.
+  - Regra de negócio + UI.
+  - Regra de negócio + integração externa.
+- Se houver múltiplas razões para mudar, **separe em classes/módulos diferentes**.
+
+### 3.2 OCP – Aberto/Fechado
+
+- Módulos devem ser **abertos para extensão, fechados para modificação**.
+- Partes que mudam pouco **não devem conhecer** partes muito voláteis.
+- Use **interfaces e abstrações** em níveis estáveis.
+- Para comportamentos novos, prefira **novas implementações/estratégias** em vez de alterar o núcleo estável.
+
+### 3.3 LSP – Substituição de Liskov
+
+- Quem depende de uma classe base/interface deve funcionar corretamente com qualquer subclasse/implementação.
+- Evite “ifs” do tipo `if (x é SubclasseX)` em quem consome abstrações.
+- Se o consumidor precisa conhecer o tipo concreto, **a abstração está errada**.
+
+### 3.4 ISP – Segregação de Interface
+
+- Classes não devem ser forçadas a depender de métodos que não usam.
+- Crie **interfaces específicas por cliente/uso**, com apenas os métodos necessários.
+- Evite interfaces “inchadas”; segregue em interfaces menores e coesas.
+
+### 3.5 DIP – Inversão de Dependência
+
+- Módulos de alto nível não devem depender de módulos de baixo nível; ambos devem depender de **abstrações**.
+- Abstrações não devem depender de detalhes; detalhes devem depender de abstrações.
+- Dependa sempre de **interfaces/contratos**, não de classes concretas, especialmente ao cruzar limites de camadas.
+- Registre implementações concretas na borda (composição raiz, `Main`, configuração), nunca dentro das regras de negócio.
+
+---
+
+## 4. Princípios de Componentes
+
+### 4.1 REP – Equivalência de Reúso/Publicação
+
+- Componentes (módulos, bibliotecas, pacotes) devem agrupar código que é **reutilizado e versionado junto**.
+- Agrupe classes com um **tema/proposta coesa** num mesmo componente.
+
+### 4.2 CCP – Fechamento Comum
+
+- Coloque no mesmo componente as classes que **mudam pelas mesmas razões e nos mesmos momentos**.
+- É o SRP aplicado no nível de componentes.
+- Separe classes que mudam por razões diferentes, em componentes diferentes, para evitar builds/deploys desnecessários.
+
+### 4.3 CRP – Reúso Comum
+
+- Não force consumidores a dependerem de coisas que não usam.
+- É o ISP aplicado a componentes.
+- Evite componentes enormes que são importados “só por causa de uma classe”.
+
+### 4.4 DA – Dependências Acíclicas
+
+- Não permita **ciclos de dependência entre componentes**.
+- Estruture dependências para serem direcionais; quebre ciclos com **interfaces e DIP** em componentes mais internos.
+
+### 4.5 DE – Dependências Estáveis
+
+- Componentes fáceis de mudar **não devem depender** de componentes difíceis de mudar.
+- Componentes estáveis tendem a ser mais abstratos; instáveis, mais concretos.
+
+### 4.6 AE – Abstrações Estáveis
+
+- Um componente deve ser tão abstrato quanto ele for estável.
+- Componentes muito estáveis devem ser compostos majoritariamente de **interfaces/abstrações**.
+
+---
+
+## 5. Regras por camada (pode / não pode)
+
+### 5.1 Entidades
+
+- **Pode conter**: modelos de domínio, regras invariantes, serviços de domínio puros.
+- **Não pode conter**: acesso a banco, frameworks, HTTP, UI, logs de infraestrutura, detalhes de formato de dados externos.
+- **Pode depender de**: apenas de si mesma (e utilitários puramente genéricos).
+
+### 5.2 Casos de Uso
+
+- **Pode conter**: orquestração de regras de negócio, validações de fluxo, políticas da aplicação.
+- **Não pode conter**: SQL, código de UI, HTTP, detalhes de frameworks.
+- **Pode depender de**:
+  - Entidades.
+  - Interfaces de gateways/repositórios/serviços externos **definidas internamente ou em camadas mais internas**.
+
+### 5.3 Adaptadores de Interface
+
+- **Pode conter**: DTOs, mapeadores, presenters, view models, repositórios que implementam interfaces internas.
+- **Não deve conter**: regras centrais da empresa ou políticas principais da aplicação.
+- **Pode depender de**: interfaces das camadas internas e estruturas de dados externas (JSON, SQL, HTML etc) isoladas.
+
+### 5.4 Frameworks e Drivers
+
+- **Pode conter**: configuração de IoC, rotas HTTP, implementação concreta de ORMs, configuração de log etc.
+- **Não deve conter**: regras de negócio.
+- **Pode depender de**: todas as outras camadas, apenas para conectá-las (composição raiz).
+
+---
+
+## 6. Checklists para a IA
+
+### 6.1 Ao criar nova funcionalidade
+
+Confirme sempre:
+
+1. **Localização**
+   - Regra de domínio da empresa → **Entidades**.
+   - Processo específico da aplicação → **Casos de Uso**.
+   - Adaptação/apresentação de dados → **Adaptadores de Interface**.
+   - Configuração/infraestrutura → **Frameworks & Drivers**.
+
+2. **Dependências**
+   - Alguma classe interna depende diretamente de UI, banco, framework ou serviço externo concreto?  
+     - Se sim, **reprojete usando interfaces e inversão de dependência**.
+   - Existe risco de ciclo entre componentes?  
+     - Se sim, **quebre o ciclo com DIP**.
+
+3. **SOLID**
+   - **SRP**: A classe tem mais de uma razão clara para mudar? → **Divida**.
+   - **OCP**: Preciso modificar código estável para novos comportamentos? → **Extraia abstrações/extensões**.
+   - **LSP**: Subclasses/implementações funcionam sem “ifs” especiais? → Se não, **reprojete a hierarquia**.
+   - **ISP**: Alguma interface tem métodos não usados pelo consumidor? → **Segregue**.
+   - **DIP**: Algum módulo interno depende de detalhes concretos? → **Introduza interfaces e mova detalhes para fora**.
+
+4. **Componentes**
+   - Classes que mudam juntas estão no mesmo componente? (CCP)
+   - Consumidores dependem apenas do que realmente usam? (CRP)
+   - O componente faz sentido como unidade de reúso/publicação? (REP)
+
+### 6.2 Ao refatorar código existente
+
+- Separe responsabilidades múltiplas por **atores/roles** e por **camadas**.
+- Remova dependências indevidas das regras de negócio para:
+  - UI, banco, frameworks, serviços externos concretos.
+- Quebre ciclos entre componentes usando **DA + DIP**.
+- Após refatorar, confirme:
+  - **SOLID continua respeitado.**
+  - **Direção de dependência continua correta.**
+  - Camadas internas continuam independentes de UI, banco e frameworks.
+
+---
+
+## 7. Regras duras (NUNCA viole)
+
+Ao gerar ou refatorar código, **não faça**:
+
+- Não faça **Entidades ou Casos de Uso** dependerem diretamente de:
+  - Frameworks web, ORMs, bibliotecas de UI, drivers de banco, serviços externos concretos.
+- Não crie classes ou componentes que **violem SOLID**:
+  - Classes com múltiplas responsabilidades desconexas.
+  - Interfaces enormes e genéricas obrigando dependência de métodos não usados.
+  - Dependências diretas em detalhes de infraestrutura a partir de regras de negócio.
+- Não introduza **ciclos de dependência** entre componentes.
+- Não mova regras de negócio para **camadas de UI ou infraestrutura**.
+
+Se parecer necessário violar qualquer princípio SOLID ou a direção de dependência para atender um requisito, **reprojete a solução** até encontrar uma abordagem que respeite estes princípios.
+
+---
+
+## 8. Relação com outras regras
+
+- **DDD** ([ddd-domain-driven-design.mdc](.cursor/rules/ddd-domain-driven-design.mdc)): entidades e agregados vivem nas camadas internas (Entidades e Casos de Uso).
+- **CQRS** ([cqrs-command-query-responsibility-segregation.mdc](.cursor/rules/cqrs-command-query-responsibility-segregation.mdc)): comandos e queries como Casos de Uso; adaptadores na borda.
+- **TDD** ([tdd-test-driven-development.mdc](.cursor/rules/tdd-test-driven-development.mdc)): testes protegem dependências invertidas; código testável é sinal de bom design.
+- **LGPD / DevSecOps** ([protecao-dados-lgpd-seguranca.mdc](.cursor/rules/protecao-dados-lgpd-seguranca.mdc), [devsecops.mdc](.cursor/rules/devsecops.mdc)): segredos e dados sensíveis nas bordas (adaptadores/infraestrutura), não no domínio.
+

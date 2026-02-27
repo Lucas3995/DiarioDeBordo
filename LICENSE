@@ -1,0 +1,55 @@
+LICENÇA DUAL – DIÁRIO DE BORDO
+
+Este documento estabelece os termos de uso do software "Diário de Bordo" (incluindo código-fonte, documentação e artefatos associados neste repositório).
+
+----------------------------------------------------------------------
+1. PESSOAS FÍSICAS
+----------------------------------------------------------------------
+
+Se você é pessoa natural (física), tem direito de usar, modificar e distribuir este software, sem obrigação de pagamento ou coparticipação. O uso é livre para fins pessoais, educacionais ou comerciais, observando apenas os termos gerais abaixo (seção 4).
+
+----------------------------------------------------------------------
+2. PESSOAS JURÍDICAS
+----------------------------------------------------------------------
+
+Se você é pessoa jurídica (empresa, associação, órgão público etc.), tem o mesmo direito de uso, modificação e distribuição, com a seguinte exceção:
+
+2.1. COPARTICIPAÇÃO
+
+Se a pessoa jurídica tiver RECEITA OU GANHOS SUPERIORES A 500.000 (quinhentos mil) reais no ANO CIVIL (período de 1º de janeiro a 31 de dezembro do mesmo ano), fica obrigada a pagar uma COPARTICIPAÇÃO DE 5% (cinco por cento) sobre os GANHOS ATRIBUÍVEIS ao uso ou à exploração deste software.
+
+2.2. GANHOS ATRIBUÍVEIS
+
+Consideram-se "ganhos atribuíveis" a receita ou o lucro obtido com produto ou serviço que inclua, utilize ou seja baseado no software Diário de Bordo (por exemplo: venda de versão modificada, serviço de hospedagem do software, produto que incorpore o software, ou receita diretamente vinculada à sua exploração comercial).
+
+2.3. DECLARAÇÃO E PAGAMENTO
+
+A pessoa jurídica enquadrada na obrigação de coparticipação deve:
+- declarar anualmente os ganhos atribuíveis e o valor da coparticipação (5% sobre esse montante);
+- efetuar o pagamento conforme instruções publicadas pelo titular dos direitos (por exemplo, no repositório do projeto ou em documentação vinculada), ou entrar em contato para combinar a forma de pagamento.
+
+O contato para declaração e pagamento da coparticipação deve ser indicado na documentação do projeto (ex.: README ou site oficial). Na ausência de indicação, o titular dos direitos pode ser contactado através dos canais do repositório (issues ou mantenedores).
+
+----------------------------------------------------------------------
+3. ANO CIVIL
+----------------------------------------------------------------------
+
+"Ano civil" significa o período de doze meses entre 1º de janeiro e 31 de dezembro do mesmo ano. A verificação de receita ou ganhos superiores a 500.000 reais é feita por ano civil.
+
+----------------------------------------------------------------------
+4. TERMOS GERAIS
+----------------------------------------------------------------------
+
+4.1. O uso, a modificação ou a distribuição deste software constitui aceitação destes termos.
+
+4.2. O software é fornecido "como está", sem garantias de qualquer tipo. O titular dos direitos e os colaboradores não se responsabilizam por danos decorrentes do uso do software.
+
+4.3. Lei aplicável: Brasil. Eventuais disputas serão regidas pelas leis da República Federativa do Brasil.
+
+4.4. A licença não concede direitos sobre marcas ou nomes associados ao projeto, exceto o uso necessário para identificar o software conforme este documento.
+
+----------------------------------------------------------------------
+5. REVISÃO JURÍDICA
+----------------------------------------------------------------------
+
+Recomenda-se revisão jurídica destes termos antes de uso em produção ou em contextos que exijam conformidade contratual ou regulatória específica.

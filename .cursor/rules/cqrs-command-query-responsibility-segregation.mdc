@@ -1,0 +1,130 @@
+---
+description: Orienta a IA a segregar leituras (queries) e escritas (commands) conforme o padrão CQRS
+alwaysApply: true
+---
+
+# Guia CQRS (Command Query Responsibility Segregation) para IA
+
+## 1. Objetivo desta regra
+
+Você (IA) deve **escrever e refatorar código** de forma que:
+
+- **Segregue operações de leitura (queries) e de escrita (commands)** em modelos e fluxos distintos.
+- **Comandos** representem tarefas de negócio e alterem estado; **consultas** apenas leiam dados e retornem DTOs/projeções, sem efeitos colaterais.
+- O **modelo de escrita** concentre validação e regras de negócio; o **modelo de leitura** permaneça simples e otimizado para exibição.
+
+Trate estas regras como **obrigatórias**, não como sugestões. Referência: [CQRS Pattern - Azure Architecture Center](https://learn.microsoft.com/en-us/azure/architecture/patterns/cqrs).
+
+---
+
+## 2. Conceitos centrais
+
+### 2.1 Commands (comandos)
+
+- Operações que **alteram estado** do sistema.
+- Devem representar **tarefas de negócio**, não atualizações de baixo nível.
+  - Bom: "Reservar quarto de hotel", "Avaliar produto", "Confirmar envio do item".
+  - Evitar: "Set ReservationStatus = Reserved", "Update Product.Rating".
+- Inclua validação no cliente quando fizer sentido (evitar requisições óbvias que falharão) e **sempre** lógica de negócio e validação no servidor.
+- Considere **processamento assíncrono** (fila) quando adequado; o cliente pode receber confirmação de aceite e consultar o resultado depois.
+
+### 2.2 Queries (consultas)
+
+- **Apenas leem dados**; **nunca alteram** estado.
+- Retornam **DTOs ou projeções** otimizadas para a camada de apresentação.
+- Não devem conter lógica de domínio; a responsabilidade é entregar dados no formato esperado pela UI/API.
+
+### 2.3 Modelo de escrita (write model)
+
+- Focado em **comandos**: validação, regras de negócio, consistência transacional.
+- Pode tratar conjuntos de objetos como **agregados** (DDD), mantendo invariantes.
+- É a fonte de verdade para decisões que alteram estado.
+
+### 2.4 Modelo de leitura (read model)
+
+- Focado em **servir consultas** com DTOs ou views materializadas.
+- Otimizado para leitura (esquema, índices, denormalização quando fizer sentido).
+- Pode ser **eventualmente consistente** em relação ao write model quando os armazenamentos forem separados.
+
+### 2.5 Níveis de separação
+
+- **Mesmo armazenamento:** modelos de leitura e escrita distintos em **lógica**, compartilhando o mesmo banco. Menor complexidade; boa clareza de responsabilidades.
+- **Armazenamentos separados:** stores diferentes (escala e tecnologia independentes). Sincronização via eventos; **consistência eventual**; exige tratamento de falhas de mensageria, duplicatas e idempotência.
+
+---
+
+## 3. Quando usar CQRS
+
+Use o padrão quando:
+
+- **Ambientes colaborativos:** vários usuários acessam e alteram os mesmos dados; CQRS ajuda a reduzir conflitos e a granularidade dos comandos permite resolver conflitos na lógica.
+- **UIs baseadas em tarefas:** aplicações que guiam o usuário por processos em etapas ou com modelo de domínio complexo.
+- **Ajuste fino de performance:** quando leituras e escritas têm requisitos de desempenho e escala diferentes (ex.: muitas leituras, poucas escritas).
+- **Separação de responsabilidades entre times:** um time no write model (lógica de negócio), outro no read model e na UI.
+- **Sistemas em evolução ou integração:** CQRS acomoda novas versões de modelo e integração com outros subsistemas (ex.: Event Sourcing).
+
+Evite quando:
+
+- O domínio ou as regras de negócio forem simples.
+- CRUD e uma UI simples forem suficientes.
+
+---
+
+## 4. Problemas e considerações
+
+- **Complexidade:** o conceito é direto, mas a implementação pode crescer, especialmente com Event Sourcing.
+- **Mensageria:** se usada para comandos ou sincronização read/write, trate falhas, duplicatas e retentativas (ex.: processamento idempotente).
+- **Consistência eventual:** com read e write em stores separados, o read pode ficar desatualizado; documente e trate dados "stale" na UI e na API (mensagens, versionamento, refresh).
+
+---
+
+## 5. Ao escrever NOVO código
+
+Antes de gerar novo código, siga este checklist:
+
+1. **Identifique comando vs consulta**
+   - A operação altera estado? → comando. Apenas lê? → query.
+2. **Comandos**
+   - Nomeie como **ações de negócio**; não exponha atualizações genéricas de campos.
+   - Mantenha validação e regras de negócio no write model (handler do comando).
+3. **Queries**
+   - Retornem apenas **DTOs/projeções**; nenhum efeito colateral.
+   - Mantenha o read model simples; sem pilha de validação ou regras de domínio na query.
+4. **Escolha do nível**
+   - Mesmo store: modelos lógicos separados (interfaces/handlers distintos).
+   - Stores separados: defina como o read model será atualizado (eventos, jobs) e aceite consistência eventual.
+5. **Regra dura**
+   - Nenhuma query pode alterar estado ou disparar comandos.
+
+---
+
+## 6. Ao REFATORAR código existente
+
+Ao refatorar para CQRS:
+
+1. **Detecte mistura de responsabilidades**
+   - Serviços ou repositórios que no mesmo fluxo leem e escrevem; APIs que retornam entidades após alterar estado.
+2. **Extraia comandos**
+   - Para cada operação que altera estado, defina um **comando explícito** (classe/objeto) e um handler; evite métodos genéricos "update" que misturam intenções.
+3. **Extraia queries e DTOs**
+   - Operações que só leem devem virar queries com DTOs de leitura; evite que a mesma API faça read+write acoplados quando o uso for assimétrico.
+4. **Eventos existentes**
+   - Se já houver eventos de domínio, avalie usá-los para sincronizar o read model (sem obrigar Event Sourcing em todo o sistema).
+
+---
+
+## 7. Regras duras (NUNCA viole)
+
+Ao gerar ou refatorar código, **não faça**:
+
+- **Queries que alterem estado** ou executem comandos.
+- **Comandos que retornem dados de negócio** além do mínimo necessário (ex.: id gerado, sucesso/falha); não use "executar comando" como mecanismo de leitura.
+- **Ignorar consistência eventual** quando read e write usarem stores separados: documente e trate dados desatualizados na UI/API (mensagens, refresh, versionamento).
+
+---
+
+## 8. Relação com outras regras
+
+- **Arquitetura Limpa** ([clean-architecture.mdc](.cursor/rules/clean-architecture.mdc)): comandos e queries vivem como Casos de Uso; adaptadores (controllers, repositórios, DTOs) ficam na borda; o domínio não depende de detalhes de infraestrutura.
+- **DDD** ([ddd-domain-driven-design.mdc](.cursor/rules/ddd-domain-driven-design.mdc)): o write model pode usar agregados e raiz de agregado; comandos expressam intenção de negócio; a linguagem ubíqua aplica-se aos nomes dos comandos e às consultas.
+- **TDD** ([tdd-test-driven-development.mdc](.cursor/rules/tdd-test-driven-development.mdc)): escreva testes unitários para **handlers de comandos** e para **handlers de queries** separadamente; testes de integração devem cobrir o fluxo comando → persistência e query → DTO, sem misturar leitura e escrita no mesmo teste quando o CQRS exigir separação.
