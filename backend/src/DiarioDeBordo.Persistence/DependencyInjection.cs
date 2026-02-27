@@ -1,4 +1,6 @@
+using DiarioDeBordo.Application.Obras.Listar;
 using DiarioDeBordo.Domain.Interfaces;
+using DiarioDeBordo.Persistence.Obras;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -28,6 +30,8 @@ public static class DependencyInjection
 
         services.AddScoped<IUnitOfWork>(sp =>
             sp.GetRequiredService<DiarioDeBordoDbContext>());
+
+        services.AddScoped<IObraLeituraRepository, ObraLeituraRepository>();
 
         return services;
     }

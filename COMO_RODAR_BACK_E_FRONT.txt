@@ -1,0 +1,144 @@
+=====================================================================
+COMO RODAR BACKEND + FRONTEND VIA DOCKER COMPOSE
+Projeto: Diário de Bordo
+=====================================================================
+
+PRÉ-REQUISITOS
+--------------
+- Docker e Docker Compose instalados.
+- PostgreSQL instalado e rodando na máquina hospedeira.
+- Banco de dados "diariodebordo" criado (veja Passo 1 abaixo).
+- PostgreSQL configurado para aceitar conexões TCP da rede Docker
+  (listen_addresses = '*' e entrada em pg_hba.conf).
+  Caso ainda não esteja configurado, siga as instruções no bloco
+  "CONFIGURAR POSTGRESQL" abaixo.
+
+
+---------------------------------------------------------------------
+CONFIGURAR POSTGRESQL (apenas na primeira vez)
+---------------------------------------------------------------------
+Diretório: qualquer lugar
+
+1. Adicionar listen_addresses no postgresql.conf:
+   sudo bash -c "echo \"listen_addresses = '*'\" >> /etc/postgresql/16/main/postgresql.conf"
+
+2. Adicionar permissão para a rede Docker em pg_hba.conf:
+   sudo bash -c "echo \"host    all    postgres    172.17.0.0/16    scram-sha-256\" >> /etc/postgresql/16/main/pg_hba.conf"
+
+3. Reiniciar o PostgreSQL:
+   sudo systemctl restart postgresql
+
+
+---------------------------------------------------------------------
+PASSO 1 — CRIAR O BANCO DE DADOS (apenas na primeira vez)
+---------------------------------------------------------------------
+Diretório: qualquer lugar
+
+   PGPASSWORD=<senha-do-postgres> psql -h 127.0.0.1 -U postgres -c "CREATE DATABASE diariodebordo;"
+
+
+---------------------------------------------------------------------
+PASSO 2 — APLICAR MIGRATIONS (apenas na primeira vez ou após novas)
+---------------------------------------------------------------------
+Diretório: /media/belo/BeloSSD_2/Workspace/DiarioDeBordo/backend
+
+   ConnectionStrings__DefaultConnection="Host=127.0.0.1;Port=5432;Database=diariodebordo;Username=postgres;Password=<senha>;SSL Mode=Disable" \
+   Jwt__Key="diariodebordo-dev-key-min-32-characters-ok" \
+   dotnet ef database update \
+     --project src/DiarioDeBordo.Persistence \
+     --startup-project src/DiarioDeBordo.Api
+
+Nota: em ambiente Development o seed de dados (12 obras de exemplo)
+é aplicado automaticamente na primeira inicialização da API.
+
+
+---------------------------------------------------------------------
+PASSO 3 — SUBIR BACKEND + FRONTEND VIA DOCKER COMPOSE
+---------------------------------------------------------------------
+Diretório: /media/belo/BeloSSD_2/Workspace/DiarioDeBordo/docker
+
+   docker compose up --build
+
+Os containers ficam rodando até você pressionar Ctrl+C ou executar:
+   docker compose down
+
+
+URLs após subir:
+  - Backend:  http://localhost:5000
+              health check: http://localhost:5000/health
+              documentação (Scalar): http://localhost:5000/scalar
+  - Frontend: http://localhost:4200
+
+
+---------------------------------------------------------------------
+PASSO 4 — CONFIGURAR A CONEXÃO NO FRONTEND
+---------------------------------------------------------------------
+1. Abra o navegador em: http://localhost:4200
+2. Vá em "Configurações" no menu.
+3. Informe a URL da API:
+      http://localhost:5000
+4. Informe o Token JWT (Bearer):
+   - Gere um token via endpoint de autenticação do backend (quando
+     disponível) ou use um token de desenvolvimento gerado manualmente.
+   - Exemplo para gerar um token de dev (não usar em produção):
+     cd /media/belo/BeloSSD_2/Workspace/DiarioDeBordo/backend
+     dotnet run --project src/DiarioDeBordo.Api
+     # acesse http://localhost:5000/scalar e use o endpoint de autenticação
+5. Clique em "Salvar".
+6. Acesse "Obras" no menu — a tela irá exibir os dados vindos do backend.
+
+
+---------------------------------------------------------------------
+SUBIR APENAS O BACKEND (sem frontend)
+---------------------------------------------------------------------
+Diretório: /media/belo/BeloSSD_2/Workspace/DiarioDeBordo/docker
+
+   docker compose up backend --build
+
+
+---------------------------------------------------------------------
+SUBIR APENAS O FRONTEND (sem backend)
+---------------------------------------------------------------------
+Diretório: /media/belo/BeloSSD_2/Workspace/DiarioDeBordo/docker
+
+   docker compose up frontend --build
+
+Neste caso, configure em Configurações uma URL de backend válida
+(pode ser o backend rodando localmente via "dotnet run").
+
+
+---------------------------------------------------------------------
+RODAR BACKEND LOCALMENTE (sem Docker)
+---------------------------------------------------------------------
+Diretório: /media/belo/BeloSSD_2/Workspace/DiarioDeBordo/backend
+
+   ConnectionStrings__DefaultConnection="Host=127.0.0.1;Port=5432;Database=diariodebordo;Username=postgres;Password=<senha>;SSL Mode=Disable" \
+   Jwt__Key="diariodebordo-dev-key-min-32-characters-ok" \
+   dotnet run --project src/DiarioDeBordo.Api
+
+Backend disponível em: http://localhost:5000
+
+
+---------------------------------------------------------------------
+RODAR TESTES DO BACKEND
+---------------------------------------------------------------------
+Diretório: /media/belo/BeloSSD_2/Workspace/DiarioDeBordo/backend
+
+   dotnet test
+
+
+=====================================================================
+OBSERVAÇÕES
+=====================================================================
+- A senha do PostgreSQL no docker-compose.yml está em texto claro
+  apenas para ambiente de desenvolvimento local. Em outros ambientes,
+  use secrets (Docker Secrets, variáveis de ambiente no CI/CD, vault).
+
+- O token JWT configurado em Configurações é armazenado apenas no
+  localStorage do navegador (não é enviado a terceiros). Um fluxo de
+  login completo será implementado em iterações futuras.
+
+- O seed de dados (12 obras de exemplo) é aplicado automaticamente
+  apenas em ASPNETCORE_ENVIRONMENT=Development e somente quando a
+  tabela Obras estiver vazia. Não afeta dados existentes.
+=====================================================================

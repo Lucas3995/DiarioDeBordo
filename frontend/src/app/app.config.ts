@@ -3,7 +3,7 @@ import { provideRouter } from '@angular/router';
 import { provideHttpClient } from '@angular/common/http';
 import { routes } from './app.routes';
 import { IListaObrasPort } from './domain/lista-obras.port';
-import { ListaObrasMock } from './infrastructure/lista-obras.mock';
+import { ListaObrasHttp } from './infrastructure/lista-obras.http';
 import { ListaObrasService } from './application/lista-obras.service';
 
 export const appConfig: ApplicationConfig = {
@@ -11,7 +11,7 @@ export const appConfig: ApplicationConfig = {
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes),
     provideHttpClient(),
-    { provide: IListaObrasPort, useClass: ListaObrasMock },
+    { provide: IListaObrasPort, useClass: ListaObrasHttp },
     ListaObrasService,
   ],
 };

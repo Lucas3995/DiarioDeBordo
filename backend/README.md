@@ -98,13 +98,14 @@ dotnet run --project src/DiarioDeBordo.Api
 
 Endpoints disponíveis:
 
-| Endpoint | Descrição |
-|----------|-----------|
-| `GET /health` | Health check básico |
-| `GET /status` | Versão, ambiente e hora do servidor |
-| `POST /echo` | Exemplo CQRS: ecoa mensagem (valida FluentValidation) |
-| `GET /openapi/v1.json` | Documento OpenAPI (apenas em Development) |
-| `GET /scalar/v1` | UI Scalar (apenas em Development) |
+| Endpoint | Auth | Descrição |
+|----------|------|-----------|
+| `GET /health` | — | Health check básico |
+| `GET /status` | — | Versão, ambiente e hora do servidor |
+| `POST /echo` | — | Exemplo CQRS: ecoa mensagem (valida FluentValidation) |
+| `GET /api/obras` | JWT Bearer | Lista obras paginadas (módulo Acompanhamento) |
+| `GET /openapi/v1.json` | — | Documento OpenAPI (apenas em Development) |
+| `GET /scalar/v1` | — | UI Scalar (apenas em Development) |
 
 ### 5. Executar testes
 
@@ -171,6 +172,60 @@ Configurar em **Settings → Secrets and variables → Actions** do repositório
 | `JWT_KEY` | Chave JWT de produção |
 | `JWT_ISSUER` | Issuer JWT de produção |
 | `JWT_AUDIENCE` | Audience JWT de produção |
+
+---
+
+## Módulo — Acompanhamento de Obras
+
+### Endpoint
+
+`GET /api/obras?pageIndex=0&pageSize=10`
+
+Requer JWT Bearer no cabeçalho `Authorization`.
+
+Parâmetros:
+
+| Parâmetro | Tipo | Valores permitidos | Padrão |
+|-----------|------|--------------------|--------|
+| `pageIndex` | int | ≥ 0 | 0 |
+| `pageSize` | int | 10, 25, 50, 100 | 10 |
+
+Resposta (200 OK):
+
+```json
+{
+  "items": [
+    {
+      "id": "uuid",
+      "nome": "One Piece",
+      "tipo": "manga",
+      "ultimaAtualizacaoPosicao": "2026-02-20T00:00:00Z",
+      "posicaoAtual": 1110,
+      "proximaInfo": { "tipo": "dias_ate_proxima", "dias": 5 },
+      "ordemPreferencia": 1
+    }
+  ],
+  "totalCount": 12
+}
+```
+
+### Modelo de domínio — Obra
+
+| Campo | Tipo | Descrição |
+|-------|------|-----------|
+| `Id` | Guid | Identificador único |
+| `Nome` | string | Nome da obra |
+| `Tipo` | TipoObra (enum) | manga, manhwa, manhua, anime, livro, filme, serie, webnovel |
+| `PosicaoAtual` | int | Número da parte atual |
+| `DataUltimaAtualizacaoPosicao` | DateTime (UTC) | Data da última atualização |
+| `OrdemPreferencia` | int | Ordenação default (menor = maior preferência) |
+| `ProximaInfoTipo` | enum? | Discriminador para previsão |
+| `DiasAteProximaParte` | int? | Dias até a próxima parte |
+| `PartesJaPublicadas` | int? | Partes publicadas desde a última atualização |
+
+### Seed de dados (Development)
+
+Em `ASPNETCORE_ENVIRONMENT=Development`, a aplicação popula automaticamente a tabela `Obras` com 12 registros de exemplo (equivalentes ao mock do frontend) na primeira inicialização quando a tabela estiver vazia.
 
 ---
 
