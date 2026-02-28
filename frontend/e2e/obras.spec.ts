@@ -77,7 +77,27 @@ test.describe('Módulo Obras — Listagem paginada', () => {
       await expect(botoes).toHaveCount(10);
     });
 
-    test.describe('Controles de paginação com dados', () => {
+    test.describe('Controles de paginação (requer backend)', () => {
+      test('deve exibir o seletor de pageSize', async ({ page }) => {
+        await expect(page.locator('[data-testid="page-size-select"]')).toBeVisible();
+      });
+
+      test('deve exibir opções de pageSize 10, 25, 50, 100', async ({ page }) => {
+        const select = page.locator('[data-testid="page-size-select"]');
+        await expect(select).toBeVisible();
+        const opcoes = page.locator('[data-testid="page-size-option"]');
+        await expect(opcoes).toHaveCount(4);
+      });
+
+      test('deve exibir botões de navegação (anterior e próxima)', async ({ page }) => {
+        await expect(page.locator('[data-testid="btn-anterior"]')).toBeVisible();
+        await expect(page.locator('[data-testid="btn-proximo"]')).toBeVisible();
+      });
+
+      test('deve desabilitar o botão anterior na primeira página', async ({ page }) => {
+        await expect(page.locator('[data-testid="btn-anterior"]')).toBeDisabled();
+      });
+
       test('deve exibir total de registros', async ({ page }) => {
         const total = page.locator('[data-testid="paginacao-total"]');
         await expect(total).toBeVisible();
@@ -94,28 +114,6 @@ test.describe('Módulo Obras — Listagem paginada', () => {
         const nomes = page.locator('[data-testid="obra-nome"]');
         await expect(nomes).toHaveCount(12);
       });
-    });
-  });
-
-  test.describe('Controles de paginação (estrutura)', () => {
-    test('deve exibir o seletor de pageSize', async ({ page }) => {
-      await expect(page.locator('[data-testid="page-size-select"]')).toBeVisible();
-    });
-
-    test('deve exibir opções de pageSize 10, 25, 50, 100', async ({ page }) => {
-      const select = page.locator('[data-testid="page-size-select"]');
-      await expect(select).toBeVisible();
-      const opcoes = page.locator('[data-testid="page-size-option"]');
-      await expect(opcoes).toHaveCount(4);
-    });
-
-    test('deve exibir botões de navegação (anterior e próxima)', async ({ page }) => {
-      await expect(page.locator('[data-testid="btn-anterior"]')).toBeVisible();
-      await expect(page.locator('[data-testid="btn-proximo"]')).toBeVisible();
-    });
-
-    test('deve desabilitar o botão anterior na primeira página', async ({ page }) => {
-      await expect(page.locator('[data-testid="btn-anterior"]')).toBeDisabled();
     });
   });
 });
