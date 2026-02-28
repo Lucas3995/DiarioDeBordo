@@ -51,6 +51,30 @@ Não deixe o projeto sem mecanismo automatizado de teste, build, deploy e gestã
 - "Gates obrigatórios" significa: se existirem testes, eles **devem passar**; não exigir um número mínimo arbitrário de specs, mas sim que o conjunto existente esteja verde.
 - **PRs que criam novas camadas** (ex.: `domain/`, `application/`, `infrastructure/` no frontend) devem trazer uso efetivo dessas camadas no mesmo PR ou justificar explicitamente o adiamento; evitar estruturas mortas (pastas vazias declaradas como "em conformidade").
 
+### Monitoramento de jobs paralelos no CI
+
+Workflows podem executar jobs em paralelo com comportamentos diferentes:
+
+- **Jobs críticos** (sem `continue-on-error`): falha bloqueia o workflow e o merge. Agir imediatamente ao detectar falha, sem aguardar jobs opcionais ainda em andamento.
+- **Jobs opcionais** (`continue-on-error: true`): falha é informacional; nunca bloqueiam PR. Aguardá-los somente após os críticos estarem verdes, apenas para relato.
+
+Ao monitorar CI (ex.: com `gh run watch`), priorizar jobs críticos. Se um job crítico falhar, diagnosticar e corrigir antes de se preocupar com o status de jobs opcionais.
+
+### Pre-commit hook (barreira local obrigatória)
+
+O CI é a segunda linha de defesa; a primeira é o ambiente local. O projeto deve configurar um hook de pre-commit para bloquear commits com testes ou lint falhando:
+
+- **Frontend:** `npm run test` e `npm run lint` (via Husky + lint-staged ou equivalente).
+- **Backend:** `dotnet build` e `dotnet test` (via hook shell ou lefthook).
+
+Se o projeto ainda não tiver hooks configurados, gere o necessário:
+
+- `package.json` com `husky` + script `prepare` no frontend.
+- Hook `.husky/pre-commit` executando `npm run test --if-present`.
+- Ou `lefthook.yml` na raiz cobrindo frontend e backend.
+
+Não considere o ambiente de desenvolvimento completo sem essa barreira local.
+
 ```mermaid
 flowchart LR
   Plan[Planeamento] --> Code[Codigo]
@@ -161,6 +185,7 @@ Antes de gerar código, confirme:
 - [ ] O código evita padrões vulneráveis (injeção, XSS, etc.)?
 - [ ] Logs e mensagens de erro não expõem dados sensíveis?
 - [ ] Versionamento: commits com mensagens explícitas; alterações via PR quando a branch principal estiver protegida; tags para releases quando aplicável (ex.: SemVer).
+- [ ] A suíte de testes local foi executada e está verde antes do commit/push?
 
 **Pipelines:** o projeto já tem pipeline de teste/build/deploy e gestão de dados sensíveis? Se não, **inclua na entrega** a criação ou proposta dos ficheiros e passos necessários.
 
@@ -188,6 +213,7 @@ Ao gerar ou refatorar código, **não faça**:
 - Não adicionar **dependências** com vulnerabilidades críticas ou altas conhecidas sem justificação documentada e plano de mitigação.
 - **Não deixar o projeto sem pipelines** quando for expectável tê-los: se o projeto não tiver pipeline de teste, build, deploy ou gestão de dados sensíveis, você deve **gerar o necessário** (definições de pipeline e orientação de uso de secrets), em vez de apenas recomendar.
 - **Não propor ou realizar push direto** na branch principal protegida; alterações devem passar por **Pull Request** e revisão quando o projeto adotar essa política.
+- **Não fazer push com testes locais falhando.** O CI detectando o primeiro erro indica que a barreira local não foi usada. Executar `npm run test` (frontend) ou `dotnet test` (backend) antes de qualquer `git push`.
 
 Se parecer necessário violar alguma destas regras para atender um requisito, **reprojete a solução** ou documente a exceção e o plano de mitigação.
 

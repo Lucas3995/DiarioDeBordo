@@ -2,6 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { ApiConfigService } from './api-config.service';
 
 const STORAGE_KEY = 'diariodebordo_api_url';
+const STORAGE_KEY_TOKEN = 'diariodebordo_api_token';
 
 describe('ApiConfigService', () => {
   let service: ApiConfigService;
@@ -56,6 +57,34 @@ describe('ApiConfigService', () => {
     it('should remove the key when a whitespace-only string is provided', () => {
       service.setApiUrl('   ');
       expect(storageSpy.removeItem).toHaveBeenCalledWith(STORAGE_KEY);
+      expect(storageSpy.setItem).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('getToken', () => {
+    it('should return empty string when localStorage has no token', () => {
+      storageSpy.getItem.and.returnValue(null);
+      expect(service.getToken()).toBe('');
+    });
+
+    it('should return the stored token when localStorage has a value', () => {
+      storageSpy.getItem.and.callFake((key: string) =>
+        key === STORAGE_KEY_TOKEN ? 'meu-jwt-token' : null,
+      );
+      expect(service.getToken()).toBe('meu-jwt-token');
+      expect(storageSpy.getItem).toHaveBeenCalledWith(STORAGE_KEY_TOKEN);
+    });
+  });
+
+  describe('setToken', () => {
+    it('should store the token when a non-empty value is provided', () => {
+      service.setToken('meu-jwt-token');
+      expect(storageSpy.setItem).toHaveBeenCalledWith(STORAGE_KEY_TOKEN, 'meu-jwt-token');
+    });
+
+    it('should remove the key when an empty string is provided', () => {
+      service.setToken('');
+      expect(storageSpy.removeItem).toHaveBeenCalledWith(STORAGE_KEY_TOKEN);
       expect(storageSpy.setItem).not.toHaveBeenCalled();
     });
   });

@@ -1,0 +1,165 @@
+=====================================================================
+COMO RODAR BACKEND + FRONTEND VIA DOCKER COMPOSE
+Projeto: Diário de Bordo
+=====================================================================
+
+PRÉ-REQUISITOS
+--------------
+- Docker e Docker Compose instalados.
+- PostgreSQL instalado e rodando na máquina hospedeira.
+- Banco de dados "diariodebordo" criado (veja Passo 1 abaixo).
+- PostgreSQL configurado para aceitar conexões TCP da rede Docker
+  (listen_addresses = '*' e entrada em pg_hba.conf).
+  Caso ainda não esteja configurado, siga as instruções no bloco
+  "CONFIGURAR POSTGRESQL" abaixo.
+
+
+---------------------------------------------------------------------
+CONFIGURAR POSTGRESQL (apenas na primeira vez)
+---------------------------------------------------------------------
+Diretório: qualquer lugar
+
+1. Adicionar listen_addresses no postgresql.conf:
+   sudo bash -c "echo \"listen_addresses = '*'\" >> /etc/postgresql/16/main/postgresql.conf"
+
+2. Adicionar permissão para a rede Docker em pg_hba.conf:
+   sudo bash -c "echo \"host    all    postgres    172.0.0.0/8    scram-sha-256\" >> /etc/postgresql/16/main/pg_hba.conf"
+   (172.0.0.0/8 cobre todas as subnets criadas pelo Docker Compose, que variam dinamicamente
+    entre 172.17.x, 172.18.x, 172.19.x etc.)
+
+3. Reiniciar o PostgreSQL:
+   sudo systemctl restart postgresql
+
+
+---------------------------------------------------------------------
+PASSO 1 — CRIAR O BANCO DE DADOS (apenas na primeira vez)
+---------------------------------------------------------------------
+Diretório: qualquer lugar
+
+   PGPASSWORD=<senha-do-postgres> psql -h 127.0.0.1 -U postgres -c "CREATE DATABASE diariodebordo;"
+
+
+---------------------------------------------------------------------
+PASSO 2 — APLICAR MIGRATIONS (apenas na primeira vez ou após novas)
+---------------------------------------------------------------------
+Diretório: /media/belo/BeloSSD_2/Workspace/DiarioDeBordo/backend
+
+   ConnectionStrings__DefaultConnection="Host=127.0.0.1;Port=5432;Database=diariodebordo;Username=postgres;Password=<senha>;SSL Mode=Disable" \
+   Jwt__Key="diariodebordo-dev-key-min-32-characters-ok" \
+   dotnet ef database update \
+     --project src/DiarioDeBordo.Persistence \
+     --startup-project src/DiarioDeBordo.Api
+
+Nota: em ambiente Development o seed de dados (12 obras de exemplo e
+usuário admin) é aplicado automaticamente na primeira inicialização
+da API quando as tabelas estiverem vazias.
+
+
+---------------------------------------------------------------------
+PASSO 3 — SUBIR BACKEND + FRONTEND VIA DOCKER COMPOSE
+---------------------------------------------------------------------
+Diretório: /media/belo/BeloSSD_2/Workspace/DiarioDeBordo/docker
+
+   docker compose up --build
+
+Os containers ficam rodando até você pressionar Ctrl+C ou executar:
+   docker compose down
+
+
+URLs após subir:
+  - Backend:  http://localhost:5000
+              health check: http://localhost:5000/health
+              documentação (Scalar): http://localhost:5000/scalar
+  - Frontend: http://localhost:4200
+
+
+---------------------------------------------------------------------
+PASSO 4 — AUTENTICAR E OBTER TOKEN
+---------------------------------------------------------------------
+O endpoint GET /api/obras exige autenticação via JWT Bearer.
+O usuário admin é criado automaticamente no seed de Development:
+  login: admin
+  senha: camaradinha@123
+
+Opção A — via formulário de login no frontend:
+  1. Abra http://localhost:4200
+  2. Vá em "Configurações".
+  3. Informe a URL da API: http://localhost:5000
+  4. Na seção "Autenticação", preencha login/senha e clique "Entrar".
+     O token é salvo automaticamente.
+  5. Acesse "Obras" — a tela exibirá os dados do backend.
+
+Opção B — via curl:
+   curl -X POST http://localhost:5000/api/auth/login \
+     -H "Content-Type: application/json" \
+     -d '{"login":"admin","senha":"camaradinha@123"}'
+
+  Copie o valor de "token" e cole em:
+  Configurações > Token manual > campo "Token JWT (Bearer)".
+
+
+---------------------------------------------------------------------
+PASSO 5 — ACESSAR A LISTAGEM DE OBRAS
+---------------------------------------------------------------------
+1. Abra o navegador em: http://localhost:4200
+2. Certifique-se de que URL da API e token estão configurados
+   (Passo 4 acima).
+3. Acesse "Obras" no menu — a tela irá exibir os dados vindos do backend.
+
+
+---------------------------------------------------------------------
+SUBIR APENAS O BACKEND (sem frontend)
+---------------------------------------------------------------------
+Diretório: /media/belo/BeloSSD_2/Workspace/DiarioDeBordo/docker
+
+   docker compose up backend --build
+
+
+---------------------------------------------------------------------
+SUBIR APENAS O FRONTEND (sem backend)
+---------------------------------------------------------------------
+Diretório: /media/belo/BeloSSD_2/Workspace/DiarioDeBordo/docker
+
+   docker compose up frontend --build
+
+Neste caso, configure em Configurações uma URL de backend válida
+(pode ser o backend rodando localmente via "dotnet run").
+
+
+---------------------------------------------------------------------
+RODAR BACKEND LOCALMENTE (sem Docker)
+---------------------------------------------------------------------
+Diretório: /media/belo/BeloSSD_2/Workspace/DiarioDeBordo/backend
+
+   ConnectionStrings__DefaultConnection="Host=127.0.0.1;Port=5432;Database=diariodebordo;Username=postgres;Password=<senha>;SSL Mode=Disable" \
+   Jwt__Key="diariodebordo-dev-key-min-32-characters-ok" \
+   dotnet run --project src/DiarioDeBordo.Api
+
+Backend disponível em: http://localhost:5000
+
+
+---------------------------------------------------------------------
+RODAR TESTES DO BACKEND
+---------------------------------------------------------------------
+Diretório: /media/belo/BeloSSD_2/Workspace/DiarioDeBordo/backend
+
+   dotnet test
+
+
+=====================================================================
+OBSERVAÇÕES
+=====================================================================
+- A senha do PostgreSQL no docker-compose.yml está em texto claro
+  apenas para ambiente de desenvolvimento local. Em outros ambientes,
+  use secrets (Docker Secrets, variáveis de ambiente no CI/CD, vault).
+
+- O token JWT obtido via login é armazenado apenas no localStorage do
+  navegador (não é enviado a terceiros).
+
+- O seed de dados (12 obras de exemplo + usuário admin) é aplicado
+  automaticamente apenas em ASPNETCORE_ENVIRONMENT=Development e
+  somente quando as tabelas estiverem vazias. Não afeta dados existentes.
+
+- LGPD: o usuário admin inicia com Requer2FA=false para facilitar o
+  desenvolvimento. Habilitar 2FA antes de expor em produção.
+=====================================================================
