@@ -1,7 +1,9 @@
 using DiarioDeBordo.Api.Middleware;
 using DiarioDeBordo.Application;
+using DiarioDeBordo.Application.Auth;
 using DiarioDeBordo.Infrastructure;
 using DiarioDeBordo.Persistence;
+using DiarioDeBordo.Persistence.Seed;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
@@ -10,10 +12,27 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
+const string CorsPolicyName = "FrontendCors";
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(CorsPolicyName, policy =>
+    {
+        var allowedOrigins = builder.Configuration
+            .GetSection("Cors:AllowedOrigins")
+            .Get<string[]>()
+            ?? ["http://localhost:4200"];
+
+        policy.WithOrigins(allowedOrigins)
+              .AllowAnyHeader()
+              .AllowAnyMethod();
+    });
+});
+
 builder.Services.AddControllers();
 
 builder.Services.AddApplication();
-builder.Services.AddInfrastructure();
+builder.Services.AddInfrastructure(builder.Configuration);
 
 var skipPersistence = builder.Environment.IsEnvironment("Testing");
 if (!skipPersistence)
@@ -73,6 +92,20 @@ var app = builder.Build();
 
 app.UseMiddleware<ExceptionMiddleware>();
 
+// Seed de dados em Development (equivalente ao mock do frontend)
+if (app.Environment.IsDevelopment())
+{
+    using var scope = app.Services.CreateScope();
+    var dbContext = scope.ServiceProvider.GetService<DiarioDeBordoDbContext>();
+    if (dbContext is not null)
+    {
+        await ObrasSeed.AplicarAsync(dbContext);
+
+        var passwordHasher = scope.ServiceProvider.GetRequiredService<IPasswordHasher>();
+        await UsuariosSeed.AplicarAsync(dbContext, passwordHasher);
+    }
+}
+
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
@@ -80,6 +113,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.UseCors(CorsPolicyName);
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();

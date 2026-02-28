@@ -193,6 +193,8 @@ Antes de criar um componente Angular, defina seu tipo e localização:
 - [ ] O teste valida **comportamento** (o quê), não detalhes de implementação (o como)?
 - [ ] O serviço com efeitos tem teste cobrindo caminho feliz **e** ao menos um caso de erro?
 - [ ] O ambiente de teste é repetível (sem dependências externas reais, sem ordem de execução)?
+- [ ] `npm run test` foi executado localmente e todos os testes passaram antes do push?
+- [ ] Ao alterar o construtor, métodos públicos ou dependências injetadas de um componente ou serviço, o spec foi atualizado na mesma sessão (spy com os métodos corretos, assertions alinhadas ao comportamento atual)?
 
 > Aplique exigências de teste de forma proporcional; evite overengineering com testes que não capturam regras ou riscos relevantes.
 
@@ -216,6 +218,8 @@ Ao gerar ou refatorar código Angular, **não faça**:
 - **Não declare camadas vazias** (`domain/`, `application/`, `infrastructure/` com apenas `.gitkeep`) como evidência de Clean Architecture; camada criada é camada usada.
 - **Não misture template inline e templateUrl** de forma inconsistente no mesmo projeto sem critério e justificativa.
 - **Não exija testes** para cada componente puramente presentacional e trivial sem lógica; não bloqueie PR por falta de spec isolado quando o custo não se justifica.
+- **Não alterar o contrato de um componente ou serviço** (constructor, dependências injetadas, métodos públicos) sem atualizar o spec correspondente antes de commitar. Spec desatualizado é equivalente a spec ausente.
+- **Não fazer push sem `npm run test` local verde.** O CI não substitui a execução local; ele é a segunda linha de defesa.
 
 Se parecer necessário violar alguma destas regras para atender um requisito, **reprojete a solução** ou documente a exceção e o plano de mitigação.
 

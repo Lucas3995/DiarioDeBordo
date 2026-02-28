@@ -102,7 +102,8 @@ Detalhes nas regras em [.cursor/rules](.cursor/rules).
 
 ### Mínimos
 
-1. **Acompanhamento de obras** – listar obras, posição atual, links, tempo esperado até próxima parte.
+1. **Acompanhamento de obras** ✅ – listar obras paginadas (ordenadas por preferência), posição atual com rótulo por tipo, última atualização (relativa + tooltip `dd/MM/yyyy`), previsão de próxima parte. Backend (`GET /api/obras`) + Frontend Angular + Docker Compose implementados.
+   - **Autenticação** ✅ – endpoint `POST /api/auth/login` com hash BCrypt, JWT e arquitetura 2FA-ready. Usuário admin criado automaticamente no seed. Frontend com módulo de login integrado à tela de Configurações (token salvo automaticamente). Ver seção "Como executar > Obter token de acesso".
 2. **Atualizar posição** – por nome ou código da obra, parte atual, link opcional, comentários por parte, prévia antes de salvar; criar obra se não existir.
 3. **Gestão de situação** – status (parado, em andamento, concluída, em hiato), comentário geral, sinopse, imagem de capa.
 
@@ -159,12 +160,29 @@ npm start
 
 **Configuração da URL da API:** a URL da API (backend serverless ou local) é configurada **em tela por um usuário administrador**: acesse o menu **Configurações** na aplicação e informe a URL do backend. O valor é armazenado localmente no navegador (localStorage). Não é definida por variável de ambiente no build.
 
-### One-click (Docker – frontend local)
+### Obter token de acesso (pré-requisito para rotas protegidas)
 
-Comando para subir o frontend (e, em dev, opcionalmente banco) em localhost. O backend em produção permanece em ambiente serverless (AWS).
+As rotas protegidas (ex.: `GET /api/obras`) exigem um token JWT Bearer. Para obtê-lo:
+
+**Via frontend:** acesse a tela **Configurações** e preencha o formulário de login com `admin` / `camaradinha@123`. O token é salvo automaticamente.
+
+**Via curl:**
 
 ```bash
-docker-compose -f docker/docker-compose.yml up -d
+curl -X POST http://localhost:5000/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"login":"admin","senha":"camaradinha@123"}'
+```
+
+Copie o valor de `token` e configure-o em **Configurações > Token manual** no frontend.
+
+### One-click (Docker – backend + frontend)
+
+Sobe o backend (.NET 9) e o frontend (Angular 21) via Docker Compose, conectando ao PostgreSQL instalado na máquina hospedeira. Consulte **[`COMO_RODAR_BACK_E_FRONT.txt`](COMO_RODAR_BACK_E_FRONT.txt)** para o passo a passo completo.
+
+```bash
+# Diretório: docker/
+docker compose up --build
 ```
 
 Portas típicas: frontend 4200; API via URL do backend serverless. Após abrir a aplicação no browser, configure a URL da API em **Configurações** (admin).

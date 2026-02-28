@@ -55,6 +55,7 @@ jobs:
   e2e:
     runs-on: ubuntu-latest
     continue-on-error: true
+    timeout-minutes: 5
     defaults:
       run:
         working-directory: frontend

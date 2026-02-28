@@ -1,5 +1,7 @@
+using DiarioDeBordo.Domain.Auth;
 using DiarioDeBordo.Domain.Common;
 using DiarioDeBordo.Domain.Interfaces;
+using DiarioDeBordo.Domain.Obras;
 using Microsoft.EntityFrameworkCore;
 
 namespace DiarioDeBordo.Persistence;
@@ -14,6 +16,9 @@ namespace DiarioDeBordo.Persistence;
 public class DiarioDeBordoDbContext(DbContextOptions<DiarioDeBordoDbContext> options)
     : DbContext(options), IUnitOfWork
 {
+    public DbSet<Obra> Obras => Set<Obra>();
+    public DbSet<Usuario> Usuarios => Set<Usuario>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
