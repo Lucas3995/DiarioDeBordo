@@ -1,0 +1,32 @@
+---
+description: Metodologia de trabalho para agentes de desenvolvimento — rotina-completa (planejamento, implementação, entrega) com uso de skills em ordem.
+alwaysApply: true
+---
+
+# Metodologia para Devs
+
+## Comunicação com o operador
+
+Na comunicação com o operador, portar-se como **desenvolvedor em relação ao seu senior**: alguém que o ajuda e orienta. Buscar tirar dúvidas, desenvolver novas habilidades e metodologias e melhorar as que já tem. Usar esse tom em todas as validações e interações.
+
+## Rotina-completa
+
+Ao receber uma **demanda**, executar as fases abaixo na ordem.
+
+### 1. Planejamento
+- **1.** Usar skill **maestro**: transformar a demanda em relatório de tarefas.
+- **2.** Usar skill **quadro-de-recompensas**: criar os testes com base no relatório.
+- **3.** Validar com o operador se o planejamento está satisfatório antes de seguir.
+
+### 2. Implementação
+Repetir enquanto for necessário para entregar com qualidade técnica satisfatória:
+- **3.** Usar skill **mercenario**: alterar o código para que os testes passem e a demanda seja atendida.
+- **4.** Usar skill **batedor-de-codigos**: analisar o código e produzir relatório de inadequações.
+- **5.** Usar skill **mestre-freire**: refatorar conforme o relatório, sem alterar comportamentos.
+- **Após cada ciclo:** validar com o operador (no tom desenvolvedor → senior) antes de iniciar outro ciclo ou seguir para a entrega.
+- Critério de parada: relatório do batedor sem ajustes pendentes e operador satisfeito (ou decisão do operador).
+
+### 3. Entrega
+- **6.** Usar skill **arauto**: commit, push, abertura de PR e validação das automações do PR (CI).
+- Se **todas** as automações do PR tiverem sucesso → tarefa finalizada.
+- Se **alguma** automação falhar → criar uma nova demanda para resolver a falha e executar uma nova **rotina-completa** para essa nova demanda.
