@@ -1,7 +1,9 @@
 <div class="obras-container">
   <h2 class="obras-titulo">Acompanhamento de Obras</h2>
   <p class="obras-acoes">
-    <a routerLink="/obras/atualizar-posicao" class="btn-atualizar-posicao" data-testid="link-atualizar-posicao">Atualizar posição</a>
+    <button type="button" class="btn-atualizar-posicao" data-testid="link-atualizar-posicao" (click)="abrirDialogAtualizarPosicao()">
+      Atualizar posição
+    </button>
   </p>
 
   @if (obras.length > 0) {
@@ -37,7 +39,7 @@
               </span>
             </td>
             <td>
-              <span data-testid="obra-posicao">{{ formatarPosicaoObra(obra) }}</span>
+              <span data-testid="obra-posicao">{{ formatarPosicao(obra.posicaoAtual, obra.tipo) }}</span>
             </td>
             <td>
               <span data-testid="obra-previsao">

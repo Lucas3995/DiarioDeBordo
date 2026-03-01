@@ -116,4 +116,33 @@ test.describe('Módulo Obras — Listagem paginada', () => {
       });
     });
   });
+
+  test.describe('Atualizar posição em popup (demanda 1)', () => {
+    test('deve exibir o botão "Atualizar posição" na página de obras', async ({ page }) => {
+      await expect(page.locator('[data-testid="link-atualizar-posicao"]')).toBeVisible();
+      await expect(page.locator('[data-testid="link-atualizar-posicao"]')).toContainText(
+        'Atualizar posição'
+      );
+    });
+
+    test('ao clicar em Atualizar posição deve abrir o dialog com o formulário (overlay e campo identificador)', async ({
+      page,
+    }) => {
+      await page.locator('[data-testid="link-atualizar-posicao"]').click();
+      await expect(page.locator('[data-testid="dialog-overlay"]')).toBeVisible();
+      await expect(page.locator('[data-testid="atualizar-posicao-identificador"]')).toBeVisible();
+      await expect(page).toHaveURL(/\/obras/);
+    });
+
+    test('ao fechar o dialog a lista permanece visível e a URL continua /obras', async ({
+      page,
+    }) => {
+      await page.locator('[data-testid="link-atualizar-posicao"]').click();
+      await expect(page.locator('[data-testid="dialog-overlay"]')).toBeVisible();
+      await page.locator('[data-testid="atualizar-posicao-fechar"]').click();
+      await expect(page.locator('[data-testid="dialog-overlay"]')).not.toBeVisible();
+      await expect(page).toHaveURL(/\/obras/);
+      await expect(page.locator('h2')).toContainText('Acompanhamento de Obras');
+    });
+  });
 });

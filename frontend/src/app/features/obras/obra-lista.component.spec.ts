@@ -7,6 +7,9 @@ import { TipoObra } from '../../domain/obra.types';
 import { ObraListItem } from '../../domain/obra-list-item';
 import { By } from '@angular/platform-browser';
 import { provideRouter } from '@angular/router';
+import { DialogService } from '../../shared/dialog/dialog.service';
+import { DialogRef } from '../../shared/dialog/dialog-ref';
+import { AtualizarPosicaoComponent } from './atualizar-posicao/atualizar-posicao.component';
 
 const OBRAS_MOCK: ObraListItem[] = [
   {
@@ -44,15 +47,19 @@ describe('ObraListaComponent', () => {
   let fixture: ComponentFixture<ObraListaComponent>;
   let component: ObraListaComponent;
   let serviceSpy: jasmine.SpyObj<ListaObrasService>;
+  let dialogServiceSpy: jasmine.SpyObj<DialogService>;
 
   beforeEach(async () => {
     serviceSpy = jasmine.createSpyObj<ListaObrasService>('ListaObrasService', ['listarPagina']);
     serviceSpy.listarPagina.and.returnValue(of(RESULTADO_PAGINA_1));
+    dialogServiceSpy = jasmine.createSpyObj<DialogService>('DialogService', ['open']);
+    dialogServiceSpy.open.and.returnValue(new DialogRef());
 
     await TestBed.configureTestingModule({
       imports: [ObraListaComponent],
       providers: [
         { provide: ListaObrasService, useValue: serviceSpy },
+        { provide: DialogService, useValue: dialogServiceSpy },
         provideRouter([]),
       ],
     }).compileComponents();
@@ -126,10 +133,17 @@ describe('ObraListaComponent', () => {
       expect(botoes.length).toBe(3);
     });
 
-    it('deve exibir link "Atualizar posição"', () => {
-      const link = fixture.debugElement.query(By.css('[data-testid="link-atualizar-posicao"]'));
-      expect(link).toBeTruthy();
-      expect(link.nativeElement.getAttribute('href')).toContain('/obras/atualizar-posicao');
+    it('deve exibir botão/link "Atualizar posição" com data-testid para acessibilidade', () => {
+      const btn = fixture.debugElement.query(By.css('[data-testid="link-atualizar-posicao"]'));
+      expect(btn).toBeTruthy();
+      expect(btn.nativeElement.textContent?.trim()).toContain('Atualizar posição');
+    });
+
+    it('ao clicar em Atualizar posição deve abrir o dialog com o componente de atualização (demanda 1 — popup)', () => {
+      const btn = fixture.debugElement.query(By.css('[data-testid="link-atualizar-posicao"]'));
+      btn.nativeElement.click();
+      fixture.detectChanges();
+      expect(dialogServiceSpy.open).toHaveBeenCalledWith(AtualizarPosicaoComponent, jasmine.anything());
     });
   });
 
@@ -212,6 +226,27 @@ describe('ObraListaComponent', () => {
     it('não deve exibir a tabela quando a lista está vazia', () => {
       const tabela = fixture.debugElement.query(By.css('[data-testid="obras-tabela"]'));
       expect(tabela).toBeNull();
+    });
+  });
+
+  describe('dialog Atualizar posição (demanda 1)', () => {
+    it('ao fechar o dialog com sucesso deve recarregar a listagem (carregarPagina)', () => {
+      const dialogRef = new DialogRef<{ salvou?: boolean }>() as DialogRef;
+      dialogServiceSpy.open.and.returnValue(dialogRef);
+      serviceSpy.listarPagina.calls.reset();
+
+      const btn = fixture.debugElement.query(By.css('[data-testid="link-atualizar-posicao"]'));
+      btn.nativeElement.click();
+      fixture.detectChanges();
+      expect(dialogServiceSpy.open).toHaveBeenCalled();
+
+      dialogRef.close({ salvou: true });
+      fixture.detectChanges();
+
+      expect(serviceSpy.listarPagina).toHaveBeenCalledWith({
+        pageIndex: component.pageIndex,
+        pageSize: component.pageSize,
+      });
     });
   });
 });

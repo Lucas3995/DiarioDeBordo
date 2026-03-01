@@ -6,6 +6,7 @@ import { AtualizarPosicaoService, ObraDetalhe } from '../../../application/atual
 import { TipoObra } from '../../../domain/obra.types';
 import { provideRouter } from '@angular/router';
 import { By } from '@angular/platform-browser';
+import { DialogRef } from '../../../shared/dialog/dialog-ref';
 
 /** Prévia sintética marcada como obra nova (Demanda 5 — item 4 opcional). */
 type ObraDetalheComObraNova = ObraDetalhe & { obraNova?: boolean };
@@ -119,5 +120,60 @@ describe('AtualizarPosicaoComponent', () => {
       const text = previewEl.nativeElement.textContent;
       expect(text).toMatch(/Antes:.*—.*obra nova/i);
     });
+  });
+
+});
+
+describe('AtualizarPosicaoComponent uso em popup (demanda 1 — DialogRef injetado)', () => {
+  let fixture: ComponentFixture<AtualizarPosicaoComponent>;
+  let component: AtualizarPosicaoComponent;
+  let serviceSpy: jasmine.SpyObj<AtualizarPosicaoService>;
+  let dialogRefSpy: jasmine.SpyObj<DialogRef<{ salvou: boolean }>>;
+  let router: Router;
+
+  beforeEach(async () => {
+    serviceSpy = jasmine.createSpyObj<AtualizarPosicaoService>('AtualizarPosicaoService', [
+      'obterPorId',
+      'obterPorNome',
+      'atualizarPosicao',
+    ]);
+    dialogRefSpy = jasmine.createSpyObj<DialogRef<{ salvou: boolean }>>('DialogRef', ['close']);
+    await TestBed.configureTestingModule({
+      imports: [AtualizarPosicaoComponent],
+      providers: [
+        { provide: AtualizarPosicaoService, useValue: serviceSpy },
+        { provide: DialogRef, useValue: dialogRefSpy },
+        provideRouter([]),
+      ],
+    }).compileComponents();
+    router = TestBed.inject(Router);
+    spyOn(router, 'navigate').and.stub();
+    fixture = TestBed.createComponent(AtualizarPosicaoComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  });
+
+  it('ao salvar com sucesso deve chamar dialogRef.close({ salvou: true }) e não navegar', (done) => {
+    serviceSpy.atualizarPosicao.and.returnValue(
+      of({ id: 'id-1', criada: false })
+    );
+    component.valorIdentificador = 'One Piece';
+    component.novaPosicao = 1111;
+    component.salvar();
+
+    setTimeout(() => {
+      expect(dialogRefSpy.close).toHaveBeenCalledWith({ salvou: true });
+      expect(router.navigate).not.toHaveBeenCalled();
+      done();
+    }, 1600);
+  });
+
+  it('deve exibir botão Fechar/Cancelar que chama dialogRef.close() sem resultado (demanda 1)', () => {
+    const btnFechar = fixture.debugElement.query(
+      By.css('[data-testid="atualizar-posicao-fechar"]')
+    );
+    expect(btnFechar).toBeTruthy();
+    btnFechar.nativeElement.click();
+    expect(dialogRefSpy.close).toHaveBeenCalledWith(undefined);
   });
 });

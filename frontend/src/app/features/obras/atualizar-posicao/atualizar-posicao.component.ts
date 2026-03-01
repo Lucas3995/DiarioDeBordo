@@ -1,15 +1,21 @@
-import { Component } from '@angular/core';
+import { Component, Optional, Inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
 import { AtualizarPosicaoService, ObraDetalhe, AtualizarPosicaoRequest } from '../../../application/atualizar-posicao.service';
 import { TipoObra, ROTULO_POSICAO } from '../../../domain/obra.types';
 import { formatarDataRelativa, formatarDataTooltip as formatarDataTooltipDomain } from '../../../domain/datas';
+import { DialogRef } from '../../../shared/dialog/dialog-ref';
+import {
+  SAIDA_APOS_SUCESSO,
+  SaidaAposSucesso,
+  DELAY_FECHAMENTO_APOS_SUCESSO_MS,
+} from '../../../shared/dialog/saida-apos-sucesso';
 
 @Component({
   selector: 'app-atualizar-posicao',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, FormsModule],
   templateUrl: './atualizar-posicao.component.html',
   styleUrl: './atualizar-posicao.component.scss',
 })
@@ -33,7 +39,9 @@ export class AtualizarPosicaoComponent {
 
   constructor(
     private readonly atualizarPosicaoService: AtualizarPosicaoService,
-    private readonly router: Router,
+    @Optional() @Inject(SAIDA_APOS_SUCESSO) private readonly saidaAposSucesso: SaidaAposSucesso | null,
+    @Optional() private readonly dialogRef: DialogRef<{ salvou: boolean }> | null,
+    @Optional() private readonly router: Router | null,
   ) {}
 
   get dataParaEnvio(): string | undefined {
@@ -99,7 +107,15 @@ export class AtualizarPosicaoComponent {
         this.carregando = false;
         this.sucesso = res.criada ? 'Obra criada e posição registrada.' : 'Posição atualizada.';
         this.preview = null;
-        setTimeout(() => this.router.navigate(['/obras']), 1500);
+        if (this.saidaAposSucesso) {
+          this.saidaAposSucesso.fecharComSucesso();
+        } else if (this.dialogRef) {
+          const dialogRef = this.dialogRef;
+          setTimeout(() => dialogRef.close({ salvou: true }), DELAY_FECHAMENTO_APOS_SUCESSO_MS);
+        } else if (this.router) {
+          const router = this.router;
+          setTimeout(() => router.navigate(['/obras']), DELAY_FECHAMENTO_APOS_SUCESSO_MS);
+        }
       },
       error: (err) => {
         this.carregando = false;
@@ -120,14 +136,20 @@ export class AtualizarPosicaoComponent {
     return ROTULO_POSICAO[tipo as TipoObra] ?? 'parte';
   }
 
+  /** Fecha o dialog (quando usado em popup). */
+  fechar(): void {
+    this.dialogRef?.close(undefined);
+  }
+
   /** Constrói prévia sintética para obra que ainda não existe (404 + criarSeNaoExistir). */
   private construirPreviaSinteticaObraNova(id: string): ObraDetalhe {
+    const dataEnvio = this.dataParaEnvio ?? new Date().toISOString().slice(0, 10);
     return {
       id: '',
       nome: this.nomeParaCriar.trim() || id,
       tipo: this.tipoParaCriar,
       posicaoAtual: 0,
-      dataUltimaAtualizacaoPosicao: this.dataParaEnvio!,
+      dataUltimaAtualizacaoPosicao: dataEnvio,
       ordemPreferencia: this.ordemPreferenciaParaCriar,
       obraNova: true,
     };
