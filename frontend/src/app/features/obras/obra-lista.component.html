@@ -1,5 +1,8 @@
 <div class="obras-container">
   <h2 class="obras-titulo">Acompanhamento de Obras</h2>
+  <p class="obras-acoes">
+    <a routerLink="/obras/atualizar-posicao" class="btn-atualizar-posicao" data-testid="link-atualizar-posicao">Atualizar posição</a>
+  </p>
 
   @if (obras.length > 0) {
     <table class="obras-tabela" data-testid="obras-tabela">

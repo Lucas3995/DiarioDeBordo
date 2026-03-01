@@ -1,0 +1,86 @@
+<div class="atualizar-posicao">
+  <h2>Atualizar posição</h2>
+  <p class="instrucao">Informe a obra por código (id) ou nome e a nova posição. Use "Ver prévia" para conferir antes de salvar.</p>
+
+  <div class="formulario">
+    <div class="campo">
+      <label>
+        <input type="radio" name="tipoId" [(ngModel)]="tipoIdentificador" value="nome" /> Por nome
+      </label>
+      <label>
+        <input type="radio" name="tipoId" [(ngModel)]="tipoIdentificador" value="id" /> Por código (id)
+      </label>
+    </div>
+    <div class="campo">
+      <label [for]="tipoIdentificador === 'nome' ? 'valorNome' : 'valorId'">
+        {{ tipoIdentificador === 'nome' ? 'Nome da obra' : 'Código (id) da obra' }}
+      </label>
+      <input
+        [id]="tipoIdentificador === 'nome' ? 'valorNome' : 'valorId'"
+        type="text"
+        [(ngModel)]="valorIdentificador"
+        placeholder="{{ tipoIdentificador === 'nome' ? 'Ex.: One Piece' : 'UUID da obra' }}"
+        data-testid="atualizar-posicao-identificador"
+      />
+    </div>
+    <div class="campo">
+      <label for="novaPosicao">Nova posição</label>
+      <input id="novaPosicao" type="number" min="0" [(ngModel)]="novaPosicao" data-testid="atualizar-posicao-nova-posicao" />
+    </div>
+    <div class="campo">
+      <label for="dataAtualizacao">Data da última atualização (opcional; vazio = hoje)</label>
+      <input id="dataAtualizacao" type="date" [(ngModel)]="dataUltimaAtualizacao" data-testid="atualizar-posicao-data" />
+    </div>
+    <div class="campo checkbox">
+      <label>
+        <input type="checkbox" [(ngModel)]="criarSeNaoExistir" data-testid="atualizar-posicao-criar" />
+        Criar obra se não existir
+      </label>
+    </div>
+    @if (criarSeNaoExistir) {
+      <div class="campos-criacao">
+        <div class="campo">
+          <label for="nomeParaCriar">Nome (nova obra)</label>
+          <input id="nomeParaCriar" type="text" [(ngModel)]="nomeParaCriar" [placeholder]="valorIdentificador || 'Nome da obra'" data-testid="atualizar-posicao-nome-criar" />
+        </div>
+        <div class="campo">
+          <label for="tipoParaCriar">Tipo</label>
+          <select id="tipoParaCriar" [(ngModel)]="tipoParaCriar" data-testid="atualizar-posicao-tipo-criar">
+            @for (t of tiposObra; track t) {
+              <option [value]="t">{{ t }}</option>
+            }
+          </select>
+        </div>
+        <div class="campo">
+          <label for="ordemParaCriar">Ordem de preferência</label>
+          <input id="ordemParaCriar" type="number" min="0" [(ngModel)]="ordemPreferenciaParaCriar" data-testid="atualizar-posicao-ordem-criar" />
+        </div>
+      </div>
+    }
+
+    @if (erro) {
+      <p class="erro" data-testid="atualizar-posicao-erro">{{ erro }}</p>
+    }
+    @if (sucesso) {
+      <p class="sucesso" data-testid="atualizar-posicao-sucesso">{{ sucesso }}</p>
+    }
+
+    <div class="botoes">
+      <button type="button" class="btn-preview" (click)="verPreview()" [disabled]="carregando" data-testid="atualizar-posicao-ver-preview">
+        Ver prévia
+      </button>
+      <button type="button" class="btn-salvar" (click)="salvar()" [disabled]="carregando" data-testid="atualizar-posicao-salvar">
+        Salvar
+      </button>
+      <a routerLink="/obras" class="btn-voltar">Voltar à lista</a>
+    </div>
+  </div>
+
+  @if (preview) {
+    <div class="preview" data-testid="atualizar-posicao-preview">
+      <h3>Prévia</h3>
+      <p><strong>Antes:</strong> {{ rotuloPosicao(preview.tipo) }} {{ preview.posicaoAtual }} — {{ formatarData(preview.dataUltimaAtualizacaoPosicao) }}</p>
+      <p><strong>Depois:</strong> {{ rotuloPosicao(preview.tipo) }} {{ novaPosicao }} — {{ dataParaEnvio ? formatarData(dataParaEnvio) : 'hoje' }}</p>
+    </div>
+  }
+</div>

@@ -1,4 +1,7 @@
+using DiarioDeBordo.Application.Obras;
+using DiarioDeBordo.Application.Obras.AtualizarPosicao;
 using DiarioDeBordo.Application.Obras.Listar;
+using DiarioDeBordo.Application.Obras.ObterPorIdOuNome;
 using DiarioDeBordo.Domain.Obras;
 using DiarioDeBordo.Persistence;
 using FluentAssertions;
@@ -112,6 +115,58 @@ public sealed class ObrasControllerTests : IClassFixture<ObrasControllerTestFact
         item.Tipo.Should().NotBeNullOrEmpty();
         item.PosicaoAtual.Should().BeGreaterThan(0);
     }
+
+    // --------------- GET por id (prévia) - relatório item 7 ---------------
+
+    [Fact]
+    public async Task GET_obras_PorId_ComToken_DeveRetornar200QuandoExistir()
+    {
+        _client.DefaultRequestHeaders.Authorization =
+            new AuthenticationHeaderValue("Bearer", _factory.GerarToken());
+        var id = await _factory.ObterPrimeiroIdObraAsync();
+
+        var resposta = await _client.GetAsync($"/api/obras/{id}");
+
+        resposta.StatusCode.Should().Be(HttpStatusCode.OK);
+        var json = await resposta.Content.ReadAsStringAsync();
+        var obra = JsonSerializer.Deserialize<ObraDetalheDto>(json, JsonOpts);
+        obra.Should().NotBeNull();
+        obra!.Id.Should().Be(id);
+    }
+
+    [Fact]
+    public async Task GET_obras_PorId_Inexistente_DeveRetornar404()
+    {
+        _client.DefaultRequestHeaders.Authorization =
+            new AuthenticationHeaderValue("Bearer", _factory.GerarToken());
+        var id = Guid.NewGuid();
+
+        var resposta = await _client.GetAsync($"/api/obras/{id}");
+
+        resposta.StatusCode.Should().Be(HttpStatusCode.NotFound);
+    }
+
+    // --------------- PATCH posição - relatório item 7 ---------------
+
+    [Fact]
+    public async Task PATCH_posicao_ComIdExistente_DeveRetornar200EAtualizar()
+    {
+        _client.DefaultRequestHeaders.Authorization =
+            new AuthenticationHeaderValue("Bearer", _factory.GerarToken());
+        var id = await _factory.ObterPrimeiroIdObraAsync();
+
+        var body = new { idObra = id, nomeObra = (string?)null, novaPosicao = 999, dataUltimaAtualizacao = (DateTime?)null, criarSeNaoExistir = false, nomeParaCriar = (string?)null, tipoParaCriar = (string?)null, ordemPreferenciaParaCriar = (int?)null };
+        var content = new StringContent(JsonSerializer.Serialize(body), System.Text.Encoding.UTF8, "application/json");
+
+        var resposta = await _client.PatchAsync("/api/obras/posicao", content);
+
+        resposta.StatusCode.Should().Be(HttpStatusCode.OK);
+        var responseJson = await resposta.Content.ReadAsStringAsync();
+        var response = JsonSerializer.Deserialize<AtualizarPosicaoObraResponse>(responseJson, JsonOpts);
+        response.Should().NotBeNull();
+        response!.Id.Should().Be(id);
+        response.Criada.Should().BeFalse();
+    }
 }
 
 /// <summary>
@@ -150,13 +205,20 @@ public sealed class ObrasControllerTestFactory : WebApplicationFactory<Program>
             services.AddDbContext<DiarioDeBordoDbContext>(options =>
                 options.UseInMemoryDatabase(_dbName));
 
-            // Registrar o repositório de leitura usando o context InMemory
-            var repoDescriptor = services.SingleOrDefault(
+            // Registrar repositórios usando o context InMemory
+            var repoLeituraDescriptor = services.SingleOrDefault(
                 d => d.ServiceType == typeof(IObraLeituraRepository));
-            if (repoDescriptor is null)
+            if (repoLeituraDescriptor is null)
             {
                 services.AddScoped<IObraLeituraRepository,
                     DiarioDeBordo.Persistence.Obras.ObraLeituraRepository>();
+            }
+            var repoEscritaDescriptor = services.SingleOrDefault(
+                d => d.ServiceType == typeof(IObraEscritaRepository));
+            if (repoEscritaDescriptor is null)
+            {
+                services.AddScoped<IObraEscritaRepository,
+                    DiarioDeBordo.Persistence.Obras.ObraEscritaRepository>();
             }
         });
     }
@@ -194,5 +256,14 @@ public sealed class ObrasControllerTestFactory : WebApplicationFactory<Program>
 
             await ctx.SaveChangesAsync();
         }
+    }
+
+    /// <summary>Retorna o Id da primeira obra (para testes que precisam de um id existente).</summary>
+    public async Task<Guid> ObterPrimeiroIdObraAsync()
+    {
+        using var scope = Services.CreateScope();
+        var ctx = scope.ServiceProvider.GetRequiredService<DiarioDeBordoDbContext>();
+        var obra = await ctx.Obras.OrderBy(o => o.OrdemPreferencia).FirstAsync();
+        return obra.Id;
     }
 }

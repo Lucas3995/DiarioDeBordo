@@ -5,6 +5,7 @@ import { routes } from './app.routes';
 import { IListaObrasPort } from './domain/lista-obras.port';
 import { ListaObrasHttp } from './infrastructure/lista-obras.http';
 import { ListaObrasService } from './application/lista-obras.service';
+import { AtualizarPosicaoService } from './application/atualizar-posicao.service';
 import { IAuthPort } from './domain/auth.port';
 import { AuthHttp } from './infrastructure/auth.http';
 import { AuthService } from './application/auth.service';
@@ -16,6 +17,7 @@ export const appConfig: ApplicationConfig = {
     provideHttpClient(),
     { provide: IListaObrasPort, useClass: ListaObrasHttp },
     ListaObrasService,
+    AtualizarPosicaoService,
     { provide: IAuthPort, useClass: AuthHttp },
     AuthService,
   ],

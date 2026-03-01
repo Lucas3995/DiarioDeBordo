@@ -6,4 +6,9 @@ export const OBRAS_ROUTES: Routes = [
     loadComponent: () =>
       import('./obra-lista.component').then((m) => m.ObraListaComponent),
   },
+  {
+    path: 'atualizar-posicao',
+    loadComponent: () =>
+      import('./atualizar-posicao/atualizar-posicao.component').then((m) => m.AtualizarPosicaoComponent),
+  },
 ];

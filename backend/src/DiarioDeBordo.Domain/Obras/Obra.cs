@@ -99,6 +99,20 @@ public sealed class Obra : Entity
         PartesJaPublicadas = null;
     }
 
+    /// <summary>
+    /// Atualiza a posição atual e a data da última atualização de posição.
+    /// </summary>
+    /// <param name="novaPosicao">Nova posição (capítulo, episódio, etc.); deve ser &gt;= 0.</param>
+    /// <param name="dataUltimaAtualizacao">Data da última atualização; se nulo, usa UTC now.</param>
+    public void AtualizarPosicao(int novaPosicao, DateTime? dataUltimaAtualizacao = null)
+    {
+        ValidarPosicaoAtual(novaPosicao);
+        PosicaoAtual = novaPosicao;
+        DataUltimaAtualizacaoPosicao = DateTime.SpecifyKind(
+            dataUltimaAtualizacao ?? DateTime.UtcNow,
+            DateTimeKind.Utc);
+    }
+
     private static void ValidarNome(string nome)
     {
         if (string.IsNullOrWhiteSpace(nome))

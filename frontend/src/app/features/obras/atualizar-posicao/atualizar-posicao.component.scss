@@ -1,0 +1,83 @@
+.atualizar-posicao {
+  max-width: 32rem;
+  margin: 0 auto;
+  padding: 1rem;
+}
+
+.instrucao {
+  color: var(--text-secondary, #666);
+  margin-bottom: 1rem;
+}
+
+.formulario .campo {
+  margin-bottom: 1rem;
+
+  label {
+    display: block;
+    margin-bottom: 0.25rem;
+  }
+
+  input[type='text'],
+  input[type='number'],
+  input[type='date'],
+  select {
+    width: 100%;
+    padding: 0.5rem;
+    box-sizing: border-box;
+  }
+}
+
+.campo.checkbox label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.campos-criacao {
+  margin-left: 1rem;
+  padding-left: 1rem;
+  border-left: 2px solid var(--border, #ddd);
+}
+
+.botoes {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 1.25rem;
+  flex-wrap: wrap;
+}
+
+.btn-preview,
+.btn-salvar {
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+.btn-voltar {
+  padding: 0.5rem 1rem;
+}
+
+.erro {
+  color: var(--error, #c00);
+  margin-top: 0.5rem;
+}
+
+.sucesso {
+  color: var(--success, #080);
+  margin-top: 0.5rem;
+}
+
+.preview {
+  margin-top: 1.5rem;
+  padding: 1rem;
+  background: var(--surface, #f5f5f5);
+  border-radius: 4px;
+
+  h3 {
+    margin-top: 0;
+  }
+}
