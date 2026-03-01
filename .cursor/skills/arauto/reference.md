@@ -1,6 +1,22 @@
 # Arauto — Referência
 
-Conteúdo complementar à skill Arauto: exemplos de commit, template de PR, classificação de workflows e alinhamento com o projeto.
+Conteúdo complementar à skill Arauto: script de execução, exemplos de commit, template de PR, classificação de workflows e alinhamento com o projeto.
+
+---
+
+## Script `scripts/arauto.sh`
+
+Localização: `.cursor/skills/arauto/scripts/arauto.sh`. Executável; invocar **uma vez** a partir da raiz do repositório. O script faz tudo; o agente não executa `git add`, `git status` nem `git diff` separadamente.
+
+- **No início da execução:** imprime `git status` e diffs (staged + unstaged) para o agente ter contexto na mesma saída.
+- **Add:** executa `git add -A` (respeita `.gitignore`); o agente não faz add.
+- **Preview (opcional):** `--preview` — só imprime status e diffs e sai. O agente pode usar esta saída para redigir mensagens de commit e corpo do PR mais claras, concisas e eficientes; em seguida executa o script com esses argumentos.
+- **Commit:** `--commit-msg "mensagem"` (após o add do script).
+- **PR:** `--pr-title "título"` e `--pr-body "corpo"` ou `--pr-body-file caminho`.
+- **Workflows:** por defeito faz `gh run watch` no primeiro run da branch; `--no-watch` omite.
+- **Ao terminar com sucesso:** `git checkout main`, `git fetch`, `git pull` (o script faz sozinho).
+
+**Resultado para o agente (linhas parseáveis):** o script emite `ARAUTO_RESULT=...` e, quando aplicável, `ARAUTO_RUN_ID=...` e `ARAUTO_PR_URL=...`. O agente **deve** interpretar essas linhas e agir em conformidade (informar sucesso e URL, ou reportar falha com base nos logs e sugerir correções, ou pedir verificação manual conforme o resultado). Em caso de `failure`, os logs do run que falhou são impressos entre marcadores para o agente extrair e sugerir correções concretas.
 
 ---
 
