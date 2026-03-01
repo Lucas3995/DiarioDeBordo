@@ -1,0 +1,8 @@
+a funcionalidade de atualizar obra esta com erros.
+1. ela deveria estar em uma popup e nao em uma pagina separada
+2. o checkbox "criar obra se não existir" é desnecessario, se a obra não existe deve-se criar ela, abrindo apenas algum tipo de prompt avisando q é uma obra nova e permitindo escolher um tipo caso o usuario escolha prosseguir.
+3. o campo de nome deve ser um autocomplete para que o usuario possa selecionar uma obra caso esteja atualizando uma ja existente ou manter o texto livre caso seja uma nova
+4. de onde vou achar o código da obra se em nenhum lugar me mostra?
+5. os botoes de previa e salvar estão com erro na situação de obra nova
+    no caso da previa aparece a mensagem "Obra não encontrada. Marque "Criar se não existir" para cadastrar."
+    no caso do save aparece a mensagem "Http failure response for http://localhost:5000/api/obras/posicao: 400 Bad Request".
