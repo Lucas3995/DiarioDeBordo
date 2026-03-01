@@ -63,11 +63,22 @@ DiarioDeBordo/
 ├── frontend/                        # Angular 21 (on-premise na máquina do usuário)
 ├── guia                             # Guia de requisitos
 ├── README.md
+├── scripts/                         # Scripts úteis (ex.: cobertura de testes)
 └── LICENSE
 ```
 
 - **Backend**: deploy **serverless** (AWS); consumido pela API.
 - **Frontend**: execução **on-premise** na máquina do usuário (clone do repositório ou one-click Docker). Consome a API hospedada em ambiente serverless.
+
+### Cobertura de testes
+
+Para obter a porcentagem de cobertura de testes (backend e frontend), execute a partir da raiz do repositório:
+
+```bash
+./scripts/coverage.sh
+```
+
+As linhas finais exibem **Backend: X%** e **Frontend: Y%**. Relatórios detalhados ficam em `backend/TestResults` e `frontend/coverage/frontend/`.
 
 ---
 

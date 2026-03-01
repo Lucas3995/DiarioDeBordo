@@ -15,7 +15,11 @@ module.exports = function (config) {
     coverageReporter: {
       dir: require('path').join(__dirname, './coverage/frontend'),
       subdir: '.',
-      reporters: [{ type: 'html' }, { type: 'text-summary' }],
+      reporters: [
+        { type: 'html' },
+        { type: 'text-summary' },
+        { type: 'json-summary', file: 'coverage-summary.json' },
+      ],
     },
     reporters: ['progress'],
     browsers: ['ChromeHeadlessCI'],
