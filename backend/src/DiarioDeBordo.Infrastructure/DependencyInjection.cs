@@ -1,6 +1,8 @@
 using DiarioDeBordo.Application.Auth;
+using DiarioDeBordo.Domain.Common;
 using DiarioDeBordo.Domain.Interfaces;
 using DiarioDeBordo.Infrastructure.Auth;
+using DiarioDeBordo.Infrastructure.Common;
 using DiarioDeBordo.Infrastructure.Security;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -15,6 +17,8 @@ public static class DependencyInjection
 {
     public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
     {
+        services.AddSingleton<IClock, SystemClock>();
+
         services.AddScoped<IDataProtectionService, DataProtectionService>();
 
         services.AddSingleton<ITokenService>(sp =>

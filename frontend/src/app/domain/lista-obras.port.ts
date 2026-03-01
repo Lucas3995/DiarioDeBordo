@@ -1,4 +1,4 @@
-import { Observable } from 'rxjs';
+import type { Observable } from 'rxjs';
 import { ObraListItem } from './obra-list-item';
 
 /** Parâmetros de paginação para a listagem de obras. */

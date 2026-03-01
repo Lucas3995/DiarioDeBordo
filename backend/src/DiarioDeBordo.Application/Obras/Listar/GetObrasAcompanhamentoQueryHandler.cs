@@ -5,8 +5,7 @@ namespace DiarioDeBordo.Application.Obras.Listar;
 
 /// <summary>
 /// Handler para GetObrasAcompanhamentoQuery.
-/// Depende apenas de IObraLeituraRepository (definido em Application),
-/// garantindo que a camada Application não conheça EF Core nem DbContext.
+/// Orquestra repositório e mapeamento; a projeção Obra → DTO fica em ObraAcompanhamentoListMapper.
 /// </summary>
 public sealed class GetObrasAcompanhamentoQueryHandler(IObraLeituraRepository repository)
     : IRequestHandler<GetObrasAcompanhamentoQuery, ObrasAcompanhamentoListResponse>
@@ -20,35 +19,8 @@ public sealed class GetObrasAcompanhamentoQueryHandler(IObraLeituraRepository re
             request.PageSize,
             cancellationToken);
 
-        var dtos = itens.Select(MapearParaDto).ToList();
+        var dtos = itens.Select(ObraAcompanhamentoListMapper.Map).ToList();
 
         return new ObrasAcompanhamentoListResponse(dtos, totalCount);
-    }
-
-    private static ObraAcompanhamentoListItemDto MapearParaDto(Obra obra)
-    {
-        ProximaInfoDto? proximaInfo = obra.ProximaInfoTipo switch
-        {
-            ProximaInfoTipo.DiasAteProxima => new ProximaInfoDto(
-                Tipo: "dias_ate_proxima",
-                Dias: obra.DiasAteProximaParte,
-                Quantidade: null),
-
-            ProximaInfoTipo.PartesJaPublicadas => new ProximaInfoDto(
-                Tipo: "partes_ja_publicadas",
-                Dias: null,
-                Quantidade: obra.PartesJaPublicadas),
-
-            _ => null
-        };
-
-        return new ObraAcompanhamentoListItemDto(
-            Id: obra.Id.ToString(),
-            Nome: obra.Nome,
-            Tipo: obra.Tipo.ToString().ToLowerInvariant(),
-            UltimaAtualizacaoPosicao: obra.DataUltimaAtualizacaoPosicao,
-            PosicaoAtual: obra.PosicaoAtual,
-            ProximaInfo: proximaInfo,
-            OrdemPreferencia: obra.OrdemPreferencia);
     }
 }
