@@ -6,6 +6,7 @@ import { ListaObrasResult } from '../../domain/lista-obras.port';
 import { TipoObra } from '../../domain/obra.types';
 import { ObraListItem } from '../../domain/obra-list-item';
 import { By } from '@angular/platform-browser';
+import { provideRouter } from '@angular/router';
 
 const OBRAS_MOCK: ObraListItem[] = [
   {
@@ -50,7 +51,10 @@ describe('ObraListaComponent', () => {
 
     await TestBed.configureTestingModule({
       imports: [ObraListaComponent],
-      providers: [{ provide: ListaObrasService, useValue: serviceSpy }],
+      providers: [
+        { provide: ListaObrasService, useValue: serviceSpy },
+        provideRouter([]),
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(ObraListaComponent);
@@ -120,6 +124,12 @@ describe('ObraListaComponent', () => {
     it('deve exibir botão "Ver mais" para cada obra', () => {
       const botoes = fixture.debugElement.queryAll(By.css('[data-testid="obra-ver-mais"]'));
       expect(botoes.length).toBe(3);
+    });
+
+    it('deve exibir link "Atualizar posição"', () => {
+      const link = fixture.debugElement.query(By.css('[data-testid="link-atualizar-posicao"]'));
+      expect(link).toBeTruthy();
+      expect(link.nativeElement.getAttribute('href')).toContain('/obras/atualizar-posicao');
     });
   });
 

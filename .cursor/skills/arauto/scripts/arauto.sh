@@ -158,7 +158,7 @@ if [[ "$SKIP_WATCH" == true ]]; then
 fi
 
 echo "=== Workflows (deste PR) ==="
-RUN_ID=""
+# Esperar pelo menos um run aparecer
 for i in {1..12}; do
   RUN_ID=$(gh run list --branch "$BRANCH" --limit 1 --json databaseId -q '.[0].databaseId // empty' 2>/dev/null || true)
   [[ -n "$RUN_ID" ]] && break
@@ -174,12 +174,35 @@ if [[ -z "$RUN_ID" ]]; then
   exit 0
 fi
 
-echo "A monitorar run ID: $RUN_ID"
-if ! run gh run watch "$RUN_ID"; then
+# Dar tempo para todos os workflows do PR serem disparados (ex.: Backend CI e Frontend CI)
+echo "A aguardar mais 45s para todos os workflows do PR serem disparados..."
+sleep 45
+
+# Obter todos os runs da branch (vários workflows podem ter sido disparados)
+RUN_IDS=$(gh run list --branch "$BRANCH" --limit 10 --json databaseId,status,conclusion -q '.[].databaseId' 2>/dev/null | sort -u || true)
+if [[ -z "$RUN_IDS" ]]; then
+  run git checkout main
+  run git fetch
+  run git pull
+  emit_result "no_run" "" "$PR_URL"
+  exit 0
+fi
+
+# Monitorar cada run até concluir; se algum falhar, reportar e sair com falha
+FAILED_RUN_ID=""
+for rid in $RUN_IDS; do
+  echo "A monitorar run ID: $rid"
+  if ! run gh run watch "$rid"; then
+    FAILED_RUN_ID=$rid
+    break
+  fi
+done
+
+if [[ -n "$FAILED_RUN_ID" ]]; then
   echo "=== Workflow falhou ==="
-  emit_result "failure" "$RUN_ID" "$PR_URL"
+  emit_result "failure" "$FAILED_RUN_ID" "$PR_URL"
   echo "--- Logs (para o agente sugerir correções) ---"
-  gh run view "$RUN_ID" --log-failed 2>/dev/null || gh run view "$RUN_ID"
+  gh run view "$FAILED_RUN_ID" --log-failed 2>/dev/null || gh run view "$FAILED_RUN_ID"
   echo "--- Fim dos logs ---"
   exit 1
 fi
