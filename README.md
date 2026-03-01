@@ -93,8 +93,67 @@ DiarioDeBordo/
 - **TDD**: testes antes do código; Red-Green-Refactor; testes unitários e de integração; FIRST e AAA.
 - **Segurança e LGPD**: 2FA na autenticação; sem concatenação em SQL; minimização de dados; criptografia em repouso/trânsito e em campo para sensíveis; direitos do titular operacionalizáveis (acesso, correção, eliminação, portabilidade).
 - **DevSecOps**: pipelines para teste, build, deploy e gestão de secrets; Git com PRs, mensagens explícitas e SemVer quando aplicável.
+- **Metodologia rotina-completa**: planejamento (Maestro + Quadro de Recompensas), implementação em ciclos (Mercenário + Batedor de Códigos + Mestre Freire) e entrega (Arauto); ver seção [Metodologia de desenvolvimento](#metodologia-de-desenvolvimento-rotina-completa).
 
 Detalhes nas regras em [.cursor/rules](.cursor/rules).
+
+---
+
+## Metodologia de desenvolvimento (rotina-completa)
+
+O projeto adota uma **metodologia de trabalho para agentes de desenvolvimento** definida em regras e skills no diretório `.cursor/`. A rotina organiza demandas em três fases: **planejamento**, **implementação** (em ciclos até qualidade satisfatória) e **entrega**. Cada fase usa skills especializadas; a comunicação com o operador segue o tom de desenvolvedor em relação ao senior (orientação e validação).
+
+### Fluxo da rotina-completa
+
+```mermaid
+flowchart TB
+  subgraph planejamento [1. Planejamento]
+    D[Demanda]
+    M[Maestro: relatório de tarefas]
+    Q[Quadro de Recompensas: testes]
+    V1[Validar com operador]
+    D --> M --> Q --> V1
+  end
+
+  subgraph implementacao [2. Implementação - ciclo]
+    MC[Mercenário: código para testes passarem]
+    B[Batedor de Códigos: relatório de inadequações]
+    MF[Mestre Freire: refatoração guiada]
+    T[Testes passando?]
+    V2[Validar com operador]
+    MC --> B --> MF --> T
+    T -->|Não| MC
+    T -->|Sim| V2
+  end
+
+  subgraph entrega [3. Entrega]
+    A[Arauto: commit, push, PR]
+    CI[Workflows do PR verdes?]
+    Fim[Entrega concluída]
+    Nova[Nova demanda se falha]
+    A --> CI
+    CI -->|Sim| Fim
+    CI -->|Não| Nova
+  end
+
+  V1 -->|Aprovado| implementacao
+  V2 -->|Aprovado| entrega
+```
+
+### Fases e skills
+
+| Fase | Skill | Papel |
+|------|--------|--------|
+| **1. Planejamento** | **Maestro** | Analisa a demanda e o código e produz relatório estruturado das alterações necessárias. |
+| | **Quadro de Recompensas** | Cria testes automáticos (unitários, integração, E2E) a partir do relatório de tarefas. |
+| **2. Implementação** | **Mercenário** | Implementa regras de negócio no código para que os testes passem e a demanda seja atendida. |
+| | **Batedor de Códigos** | Analisa o código e produz relatório de inadequações (code smells, SOLID, Clean Architecture, DDD). |
+| | **Mestre Freire** | Refatora conforme o relatório de inadequações, sem alterar comportamentos; testes continuam passando. |
+| **3. Entrega** | **Arauto** | Commit descritivo, push, abertura de PR e validação dos workflows do PR; entrega só concluída com CI verde. |
+
+Critério de parada na implementação: relatório do Batedor sem ajustes pendentes e operador satisfeito. Se alguma automação do PR falhar, abre-se nova demanda e executa-se nova rotina-completa para corrigir.
+
+Regra e skills: [.cursor/rules/metodologia-para-devs.mdc](.cursor/rules/metodologia-para-devs.mdc) e [.cursor/skills/](.cursor/skills/).
 
 ---
 
