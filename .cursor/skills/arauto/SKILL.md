@@ -91,14 +91,16 @@ git push                       # branch já rastreada
 
 ## 3. Abrir PR
 
-**Verificar se o PR já existe:**
+É obrigatório ter um **PR aberto** para este push e validar as automações **desse** PR. Se a branch já tiver um PR mas estiver **MERGED** ou **CLOSED**, criar um **novo** PR para o push atual (não reutilizar o antigo).
+
+**Verificar estado do PR da branch:**
 
 ```bash
-gh pr view
+gh pr view --json state -q '.state'
 ```
 
-- Se existir: informar o link e ir para o passo 4.
-- Se não existir: criar com `gh pr create`.
+- Se `state == OPEN`: o PR aberto já existe; usar e ir para o passo 4.
+- Se não existir PR ou `state` for `MERGED` ou `CLOSED`: criar novo com `gh pr create` (título e corpo descritivos) e depois validar as automações desse novo PR.
 
 **Corpo do PR:** descritivo — o que foi feito, impacto funcional, impacto técnico, como testar. Template em [reference.md](reference.md).
 
@@ -125,7 +127,7 @@ EOF
 
 ## 4. Validação dos workflows (obrigatória)
 
-A entrega só está concluída quando todos os **workflows críticos** do PR estiverem com conclusão **success**. Jobs com `continue-on-error: true` são informativos; falha neles não bloqueia.
+Validar as automações do **PR aberto** que corresponde a este push (o que foi criado ou o que já estava OPEN). A entrega só está concluída quando todos os **workflows críticos** desse PR estiverem com conclusão **success**. Jobs com `continue-on-error: true` são informativos; falha neles não bloqueia.
 
 ### 4.1 Listar runs da branch
 
@@ -182,6 +184,10 @@ git pull
 4. Não considerar a entrega concluída sem confirmação manual do utilizador.
 
 ---
+
+## Script (opcional)
+
+O script `.cursor/skills/arauto/scripts/arauto.sh` implementa este fluxo: só reutiliza PR existente se `state == OPEN`; se MERGED/CLOSED ou inexistente, cria novo PR e faz `gh run watch` nos runs desse PR. Em caso de falha, emite `ARAUTO_RESULT=failure` e logs para o agente sugerir correções.
 
 ## Recursos adicionais
 
