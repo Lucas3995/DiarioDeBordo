@@ -20,7 +20,6 @@ public sealed class Usuario : Entity
     public bool Requer2FA { get; private set; }
     public Perfil Perfil { get; private set; }
 
-    // Construtor privado para EF Core
     private Usuario() { }
 
     public Usuario(string login, Perfil perfil)

@@ -53,9 +53,9 @@ describe('AuthHttp', () => {
     req.flush({ sucesso: true, token: 'tok', expiresAt: null, requer2FA: false, erro: null });
   });
 
-  // ────────────────── Sucesso: setToken e mapeamento ──────────────────
+  // ────────────────── Sucesso: adaptador não orquestra setToken (responsabilidade do AuthService) ──────────────────
 
-  it('em sucesso deve chamar setToken com o token recebido', () => {
+  it('em sucesso não deve chamar setToken (orquestração fica no AuthService)', () => {
     const mockResult: LoginResult = {
       sucesso: true,
       token: 'jwt.token.valido',
@@ -69,7 +69,7 @@ describe('AuthHttp', () => {
     const req = httpMock.expectOne(`${apiUrl}/api/auth/login`);
     req.flush(mockResult);
 
-    expect(apiConfigSpy.setToken).toHaveBeenCalledWith('jwt.token.valido');
+    expect(apiConfigSpy.setToken).not.toHaveBeenCalled();
   });
 
   it('em sucesso deve retornar LoginResult com token, expiresAt e requer2FA mapeados', (done) => {

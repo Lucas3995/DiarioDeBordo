@@ -1,4 +1,4 @@
-using FluentValidation;
+using DiarioDeBordo.Application.Common;
 using System.Text.Json;
 
 namespace DiarioDeBordo.Api.Middleware;
@@ -16,7 +16,7 @@ public sealed class ExceptionMiddleware(RequestDelegate next, ILogger<ExceptionM
         {
             await next(context);
         }
-        catch (ValidationException ex)
+        catch (RequestValidationException ex)
         {
             logger.LogWarning("Erro de validação: {Errors}", ex.Errors.Select(e => e.ErrorMessage));
             context.Response.StatusCode = StatusCodes.Status400BadRequest;

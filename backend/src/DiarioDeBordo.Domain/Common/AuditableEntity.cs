@@ -6,6 +6,8 @@ namespace DiarioDeBordo.Domain.Common;
 /// </summary>
 public abstract class AuditableEntity : Entity
 {
+    private readonly IClock? _clock;
+
     public DateTime CriadoEm { get; protected set; }
     public DateTime AtualizadoEm { get; protected set; }
 
@@ -21,8 +23,24 @@ public abstract class AuditableEntity : Entity
         AtualizadoEm = DateTime.UtcNow;
     }
 
+    protected AuditableEntity(IClock clock)
+    {
+        _clock = clock;
+        var now = clock.UtcNow;
+        CriadoEm = now;
+        AtualizadoEm = now;
+    }
+
+    protected AuditableEntity(Guid id, IClock clock) : base(id)
+    {
+        _clock = clock;
+        var now = clock.UtcNow;
+        CriadoEm = now;
+        AtualizadoEm = now;
+    }
+
     protected void MarcarAtualizado()
     {
-        AtualizadoEm = DateTime.UtcNow;
+        AtualizadoEm = _clock?.UtcNow ?? DateTime.UtcNow;
     }
 }

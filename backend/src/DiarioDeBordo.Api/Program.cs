@@ -1,10 +1,13 @@
+using DiarioDeBordo.Api.Composition;
 using DiarioDeBordo.Api.Middleware;
 using DiarioDeBordo.Application;
 using DiarioDeBordo.Application.Auth;
+using DiarioDeBordo.Application.Status;
 using DiarioDeBordo.Infrastructure;
 using DiarioDeBordo.Persistence;
 using DiarioDeBordo.Persistence.Seed;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Scalar.AspNetCore;
@@ -32,6 +35,7 @@ builder.Services.AddCors(options =>
 builder.Services.AddControllers();
 
 builder.Services.AddApplication();
+builder.Services.AddSingleton<IAmbiente, HostAmbienteAdapter>();
 builder.Services.AddInfrastructure(builder.Configuration);
 
 var skipPersistence = builder.Environment.IsEnvironment("Testing");

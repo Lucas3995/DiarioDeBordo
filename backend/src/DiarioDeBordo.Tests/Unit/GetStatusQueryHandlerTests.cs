@@ -1,6 +1,5 @@
 using DiarioDeBordo.Application.Status;
 using FluentAssertions;
-using Microsoft.Extensions.Hosting;
 using Moq;
 
 namespace DiarioDeBordo.Tests.Unit;
@@ -12,20 +11,20 @@ namespace DiarioDeBordo.Tests.Unit;
 /// </summary>
 public sealed class GetStatusQueryHandlerTests
 {
-    private readonly Mock<IHostEnvironment> _environmentMock;
+    private readonly Mock<IAmbiente> _ambienteMock;
     private readonly GetStatusQueryHandler _handler;
 
     public GetStatusQueryHandlerTests()
     {
-        _environmentMock = new Mock<IHostEnvironment>();
-        _handler = new GetStatusQueryHandler(_environmentMock.Object);
+        _ambienteMock = new Mock<IAmbiente>();
+        _handler = new GetStatusQueryHandler(_ambienteMock.Object);
     }
 
     [Fact]
     public async Task Handle_DeveRetornarStatusComVersaoCorreta()
     {
         // Arrange
-        _environmentMock.Setup(e => e.EnvironmentName).Returns("Development");
+        _ambienteMock.Setup(a => a.NomeAmbiente).Returns("Development");
         var query = new GetStatusQuery();
 
         // Act
@@ -40,7 +39,7 @@ public sealed class GetStatusQueryHandlerTests
     public async Task Handle_DeveRetornarAmbienteCorreto()
     {
         // Arrange
-        _environmentMock.Setup(e => e.EnvironmentName).Returns("Production");
+        _ambienteMock.Setup(a => a.NomeAmbiente).Returns("Production");
         var query = new GetStatusQuery();
 
         // Act
@@ -54,7 +53,7 @@ public sealed class GetStatusQueryHandlerTests
     public async Task Handle_DeveRetornarHoraServidorProximaDeUtcNow()
     {
         // Arrange
-        _environmentMock.Setup(e => e.EnvironmentName).Returns("Development");
+        _ambienteMock.Setup(a => a.NomeAmbiente).Returns("Development");
         var antes = DateTime.UtcNow;
         var query = new GetStatusQuery();
 

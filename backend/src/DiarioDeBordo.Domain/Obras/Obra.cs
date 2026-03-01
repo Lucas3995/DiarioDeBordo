@@ -52,7 +52,6 @@ public sealed class Obra : Entity
     /// </summary>
     public int OrdemPreferencia { get; private set; }
 
-    // Construtor protegido para EF Core
     private Obra() { }
 
     /// <summary>Cria uma nova obra com todos os campos obrigatórios.</summary>

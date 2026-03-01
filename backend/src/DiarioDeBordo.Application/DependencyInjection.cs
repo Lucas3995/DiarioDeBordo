@@ -1,4 +1,7 @@
+using DiarioDeBordo.Application.Auth.Login;
 using DiarioDeBordo.Application.Common;
+using DiarioDeBordo.Application.Echo;
+using DiarioDeBordo.Application.Obras.Listar;
 using FluentValidation;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
@@ -17,6 +20,10 @@ public static class DependencyInjection
             cfg.RegisterServicesFromAssembly(typeof(DependencyInjection).Assembly));
 
         services.AddValidatorsFromAssembly(typeof(DependencyInjection).Assembly);
+
+        services.AddTransient<IRequestValidator<EchoCommand>, FluentValidationRequestValidatorAdapter<EchoCommand>>();
+        services.AddTransient<IRequestValidator<LoginCommand>, FluentValidationRequestValidatorAdapter<LoginCommand>>();
+        services.AddTransient<IRequestValidator<GetObrasAcompanhamentoQuery>, FluentValidationRequestValidatorAdapter<GetObrasAcompanhamentoQuery>>();
 
         services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
 
