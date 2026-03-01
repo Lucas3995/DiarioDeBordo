@@ -1,6 +1,12 @@
 # Arauto — Referência
 
-Conteúdo complementar à skill Arauto: exemplos de commit, template de PR, classificação de workflows e alinhamento com o projeto.
+Conteúdo complementar à skill Arauto: script, exemplos de commit, template de PR, classificação de workflows e alinhamento com o projeto.
+
+---
+
+## Script `scripts/arauto.sh`
+
+Localização: `.cursor/skills/arauto/scripts/arauto.sh`. Só considera "PR já existe" se o PR estiver **OPEN**; se estiver MERGED ou CLOSED (ou não existir), cria um **novo** PR para o push atual e valida as automações desse PR. Uso: `--preview` (só status/diffs), `--commit-msg`, `--pr-title`, `--pr-body` ou `--pr-body-file`, `--no-watch`. Emite `ARAUTO_RESULT`, `ARAUTO_PR_URL`, `ARAUTO_RUN_ID` para o agente agir em caso de falha.
 
 ---
 
