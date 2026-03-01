@@ -5,7 +5,11 @@ import { catchError } from 'rxjs/operators';
 import { ApiConfigService } from '../core/api-config.service';
 import { TipoObra } from '../domain/obra.types';
 
-/** Dados atuais da obra retornados pela API (prévia). */
+/**
+ * Dados atuais da obra retornados pela API (prévia) ou prévia sintética (obra nova).
+ * Dois contextos: (1) resposta GET da API — dados reais; (2) prévia sintética quando 404 + criarSeNaoExistir — obraNova: true.
+ * Discriminação no template/componente via campo opcional obraNova. União de tipos (ObraDetalheApi | ObraDetalheSintetico) é refatoração futura opcional.
+ */
 export interface ObraDetalhe {
   id: string;
   nome: string;
@@ -13,6 +17,8 @@ export interface ObraDetalhe {
   posicaoAtual: number;
   dataUltimaAtualizacaoPosicao: string; // ISO 8601
   ordemPreferencia: number;
+  /** Indica prévia sintética para obra que ainda não existe (não vem da API). */
+  obraNova?: boolean;
 }
 
 /** Payload para PATCH /api/obras/posicao. */

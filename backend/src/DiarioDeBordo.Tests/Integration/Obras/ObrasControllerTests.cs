@@ -167,6 +167,41 @@ public sealed class ObrasControllerTests : IClassFixture<ObrasControllerTestFact
         response!.Id.Should().Be(id);
         response.Criada.Should().BeFalse();
     }
+
+    // --------------- PATCH posição obra nova (Demanda 5: tipoParaCriar como string camelCase) ---------------
+
+    /// <summary>
+    /// Relatório Demanda 5 — item 1: API deve aceitar tipoParaCriar como string em camelCase (ex.: "manga").
+    /// Sem JsonStringEnumConverter no Program.cs o binding falha e retorna 400.
+    /// </summary>
+    [Fact]
+    public async Task PATCH_posicao_ObraNova_ComTipoParaCriarStringCamelCase_DeveRetornar200ECriadaTrue()
+    {
+        _client.DefaultRequestHeaders.Authorization =
+            new AuthenticationHeaderValue("Bearer", _factory.GerarToken());
+        var nomeInexistente = "Obra Nova TDD " + Guid.NewGuid().ToString("N")[..8];
+        var body = new
+        {
+            idObra = (Guid?)null,
+            nomeObra = nomeInexistente,
+            novaPosicao = 1,
+            dataUltimaAtualizacao = (DateTime?)null,
+            criarSeNaoExistir = true,
+            nomeParaCriar = nomeInexistente,
+            tipoParaCriar = "manga",
+            ordemPreferenciaParaCriar = 0
+        };
+        var content = new StringContent(JsonSerializer.Serialize(body), System.Text.Encoding.UTF8, "application/json");
+
+        var resposta = await _client.PatchAsync("/api/obras/posicao", content);
+
+        resposta.StatusCode.Should().Be(HttpStatusCode.OK, "a API deve aceitar tipoParaCriar como string camelCase (JsonStringEnumConverter)");
+        var responseJson = await resposta.Content.ReadAsStringAsync();
+        var response = JsonSerializer.Deserialize<AtualizarPosicaoObraResponse>(responseJson, JsonOpts);
+        response.Should().NotBeNull();
+        response!.Criada.Should().BeTrue();
+        response.Id.Should().NotBe(Guid.Empty);
+    }
 }
 
 /// <summary>

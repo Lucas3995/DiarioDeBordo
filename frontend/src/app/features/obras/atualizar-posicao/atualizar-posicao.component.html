@@ -79,7 +79,11 @@
   @if (preview) {
     <div class="preview" data-testid="atualizar-posicao-preview">
       <h3>Prévia</h3>
-      <p><strong>Antes:</strong> {{ rotuloPosicao(preview.tipo) }} {{ preview.posicaoAtual }} — {{ formatarData(preview.dataUltimaAtualizacaoPosicao) }}</p>
+      @if (preview.obraNova) {
+        <p><strong>Antes:</strong> — (obra nova)</p>
+      } @else {
+        <p><strong>Antes:</strong> {{ rotuloPosicao(preview.tipo) }} {{ preview.posicaoAtual }} — {{ formatarData(preview.dataUltimaAtualizacaoPosicao) }}</p>
+      }
       <p><strong>Depois:</strong> {{ rotuloPosicao(preview.tipo) }} {{ novaPosicao }} — {{ dataParaEnvio ? formatarData(dataParaEnvio) : 'hoje' }}</p>
     </div>
   }

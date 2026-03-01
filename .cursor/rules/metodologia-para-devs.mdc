@@ -23,10 +23,13 @@ Repetir enquanto for necessário para entregar com qualidade técnica satisfató
 - **3.** Usar skill **mercenario**: alterar o código para que os testes passem e a demanda seja atendida.
 - **4.** Usar skill **batedor-de-codigos**: analisar o código e produzir relatório de inadequações.
 - **5.** Usar skill **mestre-freire**: refatorar conforme o relatório, sem alterar comportamentos.
+- **Nunca pular para a entrega:** após o mercenario, o batedor-de-codigos e o mestre-freire são **imprescindíveis**; não ir para o arauto sem executar esse ciclo.
+- **Após o mestre-freire:** sempre reexecutar a suíte de testes (backend e frontend) para garantir que as regras de negócio continuam funcionando; usar containerização se o host não permitir rodar os testes.
 - **Após cada ciclo:** validar com o operador (no tom desenvolvedor → senior) antes de iniciar outro ciclo ou seguir para a entrega.
 - Critério de parada: relatório do batedor sem ajustes pendentes e operador satisfeito (ou decisão do operador).
 
 ### 3. Entrega
+- **Validar testes antes de qualquer entrega:** é inaceitável entregar sem que todos os testes (backend e frontend) tenham sido executados e passado. Se o ambiente do host não permitir (ex.: Node &lt; 20 para o frontend), usar a **containerização do projeto** (ex.: `./scripts/frontend-test-docker.sh` para testes do frontend em Docker com Node 22 + Chromium).
 - **6.** Usar skill **arauto**: commit, push, abertura de PR e validação das automações do PR (CI).
 - Se **todas** as automações do PR tiverem sucesso → tarefa finalizada.
 - Se **alguma** automação falhar → criar uma nova demanda para resolver a falha e executar uma nova **rotina-completa** para essa nova demanda.

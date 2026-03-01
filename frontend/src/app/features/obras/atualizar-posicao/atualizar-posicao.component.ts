@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AtualizarPosicaoService, ObraDetalhe, AtualizarPosicaoRequest } from '../../../application/atualizar-posicao.service';
 import { TipoObra, ROTULO_POSICAO } from '../../../domain/obra.types';
-import { formatarDataRelativa, formatarDataTooltip } from '../../../domain/datas';
+import { formatarDataRelativa, formatarDataTooltip as formatarDataTooltipDomain } from '../../../domain/datas';
 
 @Component({
   selector: 'app-atualizar-posicao',
@@ -62,8 +62,13 @@ export class AtualizarPosicaoComponent {
       },
       error: (err) => {
         this.carregando = false;
-        if (err?.status === 404) this.erro = 'Obra não encontrada. Marque "Criar se não existir" para cadastrar.';
-        else this.erro = err?.message ?? 'Erro ao buscar obra.';
+        if (err?.status === 404 && this.criarSeNaoExistir) {
+          this.preview = this.construirPreviaSinteticaObraNova(id);
+        } else if (err?.status === 404) {
+          this.erro = 'Obra não encontrada. Marque "Criar se não existir" para cadastrar.';
+        } else {
+          this.erro = err?.message ?? 'Erro ao buscar obra.';
+        }
       },
     });
   }
@@ -108,10 +113,23 @@ export class AtualizarPosicaoComponent {
   }
 
   formatarDataTooltip(s: string): string {
-    return formatarDataTooltip(new Date(s));
+    return formatarDataTooltipDomain(new Date(s));
   }
 
   rotuloPosicao(tipo: string): string {
     return ROTULO_POSICAO[tipo as TipoObra] ?? 'parte';
+  }
+
+  /** Constrói prévia sintética para obra que ainda não existe (404 + criarSeNaoExistir). */
+  private construirPreviaSinteticaObraNova(id: string): ObraDetalhe {
+    return {
+      id: '',
+      nome: this.nomeParaCriar.trim() || id,
+      tipo: this.tipoParaCriar,
+      posicaoAtual: 0,
+      dataUltimaAtualizacaoPosicao: this.dataParaEnvio!,
+      ordemPreferencia: this.ordemPreferenciaParaCriar,
+      obraNova: true,
+    };
   }
 }
