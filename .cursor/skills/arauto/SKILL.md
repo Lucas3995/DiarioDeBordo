@@ -13,8 +13,18 @@ Fluxo em 5 etapas. Executar em sequência; não pular etapas. Entrega só está 
 
 Para reduzir uso de créditos do Cursor, executar o fluxo através do script: o agente faz **uma** chamada ao script e lê o retorno; só volta a agir se as automações do PR falharem (para reportar e sugerir correções). O script faz tudo: imprime contexto (status e diffs) no início, `git add -A` (respeitando .gitignore), commit, push, PR, watch dos workflows e, em sucesso, checkout para `main`, fetch e pull.
 
-1. **Preparar** mensagem de commit (secção 1) e título/corpo do PR (secção 3). Para mensagens mais claras, concisas e eficientes, o agente pode obter o diff antes: invocar o script com `--preview` e usar a saída (status e diffs) para redigir commit e PR; em seguida invocar o script com os argumentos. Caso contrário, basear-se no que o utilizador pediu ou no contexto da conversa. Garantir que `.gitignore` está correto (o script adiciona todas as alterações).
-2. **Invocar o script** a partir da raiz do repositório (uma vez se já tiver mensagem/PR; ou preview depois execução se tiver usado --preview para redigir):
+1. **Preparar** mensagem de commit (secção 1) e título/corpo do PR (secção 3). Para mensagens mais claras, concisas e eficientes, o agente deve obter o diff antes: invocar o script com `--preview` e usar a saída (status e diffs) para redigir commit e PR; em seguida invocar o script com os argumentos. Caso contrário, basear-se no que o utilizador pediu ou no contexto da conversa. Garantir que `.gitignore` está correto (o script adiciona todas as alterações).
+2. **Garantir que não está na branch de produção** (ex.: `main`, `master`): se `git branch --show-current` indicar uma dessas branches, o agente deve criar e trocar para uma **nova branch de trabalho** antes de rodar o arauto, por exemplo:
+
+```bash
+BRANCH_ATUAL=$(git branch --show-current)
+if [[ "$BRANCH_ATUAL" == "main" || "$BRANCH_ATUAL" == "master" ]]; then
+  NOVA_BRANCH="feat/arauto-$(date +%Y%m%d-%H%M%S)"
+  git switch -c "$NOVA_BRANCH"
+fi
+```
+
+3. **Invocar o script** a partir da raiz do repositório (uma vez se já tiver mensagem/PR; ou preview/execução se tiver usado --preview para redigir):
 
 ```bash
 .cursor/skills/arauto/scripts/arauto.sh \
@@ -36,10 +46,13 @@ Alternativa para o corpo do PR: `--pr-body-file caminho/para/ficheiro.md`.
 
 Opções: `--preview` (opcional; só imprime status e diffs e sai, para preparar mensagem/PR sem executar o fluxo); `--no-watch` (não esperar pelos workflows); `--dry-run` (apenas mostrar o que seria feito). Ver `arauto.sh --help`.
 
-3. **Ler a saída** do script (no início vêm status e diffs; no fim, linhas parseáveis `ARAUTO_*`) e **interpretar o resultado** para agir em conformidade:
+4. **Ler a saída** do script (no início vêm status e diffs; no fim, linhas parseáveis `ARAUTO_*`) e **interpretar o resultado** para agir em conformidade:
    - O script espera **todos** os workflow runs disparados pelo push (ex.: Backend CI e Frontend CI quando o PR altera backend e frontend). Após o primeiro run aparecer, aguarda mais 45s e então monitora cada run até concluir. Só emite sucesso quando **todos** estiverem verdes.
    - **`ARAUTO_RESULT=success`** — Informar «Entrega concluída. Todos os workflows do PR estão verdes. Repositório local em main atualizada.» e, se existir, o `ARAUTO_PR_URL` para o utilizador abrir o PR.
-   - **`ARAUTO_RESULT=failure`** — **Não** marcar a entrega como concluída. Reportar que o workflow falhou; usar `ARAUTO_RUN_ID` e os logs impressos entre «--- Logs do(s) step(s)...» e «--- Fim dos logs ---» para **sugerir correções concretas** ao utilizador (ex.: teste que falhou, assertion, erro de lint com ficheiro e regra). Indicar que após corrigir deve fazer novo commit/push e voltar a executar o script.
+   - **`ARAUTO_RESULT=failure`** — **Não** marcar a entrega como concluída. Reportar que o workflow falhou; usar `ARAUTO_RUN_ID` e os logs impressos entre «--- Logs do(s) step(s)...» e «--- Fim dos logs ---» para **entender o problema**. Tratar essa situação como uma **nova demanda**, seguindo a rotina-completa:
+     - Usar o `tradutor` para interpretar o erro em linguagem de negócio/fluxo/uso (ex.: qual funcionalidade/teste está falhando, que cenário de usuário foi quebrado).
+     - Em seguida usar o `maestro` para produzir um novo relatório de alterações no código com base na falha identificada.
+     - Voltar à rotina-completa (planejamento → implementação → entrega) para corrigir o problema, e só então executar o arauto novamente.
    - **`ARAUTO_RESULT=no_gh`** — Não considerar entrega concluída. Informar que `gh` não está disponível ou autenticado e que o utilizador deve criar/ver o PR e verificar a aba **Actions** manualmente.
    - **`ARAUTO_RESULT=pr_only`** — PR foi criado/aberto com `--no-watch`. Informar o `ARAUTO_PR_URL` e que a validação de workflows não foi executada; o utilizador deve verificar a aba Actions.
    - **`ARAUTO_RESULT=no_run`** — Main foi atualizada mas nenhum run foi detectado para a branch. Informar e pedir ao utilizador que verifique a aba Actions manualmente.
