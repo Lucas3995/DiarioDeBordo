@@ -1,6 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { provideHttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
 import { ListaObrasHttp } from './lista-obras.http';
 import { ApiConfigService } from '../core/api-config.service';
 
@@ -147,5 +148,44 @@ describe('ListaObrasHttp', () => {
     const item = resultado!.items[0] as { ultimaAtualizacaoPosicao: Date };
     expect(item.ultimaAtualizacaoPosicao).toBeInstanceOf(Date);
     expect(item.ultimaAtualizacaoPosicao.getFullYear()).toBe(2026);
+  });
+
+  describe('Demanda 4 — buscarPorNome (autocomplete)', () => {
+    it('deve existir método buscarPorNome no adaptador', () => {
+      expect(typeof (service as unknown as { buscarPorNome?: (termo: string, limit?: number) => unknown }).buscarPorNome).toBe('function');
+    });
+
+    it('ao chamar buscarPorNome deve fazer GET /api/obras/buscar com q e limit', () => {
+      const svc = service as unknown as { buscarPorNome: (termo: string, limit?: number) => ReturnType<ListaObrasHttp['listarPagina']> };
+      if (typeof svc.buscarPorNome !== 'function') {
+        fail('ListaObrasHttp deve implementar buscarPorNome(termo, limit)');
+        return;
+      }
+      svc.buscarPorNome('One', 10).subscribe();
+
+      const req = httpTesting.expectOne((r) => r.url.includes('/api/obras/buscar'));
+      expect(req.request.params.get('q')).toBe('One');
+      expect(req.request.params.get('limit')).toBe('10');
+      req.flush([{ id: 'id-1', nome: 'One Piece' }]);
+    });
+
+    it('deve mapear resposta de buscarPorNome para array de { id, nome }', (done) => {
+      const svc = service as unknown as { buscarPorNome: (termo: string, limit?: number) => Observable<Array<{ id: string; nome: string }>> };
+      if (typeof svc.buscarPorNome !== 'function') {
+        fail('ListaObrasHttp deve implementar buscarPorNome(termo, limit)');
+        done();
+        return;
+      }
+      svc.buscarPorNome('One', 5).subscribe((items) => {
+        expect(Array.isArray(items)).toBe(true);
+        expect(items.length).toBe(1);
+        expect(items[0].id).toBe('id-1');
+        expect(items[0].nome).toBe('One Piece');
+        done();
+      });
+
+      const req = httpTesting.expectOne((r) => r.url.includes('/api/obras/buscar'));
+      req.flush([{ id: 'id-1', nome: 'One Piece' }]);
+    });
   });
 });

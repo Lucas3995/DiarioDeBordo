@@ -30,4 +30,24 @@ public sealed class ObraLeituraRepository(DiarioDeBordoDbContext dbContext)
 
         return (itens, totalCount);
     }
+
+    public async Task<IReadOnlyList<Obra>> BuscarPorNomeAsync(
+        string? termo,
+        int limit,
+        CancellationToken cancellationToken = default)
+    {
+        IQueryable<Obra> baseQuery = dbContext.Obras.AsNoTracking();
+
+        if (!string.IsNullOrWhiteSpace(termo))
+        {
+            var filtro = termo.Trim().ToLowerInvariant();
+            baseQuery = baseQuery.Where(o => o.Nome.ToLower().Contains(filtro));
+        }
+
+        var query = baseQuery.OrderBy(o => o.OrdemPreferencia);
+
+        return await query
+            .Take(limit)
+            .ToListAsync(cancellationToken);
+    }
 }

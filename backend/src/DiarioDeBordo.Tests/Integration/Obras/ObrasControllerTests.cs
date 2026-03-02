@@ -22,6 +22,9 @@ using System.Text.Json.Serialization;
 
 namespace DiarioDeBordo.Tests.Integration.Obras;
 
+/// <summary>DTO esperado do GET /api/obras/buscar (Demanda 4 — item 3).</summary>
+internal sealed record ObraBuscaItemDto(string Id, string Nome);
+
 /// <summary>
 /// Testes de integração do endpoint GET /api/obras via WebApplicationFactory.
 /// Substitui a persistência real por banco in-memory para isolamento.
@@ -114,6 +117,50 @@ public sealed class ObrasControllerTests : IClassFixture<ObrasControllerTestFact
         item.Nome.Should().NotBeNullOrEmpty();
         item.Tipo.Should().NotBeNullOrEmpty();
         item.PosicaoAtual.Should().BeGreaterThan(0);
+    }
+
+    // --------------- GET buscar (Demanda 4 — autocomplete) ---------------
+
+    /// <summary>
+    /// Relatório Demandas 3 e 4 — item 3: endpoint de busca para autocomplete.
+    /// GET /api/obras/buscar?q=termo&amp;limit=10 retorna lista reduzida (id, nome).
+    /// </summary>
+    [Fact]
+    public async Task GET_obras_buscar_SemToken_DeveRetornar401()
+    {
+        var resposta = await _client.GetAsync("/api/obras/buscar?q=Obra&limit=10");
+        resposta.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+    }
+
+    [Fact]
+    public async Task GET_obras_buscar_ComToken_DeveRetornar200EListaComIdENome()
+    {
+        _client.DefaultRequestHeaders.Authorization =
+            new AuthenticationHeaderValue("Bearer", _factory.GerarToken());
+
+        var resposta = await _client.GetAsync("/api/obras/buscar?q=Obra&limit=10");
+
+        resposta.StatusCode.Should().Be(HttpStatusCode.OK);
+        var json = await resposta.Content.ReadAsStringAsync();
+        var items = JsonSerializer.Deserialize<List<ObraBuscaItemDto>>(json, JsonOpts);
+        items.Should().NotBeNull();
+        items!.Count.Should().BeGreaterThan(0);
+        items.TrueForAll(i => !string.IsNullOrEmpty(i.Id) && !string.IsNullOrEmpty(i.Nome)).Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task GET_obras_buscar_ComLimit_DeveRespeitarLimite()
+    {
+        _client.DefaultRequestHeaders.Authorization =
+            new AuthenticationHeaderValue("Bearer", _factory.GerarToken());
+
+        var resposta = await _client.GetAsync("/api/obras/buscar?q=Obra&limit=2");
+
+        resposta.StatusCode.Should().Be(HttpStatusCode.OK);
+        var json = await resposta.Content.ReadAsStringAsync();
+        var items = JsonSerializer.Deserialize<List<ObraBuscaItemDto>>(json, JsonOpts);
+        items.Should().NotBeNull();
+        items!.Count.Should().BeLessThanOrEqualTo(2);
     }
 
     // --------------- GET por id (prévia) - relatório item 7 ---------------

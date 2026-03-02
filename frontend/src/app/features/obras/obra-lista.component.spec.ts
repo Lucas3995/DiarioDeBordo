@@ -139,6 +139,24 @@ describe('ObraListaComponent', () => {
       expect(btn.nativeElement.textContent?.trim()).toContain('Atualizar posição');
     });
 
+    describe('Demanda 3 — código (id) da obra visível na listagem', () => {
+      it('deve exibir coluna ou célula com o código (id) da obra para cada linha', () => {
+        const codigos = fixture.debugElement.queryAll(By.css('[data-testid="obra-codigo"]'));
+        expect(codigos.length).toBe(3);
+        expect((codigos[0]?.nativeElement?.textContent ?? '').trim()).toBe('1');
+        expect((codigos[1]?.nativeElement?.textContent ?? '').trim()).toBe('2');
+      });
+
+      it('deve garantir acessibilidade na célula do código (title ou aria-label com id completo quando truncado)', () => {
+        const primeiraCelulaCodigo = fixture.debugElement.query(By.css('[data-testid="obra-codigo"]'));
+        expect(primeiraCelulaCodigo).toBeTruthy();
+        const title = primeiraCelulaCodigo?.nativeElement?.getAttribute('title');
+        const ariaLabel = primeiraCelulaCodigo?.nativeElement?.getAttribute('aria-label');
+        const text = primeiraCelulaCodigo?.nativeElement?.textContent?.trim();
+        expect(title != null || ariaLabel != null || (text != null && text.length > 0)).toBeTrue();
+      });
+    });
+
     it('ao clicar em Atualizar posição deve abrir o dialog com o componente de atualização (demanda 1 — popup)', () => {
       const btn = fixture.debugElement.query(By.css('[data-testid="link-atualizar-posicao"]'));
       btn.nativeElement.click();

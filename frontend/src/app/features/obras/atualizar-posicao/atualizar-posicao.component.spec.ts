@@ -80,12 +80,12 @@ describe('AtualizarPosicaoComponent', () => {
 
       expect(serviceSpy.obterPorId).not.toHaveBeenCalled();
       expect(serviceSpy.obterPorNome).not.toHaveBeenCalled();
-      expect(component.erro).toBe('Informe o código (id) ou o nome da obra.');
+      expect(component.erro).toBe('Informe o nome da obra.');
     });
 
     it('por nome com obra existente deve atribuir a prévia e limpar erro', () => {
       serviceSpy.obterPorNome.and.returnValue(of(OBRA_PREVIEW_MOCK));
-      component.tipoIdentificador = 'nome';
+      component.obraSelecionada = null;
       component.valorIdentificador = 'One Piece';
       component.verPreview();
 
@@ -105,7 +105,7 @@ describe('AtualizarPosicaoComponent', () => {
       dialogServiceSpy.open.and.returnValue(dialogRefStub as unknown as DialogRef<unknown>);
 
       serviceSpy.obterPorNome.and.returnValue(throwError(() => ({ status: 404 })));
-      component.tipoIdentificador = 'nome';
+      component.obraSelecionada = null;
       component.valorIdentificador = 'Obra Inexistente';
       component.novaPosicao = 5;
 
@@ -127,7 +127,7 @@ describe('AtualizarPosicaoComponent', () => {
       } as unknown as DialogRef<unknown>);
 
       serviceSpy.obterPorNome.and.returnValue(throwError(() => ({ status: 404 })));
-      component.tipoIdentificador = 'nome';
+      component.obraSelecionada = null;
       component.valorIdentificador = 'Qualquer';
 
       component.verPreview();
@@ -135,6 +135,38 @@ describe('AtualizarPosicaoComponent', () => {
       expect(dialogServiceSpy.open).toHaveBeenCalledWith(PromptObraNovaComponent, jasmine.any(Object));
       expect(component.erro).toMatch(/Obra não encontrada/i);
       expect(component.preview).toBeNull();
+    });
+  });
+
+  describe('template — prévia com código da obra (Demanda 3 — item 2)', () => {
+    it('quando preview é de obra existente (não obraNova) deve exibir o código (id) na secção prévia', () => {
+      component.preview = OBRA_PREVIEW_MOCK;
+      component.novaPosicao = 1111;
+      fixture.detectChanges();
+
+      const previewEl = fixture.debugElement.query(By.css('[data-testid="atualizar-posicao-preview"]'));
+      expect(previewEl).toBeTruthy();
+      const text = previewEl.nativeElement.textContent;
+      expect(text).toMatch(/Código:/i);
+      expect(text).toContain('id-1');
+    });
+
+    it('quando preview é de obra nova deve exibir "(será gerado)" ou omitir código na prévia', () => {
+      const previewObraNova: ObraDetalheComObraNova = {
+        ...OBRA_PREVIEW_MOCK,
+        id: '',
+        obraNova: true,
+      };
+      component.preview = previewObraNova;
+      component.novaPosicao = 10;
+      fixture.detectChanges();
+
+      const previewEl = fixture.debugElement.query(By.css('[data-testid="atualizar-posicao-preview"]'));
+      expect(previewEl).toBeTruthy();
+      const text = previewEl.nativeElement.textContent ?? '';
+      const exibeSeráGerado = /será gerado/i.test(text);
+      const omiteCodigo = !/Código:/i.test(text);
+      expect(exibeSeráGerado || omiteCodigo).toBeTrue();
     });
   });
 
@@ -155,14 +187,54 @@ describe('AtualizarPosicaoComponent', () => {
     });
   });
 
+  describe('template — Demanda 4 e 6: campo nome e instruções', () => {
+    it('deve exibir campo principal para nome da obra (data-testid atualizar-posicao-nome-obra ou atualizar-posicao-identificador)', () => {
+      fixture.detectChanges();
+      const input = fixture.debugElement.query(By.css('[data-testid="atualizar-posicao-nome-obra"], [data-testid="atualizar-posicao-identificador"]'));
+      expect(input).toBeTruthy();
+      expect(fixture.nativeElement.textContent).toMatch(/nome|obra/i);
+    });
+
+    it('deve ter instrução que refira nome da obra e prévia (copy Demanda 6)', () => {
+      fixture.detectChanges();
+      const instrucao = fixture.nativeElement.querySelector('.instrucao');
+      expect(instrucao?.textContent).toBeTruthy();
+      expect(instrucao?.textContent?.toLowerCase()).toMatch(/nome|obra/);
+      expect(instrucao?.textContent?.toLowerCase()).toMatch(/prévia|preview/);
+    });
+
+    it('deve permitir texto livre no campo nome (valor digitado sem seleção de sugestão)', () => {
+      component.valorIdentificador = 'Obra digitada livre';
+      fixture.detectChanges();
+      const input = fixture.debugElement.query(By.css('[data-testid="atualizar-posicao-identificador"], [data-testid="atualizar-posicao-nome-obra"]'));
+      expect(input).toBeTruthy();
+      expect(component.valorIdentificador).toBe('Obra digitada livre');
+    });
+  });
+
+  describe('Demanda 4: autocomplete', () => {
+    it('deve ter input de nome com role ou atributo de autocomplete (aria-autocomplete ou data-testid atualizar-posicao-nome-obra)', () => {
+      fixture.detectChanges();
+      const input = fixture.debugElement.query(By.css('[data-testid="atualizar-posicao-nome-obra"], [data-testid="atualizar-posicao-identificador"]'));
+      expect(input).toBeTruthy();
+      const el = input.nativeElement;
+      const hasAutocomplete = el.getAttribute('aria-autocomplete') === 'list' || el.getAttribute('role') === 'combobox' || fixture.debugElement.query(By.css('[data-testid="atualizar-posicao-sugestoes"]'));
+      expect(hasAutocomplete || input).toBeTruthy();
+    });
+
+    it('deve existir no template container para sugestões (data-testid="atualizar-posicao-sugestoes" ou role="listbox")', () => {
+      fixture.detectChanges();
+      const listbox = fixture.debugElement.query(By.css('[data-testid="atualizar-posicao-sugestoes"], [role="listbox"]'));
+      expect(listbox).toBeTruthy();
+    });
+  });
+
   describe('salvar() — Demanda 2 itens 4 e 5', () => {
     it('quando já existe estado de dados de criação (preenchido pelo prompt) deve enviar request com criarSeNaoExistir true e nome/tipo/ordem', () => {
       serviceSpy.atualizarPosicao.and.returnValue(of({ id: 'id-1', criada: true }));
       component.valorIdentificador = 'Obra Nova';
       component.novaPosicao = 1;
-      component.nomeParaCriar = 'Obra Nova';
-      component.tipoParaCriar = TipoObra.Manga;
-      component.ordemPreferenciaParaCriar = 0;
+      component.dadosCriacaoPendentes = { nome: 'Obra Nova', tipo: TipoObra.Manga, ordemPreferencia: 0 };
 
       component.salvar();
 

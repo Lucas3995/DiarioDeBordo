@@ -77,6 +77,12 @@ test.describe('Módulo Obras — Listagem paginada', () => {
       await expect(botoes).toHaveCount(10);
     });
 
+    test('Demanda 3: deve exibir coluna/célula com código (id) da obra na tabela', async ({ page }) => {
+      const codigos = page.locator('[data-testid="obra-codigo"]');
+      await expect(codigos.first()).toBeVisible();
+      await expect(codigos).toHaveCount(10);
+    });
+
     test.describe('Controles de paginação (requer backend)', () => {
       test('deve exibir o seletor de pageSize', async ({ page }) => {
         await expect(page.locator('[data-testid="page-size-select"]')).toBeVisible();

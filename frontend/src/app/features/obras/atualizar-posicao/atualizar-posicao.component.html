@@ -2,37 +2,31 @@
   <header class="dialog-header">
     <h2 class="dialog-titulo">Atualizar posição</h2>
     <p class="instrucao">
-      Informe a obra por código (id) ou nome e a nova posição. Use "Ver prévia" para conferir antes de salvar.
+      Informe o nome da obra (busque nas sugestões ou digite livre) e a nova posição. Use "Ver prévia" para conferir antes de salvar.
     </p>
   </header>
 
   <div class="formulario">
-    <fieldset class="campo-grupo">
-      <legend class="legend">Como identificar a obra</legend>
-      <div class="radio-grupo" role="radiogroup" aria-label="Tipo de identificação">
-        <label class="radio-option">
-          <input type="radio" name="tipoId" [(ngModel)]="tipoIdentificador" value="nome" />
-          <span class="radio-label">Por nome</span>
-        </label>
-        <label class="radio-option">
-          <input type="radio" name="tipoId" [(ngModel)]="tipoIdentificador" value="id" />
-          <span class="radio-label">Por código (id)</span>
-        </label>
-      </div>
+    <div class="campo-grupo">
       <div class="campo">
-        <label [for]="tipoIdentificador === 'nome' ? 'valorNome' : 'valorId'" class="label">
-          {{ tipoIdentificador === 'nome' ? 'Nome da obra' : 'Código (id) da obra' }}
-        </label>
-        <input
-          [id]="tipoIdentificador === 'nome' ? 'valorNome' : 'valorId'"
-          type="text"
-          class="input"
-          [(ngModel)]="valorIdentificador"
-          [placeholder]="tipoIdentificador === 'nome' ? 'Ex.: One Piece' : 'UUID da obra'"
-          data-testid="atualizar-posicao-identificador"
+        <label for="valorNome" class="label">Nome da obra</label>
+        <app-input-autocomplete
+          [value]="valorIdentificador"
+          (valueChange)="onNomeInput($event)"
+          (searchTerm)="onSearchTerm($event)"
+          [suggestions]="sugestoes"
+          (suggestionSelected)="selecionarSugestao($event)"
+          [displayWith]="displayWithObra"
+          [getItemId]="getItemIdObra"
+          inputId="valorNome"
+          placeholder="Ex.: One Piece (digite para buscar ou escrever livre)"
+          ariaLabel="Nome da obra — autocomplete com sugestões ou texto livre"
+          dataTestid="atualizar-posicao-identificador"
+          listDataTestid="atualizar-posicao-sugestoes"
+          [debounceMs]="300"
         />
       </div>
-    </fieldset>
+    </div>
 
     <div class="campo-grupo">
       <div class="campo">
@@ -95,8 +89,10 @@
     <aside class="preview" data-testid="atualizar-posicao-preview" aria-label="Prévia da atualização">
       <h3 class="preview-titulo">Prévia</h3>
       @if (preview.obraNova) {
+        <p><strong>Código:</strong> (será gerado)</p>
         <p><strong>Antes:</strong> — (obra nova)</p>
       } @else {
+        <p><strong>Código:</strong> {{ preview.id }}</p>
         <p><strong>Antes:</strong> {{ rotuloPosicao(preview.tipo) }} {{ preview.posicaoAtual }} — {{ formatarData(preview.dataUltimaAtualizacaoPosicao) }}</p>
       }
       <p><strong>Depois:</strong> {{ rotuloPosicao(preview.tipo) }} {{ novaPosicao }} — {{ dataParaEnvio ? formatarData(dataParaEnvio) : 'hoje' }}</p>

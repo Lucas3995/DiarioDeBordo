@@ -9,6 +9,7 @@ import {
   AtualizarPosicaoRequest,
   AtualizarPosicaoResponse,
 } from '../../../application/atualizar-posicao.service';
+import { IListaObrasPort, ObraBuscaItem } from '../../../domain/lista-obras.port';
 import { TipoObra, ROTULO_POSICAO } from '../../../domain/obra.types';
 import { formatarDataRelativa, formatarDataTooltip as formatarDataTooltipDomain } from '../../../domain/datas';
 import { DialogRef } from '../../../shared/dialog/dialog-ref';
@@ -18,49 +19,35 @@ import {
   SaidaAposSucesso,
   DELAY_FECHAMENTO_APOS_SUCESSO_MS,
 } from '../../../shared/dialog/saida-apos-sucesso';
+import {
+  AutocompleteItem,
+  InputAutocompleteComponent,
+} from '../../../shared/input-autocomplete/input-autocomplete.component';
 import { PromptObraNovaComponent, PromptObraNovaResult } from './prompt-obra-nova.component';
+
+const LIMITE_SUGESTOES = 10;
 
 @Component({
   selector: 'app-atualizar-posicao',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, InputAutocompleteComponent],
   templateUrl: './atualizar-posicao.component.html',
   styleUrl: './atualizar-posicao.component.scss',
 })
 export class AtualizarPosicaoComponent {
-  /** Identificador: 'id' ou 'nome'. */
-  tipoIdentificador: 'id' | 'nome' = 'nome';
   valorIdentificador = '';
+  /** Obra selecionada no autocomplete (id + nome); null quando o usuário digitou texto livre. */
+  obraSelecionada: ObraBuscaItem | null = null;
   novaPosicao = 0;
   dataUltimaAtualizacao: string | null = null; // ISO date string ou vazio = hoje
   /** Estado preenchido pelo resultado do prompt "obra nova"; null quando não há criação pendente. */
   dadosCriacaoPendentes: { nome: string; tipo: TipoObra; ordemPreferencia: number } | null = null;
 
-  /** Compatibilidade para testes que definem estado de criação diretamente (evita alterar specs). */
-  get nomeParaCriar(): string {
-    return this.dadosCriacaoPendentes?.nome ?? '';
-  }
-  set nomeParaCriar(v: string) {
-    if (!this.dadosCriacaoPendentes)
-      this.dadosCriacaoPendentes = { nome: '', tipo: TipoObra.Manga, ordemPreferencia: 0 };
-    this.dadosCriacaoPendentes.nome = v;
-  }
-  get tipoParaCriar(): TipoObra {
-    return this.dadosCriacaoPendentes?.tipo ?? TipoObra.Manga;
-  }
-  set tipoParaCriar(v: TipoObra) {
-    if (!this.dadosCriacaoPendentes)
-      this.dadosCriacaoPendentes = { nome: '', tipo: TipoObra.Manga, ordemPreferencia: 0 };
-    this.dadosCriacaoPendentes.tipo = v;
-  }
-  get ordemPreferenciaParaCriar(): number {
-    return this.dadosCriacaoPendentes?.ordemPreferencia ?? 0;
-  }
-  set ordemPreferenciaParaCriar(v: number) {
-    if (!this.dadosCriacaoPendentes)
-      this.dadosCriacaoPendentes = { nome: '', tipo: TipoObra.Manga, ordemPreferencia: 0 };
-    this.dadosCriacaoPendentes.ordemPreferencia = v;
-  }
+  sugestoes: ObraBuscaItem[] = [];
+
+  /** Funções para o componente de autocomplete (tipadas como AutocompleteItem para o binding; uso interno é ObraBuscaItem). */
+  displayWithObra = (item: AutocompleteItem): string => (item as ObraBuscaItem).nome;
+  getItemIdObra = (item: AutocompleteItem): string => (item as ObraBuscaItem).id;
 
   preview: ObraDetalhe | null = null;
   erro: string | null = null;
@@ -69,6 +56,7 @@ export class AtualizarPosicaoComponent {
 
   constructor(
     private readonly atualizarPosicaoService: AtualizarPosicaoService,
+    @Optional() private readonly listaObrasPort: IListaObrasPort | null,
     private readonly dialogService: DialogService,
     @Optional() @Inject(SAIDA_APOS_SUCESSO) private readonly saidaAposSucesso: SaidaAposSucesso | null,
     @Optional() private readonly dialogRef: DialogRef<{ salvou: boolean }> | null,
@@ -80,20 +68,38 @@ export class AtualizarPosicaoComponent {
     return new Date().toISOString().slice(0, 10);
   }
 
+  onNomeInput(valor: string): void {
+    this.obraSelecionada = null;
+    this.valorIdentificador = valor;
+  }
+
+  onSearchTerm(termo: string): void {
+    if (!this.listaObrasPort) return;
+    this.listaObrasPort
+      .buscarPorNome(termo, LIMITE_SUGESTOES)
+      .subscribe((items) => (this.sugestoes = items));
+  }
+
+  selecionarSugestao(item: AutocompleteItem): void {
+    const obra = item as ObraBuscaItem;
+    this.obraSelecionada = obra;
+    this.valorIdentificador = obra.nome;
+    this.sugestoes = [];
+  }
+
   verPreview(): void {
     this.erro = null;
     this.preview = null;
     this.sucesso = null;
-    const id = this.valorIdentificador.trim();
-    if (!id) {
-      this.erro = 'Informe o código (id) ou o nome da obra.';
+    const termoIdentificador = this.valorIdentificador.trim();
+    if (!termoIdentificador) {
+      this.erro = 'Informe o nome da obra.';
       return;
     }
     this.carregando = true;
-    const obs =
-      this.tipoIdentificador === 'id'
-        ? this.atualizarPosicaoService.obterPorId(id)
-        : this.atualizarPosicaoService.obterPorNome(id);
+    const obs = this.obraSelecionada
+      ? this.atualizarPosicaoService.obterPorId(this.obraSelecionada.id)
+      : this.atualizarPosicaoService.obterPorNome(termoIdentificador);
     obs.subscribe({
       next: (obra) => {
         this.preview = obra;
@@ -102,7 +108,7 @@ export class AtualizarPosicaoComponent {
       error: (err) => {
         this.carregando = false;
         if (err?.status === 404) {
-          this.abrirPromptObraNovaParaPreview(id);
+          this.abrirPromptObraNovaParaPreview(termoIdentificador);
         } else {
           this.erro = err?.message ?? 'Erro ao buscar obra.';
         }
@@ -110,18 +116,28 @@ export class AtualizarPosicaoComponent {
     });
   }
 
-  private abrirPromptObraNovaParaPreview(id: string): void {
+  /**
+   * Abre o prompt "obra nova" e, se o utilizador prosseguir, aplica o resultado e chama o callback.
+   * Caso contrário, define erro "Obra não encontrada.".
+   */
+  private abrirPromptObraNova(termoIdentificador: string, onProsseguir: (termo: string) => void): void {
     const ref = this.dialogService.open<PromptObraNovaComponent, PromptObraNovaResult | undefined>(
       PromptObraNovaComponent,
-      { data: { nomeDefault: id } }
+      { data: { nomeDefault: termoIdentificador } }
     );
     ref.afterClosed.pipe(take(1)).subscribe((result) => {
       if (result?.prosseguir) {
         this.aplicarResultadoPromptObraNova(result);
-        this.preview = this.construirPreviaSinteticaObraNova(id);
+        onProsseguir(termoIdentificador);
       } else {
         this.erro = 'Obra não encontrada.';
       }
+    });
+  }
+
+  private abrirPromptObraNovaParaPreview(termoIdentificador: string): void {
+    this.abrirPromptObraNova(termoIdentificador, (termo) => {
+      this.preview = this.construirPreviaSinteticaObraNova(termo);
     });
   }
 
@@ -136,20 +152,20 @@ export class AtualizarPosicaoComponent {
   salvar(): void {
     this.erro = null;
     this.sucesso = null;
-    const id = this.valorIdentificador.trim();
-    if (!id) {
-      this.erro = 'Informe o código (id) ou o nome da obra.';
+    const termoIdentificador = this.valorIdentificador.trim();
+    if (!termoIdentificador) {
+      this.erro = 'Informe o nome da obra.';
       return;
     }
     const temDadosCriacaoPendentes = this.dadosCriacaoPendentes != null;
-    const request = this.montarRequest(id, temDadosCriacaoPendentes);
+    const request = this.montarRequest(termoIdentificador, temDadosCriacaoPendentes);
     this.carregando = true;
     this.atualizarPosicaoService.atualizarPosicao(request).subscribe({
       next: (res) => this.tratarSucessoSalvamento(res),
       error: (err) => {
         this.carregando = false;
         if (err?.status === 404) {
-          this.abrirPromptObraNovaParaSalvar(id);
+          this.abrirPromptObraNovaParaSalvar(termoIdentificador);
         } else {
           this.erro = err?.error?.message ?? err?.message ?? 'Erro ao atualizar.';
         }
@@ -172,39 +188,30 @@ export class AtualizarPosicaoComponent {
     }
   }
 
-  private montarRequest(id: string, criarSeNaoExistir: boolean): AtualizarPosicaoRequest {
+  private montarRequest(termoIdentificador: string, criarSeNaoExistir: boolean): AtualizarPosicaoRequest {
     const request: AtualizarPosicaoRequest = {
       novaPosicao: this.novaPosicao,
       criarSeNaoExistir,
     };
-    if (this.tipoIdentificador === 'id') request.idObra = id;
-    else request.nomeObra = id;
+    if (this.obraSelecionada) request.idObra = this.obraSelecionada.id;
+    else request.nomeObra = termoIdentificador;
     if (this.dataParaEnvio) request.dataUltimaAtualizacao = this.dataParaEnvio;
     if (criarSeNaoExistir && this.dadosCriacaoPendentes) {
-      request.nomeParaCriar = this.dadosCriacaoPendentes.nome.trim() || id;
+      request.nomeParaCriar = this.dadosCriacaoPendentes.nome.trim() || termoIdentificador;
       request.tipoParaCriar = this.dadosCriacaoPendentes.tipo;
       request.ordemPreferenciaParaCriar = this.dadosCriacaoPendentes.ordemPreferencia;
     }
     return request;
   }
 
-  private abrirPromptObraNovaParaSalvar(id: string): void {
-    const ref = this.dialogService.open<PromptObraNovaComponent, PromptObraNovaResult | undefined>(
-      PromptObraNovaComponent,
-      { data: { nomeDefault: id } }
+  private abrirPromptObraNovaParaSalvar(termoIdentificador: string): void {
+    this.abrirPromptObraNova(termoIdentificador, (termo) =>
+      this.executarSalvamentoObraNova(termo)
     );
-    ref.afterClosed.pipe(take(1)).subscribe((result) => {
-      if (result?.prosseguir) {
-        this.aplicarResultadoPromptObraNova(result);
-        this.executarSalvamentoObraNova(id);
-      } else {
-        this.erro = 'Obra não encontrada.';
-      }
-    });
   }
 
-  private executarSalvamentoObraNova(id: string): void {
-    const request = this.montarRequest(id, true);
+  private executarSalvamentoObraNova(termoIdentificador: string): void {
+    const request = this.montarRequest(termoIdentificador, true);
     this.carregando = true;
     this.atualizarPosicaoService.atualizarPosicao(request).subscribe({
       next: (res) => this.tratarSucessoSalvamento(res),
@@ -233,12 +240,12 @@ export class AtualizarPosicaoComponent {
   }
 
   /** Constrói prévia sintética para obra que ainda não existe (404 + dados de criação pendentes). */
-  private construirPreviaSinteticaObraNova(id: string): ObraDetalhe {
+  private construirPreviaSinteticaObraNova(termoIdentificador: string): ObraDetalhe {
     const d = this.dadosCriacaoPendentes;
     const dataEnvio = this.dataParaEnvio ?? new Date().toISOString().slice(0, 10);
     return {
       id: '',
-      nome: d?.nome.trim() || id,
+      nome: d?.nome.trim() || termoIdentificador,
       tipo: d?.tipo ?? TipoObra.Manga,
       posicaoAtual: 0,
       dataUltimaAtualizacaoPosicao: dataEnvio,

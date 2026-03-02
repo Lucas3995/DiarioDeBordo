@@ -31,6 +31,23 @@ public sealed class ObrasController(IMediator mediator) : ControllerBase
     }
 
     /// <summary>
+    /// Busca obras por termo no nome para autocomplete (Demanda 4).
+    /// Retorna lista reduzida (id, nome).
+    /// </summary>
+    [HttpGet("buscar")]
+    [ProducesResponseType(typeof(IReadOnlyList<ObraBuscaItemDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    public async Task<IActionResult> Buscar(
+        [FromQuery] string? q = null,
+        [FromQuery] int limit = 10,
+        CancellationToken cancellationToken = default)
+    {
+        var query = new BuscarObrasQuery(q, limit);
+        var resultado = await mediator.Send(query, cancellationToken);
+        return Ok(resultado);
+    }
+
+    /// <summary>
     /// Obtém uma obra por id (para prévia).
     /// </summary>
     [HttpGet("{id:guid}")]

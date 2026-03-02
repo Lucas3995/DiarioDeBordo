@@ -16,4 +16,13 @@ public interface IObraLeituraRepository
         int pageIndex,
         int pageSize,
         CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Busca obras por termo no nome (contém, case insensitive), para autocomplete.
+    /// Retorna até <paramref name="limit"/> itens ordenados por OrdemPreferencia.
+    /// </summary>
+    Task<IReadOnlyList<Obra>> BuscarPorNomeAsync(
+        string? termo,
+        int limit,
+        CancellationToken cancellationToken = default);
 }
