@@ -1,4 +1,7 @@
+using DiarioDeBordo.Application.Obras;
+using DiarioDeBordo.Application.Obras.AtualizarPosicao;
 using DiarioDeBordo.Application.Obras.Listar;
+using DiarioDeBordo.Application.Obras.ObterPorIdOuNome;
 using DiarioDeBordo.Domain.Obras;
 using DiarioDeBordo.Persistence;
 using FluentAssertions;
@@ -18,6 +21,9 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace DiarioDeBordo.Tests.Integration.Obras;
+
+/// <summary>DTO esperado do GET /api/obras/buscar (Demanda 4 — item 3).</summary>
+internal sealed record ObraBuscaItemDto(string Id, string Nome);
 
 /// <summary>
 /// Testes de integração do endpoint GET /api/obras via WebApplicationFactory.
@@ -112,6 +118,137 @@ public sealed class ObrasControllerTests : IClassFixture<ObrasControllerTestFact
         item.Tipo.Should().NotBeNullOrEmpty();
         item.PosicaoAtual.Should().BeGreaterThan(0);
     }
+
+    // --------------- GET buscar (Demanda 4 — autocomplete) ---------------
+
+    /// <summary>
+    /// Relatório Demandas 3 e 4 — item 3: endpoint de busca para autocomplete.
+    /// GET /api/obras/buscar?q=termo&amp;limit=10 retorna lista reduzida (id, nome).
+    /// </summary>
+    [Fact]
+    public async Task GET_obras_buscar_SemToken_DeveRetornar401()
+    {
+        var resposta = await _client.GetAsync("/api/obras/buscar?q=Obra&limit=10");
+        resposta.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+    }
+
+    [Fact]
+    public async Task GET_obras_buscar_ComToken_DeveRetornar200EListaComIdENome()
+    {
+        _client.DefaultRequestHeaders.Authorization =
+            new AuthenticationHeaderValue("Bearer", _factory.GerarToken());
+
+        var resposta = await _client.GetAsync("/api/obras/buscar?q=Obra&limit=10");
+
+        resposta.StatusCode.Should().Be(HttpStatusCode.OK);
+        var json = await resposta.Content.ReadAsStringAsync();
+        var items = JsonSerializer.Deserialize<List<ObraBuscaItemDto>>(json, JsonOpts);
+        items.Should().NotBeNull();
+        items!.Count.Should().BeGreaterThan(0);
+        items.TrueForAll(i => !string.IsNullOrEmpty(i.Id) && !string.IsNullOrEmpty(i.Nome)).Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task GET_obras_buscar_ComLimit_DeveRespeitarLimite()
+    {
+        _client.DefaultRequestHeaders.Authorization =
+            new AuthenticationHeaderValue("Bearer", _factory.GerarToken());
+
+        var resposta = await _client.GetAsync("/api/obras/buscar?q=Obra&limit=2");
+
+        resposta.StatusCode.Should().Be(HttpStatusCode.OK);
+        var json = await resposta.Content.ReadAsStringAsync();
+        var items = JsonSerializer.Deserialize<List<ObraBuscaItemDto>>(json, JsonOpts);
+        items.Should().NotBeNull();
+        items!.Count.Should().BeLessThanOrEqualTo(2);
+    }
+
+    // --------------- GET por id (prévia) - relatório item 7 ---------------
+
+    [Fact]
+    public async Task GET_obras_PorId_ComToken_DeveRetornar200QuandoExistir()
+    {
+        _client.DefaultRequestHeaders.Authorization =
+            new AuthenticationHeaderValue("Bearer", _factory.GerarToken());
+        var id = await _factory.ObterPrimeiroIdObraAsync();
+
+        var resposta = await _client.GetAsync($"/api/obras/{id}");
+
+        resposta.StatusCode.Should().Be(HttpStatusCode.OK);
+        var json = await resposta.Content.ReadAsStringAsync();
+        var obra = JsonSerializer.Deserialize<ObraDetalheDto>(json, JsonOpts);
+        obra.Should().NotBeNull();
+        obra!.Id.Should().Be(id);
+    }
+
+    [Fact]
+    public async Task GET_obras_PorId_Inexistente_DeveRetornar404()
+    {
+        _client.DefaultRequestHeaders.Authorization =
+            new AuthenticationHeaderValue("Bearer", _factory.GerarToken());
+        var id = Guid.NewGuid();
+
+        var resposta = await _client.GetAsync($"/api/obras/{id}");
+
+        resposta.StatusCode.Should().Be(HttpStatusCode.NotFound);
+    }
+
+    // --------------- PATCH posição - relatório item 7 ---------------
+
+    [Fact]
+    public async Task PATCH_posicao_ComIdExistente_DeveRetornar200EAtualizar()
+    {
+        _client.DefaultRequestHeaders.Authorization =
+            new AuthenticationHeaderValue("Bearer", _factory.GerarToken());
+        var id = await _factory.ObterPrimeiroIdObraAsync();
+
+        var body = new { idObra = id, nomeObra = (string?)null, novaPosicao = 999, dataUltimaAtualizacao = (DateTime?)null, criarSeNaoExistir = false, nomeParaCriar = (string?)null, tipoParaCriar = (string?)null, ordemPreferenciaParaCriar = (int?)null };
+        var content = new StringContent(JsonSerializer.Serialize(body), System.Text.Encoding.UTF8, "application/json");
+
+        var resposta = await _client.PatchAsync("/api/obras/posicao", content);
+
+        resposta.StatusCode.Should().Be(HttpStatusCode.OK);
+        var responseJson = await resposta.Content.ReadAsStringAsync();
+        var response = JsonSerializer.Deserialize<AtualizarPosicaoObraResponse>(responseJson, JsonOpts);
+        response.Should().NotBeNull();
+        response!.Id.Should().Be(id);
+        response.Criada.Should().BeFalse();
+    }
+
+    // --------------- PATCH posição obra nova (Demanda 5: tipoParaCriar como string camelCase) ---------------
+
+    /// <summary>
+    /// Relatório Demanda 5 — item 1: API deve aceitar tipoParaCriar como string em camelCase (ex.: "manga").
+    /// Sem JsonStringEnumConverter no Program.cs o binding falha e retorna 400.
+    /// </summary>
+    [Fact]
+    public async Task PATCH_posicao_ObraNova_ComTipoParaCriarStringCamelCase_DeveRetornar200ECriadaTrue()
+    {
+        _client.DefaultRequestHeaders.Authorization =
+            new AuthenticationHeaderValue("Bearer", _factory.GerarToken());
+        var nomeInexistente = "Obra Nova TDD " + Guid.NewGuid().ToString("N")[..8];
+        var body = new
+        {
+            idObra = (Guid?)null,
+            nomeObra = nomeInexistente,
+            novaPosicao = 1,
+            dataUltimaAtualizacao = (DateTime?)null,
+            criarSeNaoExistir = true,
+            nomeParaCriar = nomeInexistente,
+            tipoParaCriar = "manga",
+            ordemPreferenciaParaCriar = 0
+        };
+        var content = new StringContent(JsonSerializer.Serialize(body), System.Text.Encoding.UTF8, "application/json");
+
+        var resposta = await _client.PatchAsync("/api/obras/posicao", content);
+
+        resposta.StatusCode.Should().Be(HttpStatusCode.OK, "a API deve aceitar tipoParaCriar como string camelCase (JsonStringEnumConverter)");
+        var responseJson = await resposta.Content.ReadAsStringAsync();
+        var response = JsonSerializer.Deserialize<AtualizarPosicaoObraResponse>(responseJson, JsonOpts);
+        response.Should().NotBeNull();
+        response!.Criada.Should().BeTrue();
+        response.Id.Should().NotBe(Guid.Empty);
+    }
 }
 
 /// <summary>
@@ -150,13 +287,20 @@ public sealed class ObrasControllerTestFactory : WebApplicationFactory<Program>
             services.AddDbContext<DiarioDeBordoDbContext>(options =>
                 options.UseInMemoryDatabase(_dbName));
 
-            // Registrar o repositório de leitura usando o context InMemory
-            var repoDescriptor = services.SingleOrDefault(
+            // Registrar repositórios usando o context InMemory
+            var repoLeituraDescriptor = services.SingleOrDefault(
                 d => d.ServiceType == typeof(IObraLeituraRepository));
-            if (repoDescriptor is null)
+            if (repoLeituraDescriptor is null)
             {
                 services.AddScoped<IObraLeituraRepository,
                     DiarioDeBordo.Persistence.Obras.ObraLeituraRepository>();
+            }
+            var repoEscritaDescriptor = services.SingleOrDefault(
+                d => d.ServiceType == typeof(IObraEscritaRepository));
+            if (repoEscritaDescriptor is null)
+            {
+                services.AddScoped<IObraEscritaRepository,
+                    DiarioDeBordo.Persistence.Obras.ObraEscritaRepository>();
             }
         });
     }
@@ -194,5 +338,14 @@ public sealed class ObrasControllerTestFactory : WebApplicationFactory<Program>
 
             await ctx.SaveChangesAsync();
         }
+    }
+
+    /// <summary>Retorna o Id da primeira obra (para testes que precisam de um id existente).</summary>
+    public async Task<Guid> ObterPrimeiroIdObraAsync()
+    {
+        using var scope = Services.CreateScope();
+        var ctx = scope.ServiceProvider.GetRequiredService<DiarioDeBordoDbContext>();
+        var obra = await ctx.Obras.OrderBy(o => o.OrdemPreferencia).FirstAsync();
+        return obra.Id;
     }
 }

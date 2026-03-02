@@ -37,6 +37,7 @@ Alternativa para o corpo do PR: `--pr-body-file caminho/para/ficheiro.md`.
 Opções: `--preview` (opcional; só imprime status e diffs e sai, para preparar mensagem/PR sem executar o fluxo); `--no-watch` (não esperar pelos workflows); `--dry-run` (apenas mostrar o que seria feito). Ver `arauto.sh --help`.
 
 3. **Ler a saída** do script (no início vêm status e diffs; no fim, linhas parseáveis `ARAUTO_*`) e **interpretar o resultado** para agir em conformidade:
+   - O script espera **todos** os workflow runs disparados pelo push (ex.: Backend CI e Frontend CI quando o PR altera backend e frontend). Após o primeiro run aparecer, aguarda mais 45s e então monitora cada run até concluir. Só emite sucesso quando **todos** estiverem verdes.
    - **`ARAUTO_RESULT=success`** — Informar «Entrega concluída. Todos os workflows do PR estão verdes. Repositório local em main atualizada.» e, se existir, o `ARAUTO_PR_URL` para o utilizador abrir o PR.
    - **`ARAUTO_RESULT=failure`** — **Não** marcar a entrega como concluída. Reportar que o workflow falhou; usar `ARAUTO_RUN_ID` e os logs impressos entre «--- Logs do(s) step(s)...» e «--- Fim dos logs ---» para **sugerir correções concretas** ao utilizador (ex.: teste que falhou, assertion, erro de lint com ficheiro e regra). Indicar que após corrigir deve fazer novo commit/push e voltar a executar o script.
    - **`ARAUTO_RESULT=no_gh`** — Não considerar entrega concluída. Informar que `gh` não está disponível ou autenticado e que o utilizador deve criar/ver o PR e verificar a aba **Actions** manualmente.

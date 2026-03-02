@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
-import { IListaObrasPort, ListaObrasParams, ListaObrasResult } from '../domain/lista-obras.port';
+import { IListaObrasPort, ListaObrasParams, ListaObrasResult, ObraBuscaItem } from '../domain/lista-obras.port';
 import { ObraListItem } from '../domain/obra-list-item';
 import { ProximaInfo, TipoObra } from '../domain/obra.types';
 import { ApiConfigService } from '../core/api-config.service';
@@ -74,6 +74,27 @@ export class ListaObrasHttp extends IListaObrasPort {
         })),
         catchError((err) => throwError(() => err)),
       );
+  }
+
+  buscarPorNome(termo: string, limit = 10): Observable<ObraBuscaItem[]> {
+    const apiUrl = this.apiConfig.getApiUrl();
+    const token = this.apiConfig.getToken();
+
+    if (!apiUrl) {
+      return throwError(() => new Error('URL da API não configurada. Acesse Configurações e informe a URL do backend.'));
+    }
+
+    const url = `${apiUrl.replace(/\/$/, '')}/api/obras/buscar`;
+    const headers = new HttpHeaders({
+      Authorization: token ? `Bearer ${token}` : '',
+    });
+    const params = new HttpParams()
+      .set('q', termo.trim())
+      .set('limit', Math.min(Math.max(1, limit), 50).toString());
+
+    return this.http
+      .get<ObraBuscaItem[]>(url, { headers, params })
+      .pipe(catchError((err) => throwError(() => err)));
   }
 
   private mapearItem(dto: ObraListItemApiDto): ObraListItem {

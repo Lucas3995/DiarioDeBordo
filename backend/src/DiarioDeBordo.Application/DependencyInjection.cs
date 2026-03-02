@@ -1,7 +1,9 @@
 using DiarioDeBordo.Application.Auth.Login;
 using DiarioDeBordo.Application.Common;
 using DiarioDeBordo.Application.Echo;
+using DiarioDeBordo.Application.Obras.AtualizarPosicao;
 using DiarioDeBordo.Application.Obras.Listar;
+using DiarioDeBordo.Application.Obras.ObterPorIdOuNome;
 using FluentValidation;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
@@ -24,6 +26,8 @@ public static class DependencyInjection
         services.AddTransient<IRequestValidator<EchoCommand>, FluentValidationRequestValidatorAdapter<EchoCommand>>();
         services.AddTransient<IRequestValidator<LoginCommand>, FluentValidationRequestValidatorAdapter<LoginCommand>>();
         services.AddTransient<IRequestValidator<GetObrasAcompanhamentoQuery>, FluentValidationRequestValidatorAdapter<GetObrasAcompanhamentoQuery>>();
+        services.AddTransient<IRequestValidator<AtualizarPosicaoObraCommand>, FluentValidationRequestValidatorAdapter<AtualizarPosicaoObraCommand>>();
+        services.AddTransient<IRequestValidator<GetObraPorIdOuNomeQuery>, FluentValidationRequestValidatorAdapter<GetObraPorIdOuNomeQuery>>();
 
         services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
 

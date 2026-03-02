@@ -130,4 +130,14 @@ export class ListaObrasMock extends IListaObrasPort {
       totalCount: lista.length,
     });
   }
+
+  buscarPorNome(termo: string, limit = 10): Observable<{ id: string; nome: string }[]> {
+    const t = termo.trim().toLowerCase();
+    const lista = ListaObrasMock.LISTA_FIXA;
+    const filtrado = t
+      ? lista.filter((o) => o.nome.toLowerCase().includes(t))
+      : lista.slice(0, limit);
+    const items = filtrado.slice(0, limit).map((o) => ({ id: o.id, nome: o.nome }));
+    return of(items);
+  }
 }

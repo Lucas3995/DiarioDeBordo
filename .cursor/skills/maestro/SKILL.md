@@ -63,6 +63,7 @@ Cada item de alteração deve permitir que um implementador saiba **onde** agir 
 
 ## Regras
 
+- **Único entregável:** A execução da skill maestro termina na produção do relatório de alterações. Os itens em "Alterações necessárias" são *conteúdo* do relatório para uso numa fase posterior (ex.: implementação pelo mercenario); não são tarefas a executar pelo maestro. Se um plano tiver um to-do como "Gerar Relatorio", concluir esse to-do significa apenas produzir ou entregar o relatório — nunca implementar em código os itens do relatório.
 - Usar IDs sequenciais (1, 2, 3, ...) para cada alteração.
 - Não incluir sugestões de refatoração, correção de code smells ou melhoria de arquitetura.
 - Se a demanda for ambígua, indicar no resumo da demanda e em "Âmbito da análise" as premissas adoptadas.

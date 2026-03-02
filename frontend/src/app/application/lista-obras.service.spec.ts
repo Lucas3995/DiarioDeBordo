@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { of } from 'rxjs';
-import { IListaObrasPort, ListaObrasParams, ListaObrasResult } from '../domain/lista-obras.port';
+import { IListaObrasPort, ListaObrasParams, ListaObrasResult, ObraBuscaItem } from '../domain/lista-obras.port';
 import { TipoObra } from '../domain/obra.types';
 import { ObraListItem } from '../domain/obra-list-item';
 import { ListaObrasService } from './lista-obras.service';
@@ -35,8 +35,9 @@ describe('ListaObrasService', () => {
   let portaSpy: jasmine.SpyObj<IListaObrasPort>;
 
   beforeEach(() => {
-    portaSpy = jasmine.createSpyObj<IListaObrasPort>('IListaObrasPort', ['listarPagina']);
+    portaSpy = jasmine.createSpyObj<IListaObrasPort>('IListaObrasPort', ['listarPagina', 'buscarPorNome']);
     portaSpy.listarPagina.and.returnValue(of(RESULTADO_MOCK));
+    portaSpy.buscarPorNome.and.returnValue(of([{ id: '1', nome: 'One Piece' }]));
 
     TestBed.configureTestingModule({
       providers: [
@@ -90,6 +91,17 @@ describe('ListaObrasService', () => {
       service.listarPagina({ pageIndex: 0, pageSize: 10 }).subscribe((result) => {
         expect(result.items).toEqual([]);
         expect(result.totalCount).toBe(0);
+        done();
+      });
+    });
+  });
+
+  describe('buscarPorNome() — Demanda 4 (autocomplete)', () => {
+    it('deve delegar à porta com termo e limit e retornar os itens', (done) => {
+      const itensEsperados: ObraBuscaItem[] = [{ id: '1', nome: 'One Piece' }];
+      service.buscarPorNome('One', 10).subscribe((items) => {
+        expect(portaSpy.buscarPorNome).toHaveBeenCalledWith('One', 10);
+        expect(items).toEqual(itensEsperados);
         done();
       });
     });

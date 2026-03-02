@@ -213,4 +213,64 @@ public sealed class ObraTests
         obra.PartesJaPublicadas.Should().Be(2);
         obra.DiasAteProximaParte.Should().BeNull();
     }
+
+    // --------------- AtualizarPosicao (relatório item 1) ---------------
+
+    [Fact]
+    public void AtualizarPosicao_ComNovaPosicaoEData_DeveAtualizarPosicaoEData()
+    {
+        // Arrange
+        var dataInicial = new DateTime(2025, 6, 1, 0, 0, 0, DateTimeKind.Utc);
+        var obra = new Obra("One Piece", TipoObra.Manga, 1100, dataInicial, 1);
+        var novaData = new DateTime(2026, 2, 15, 12, 0, 0, DateTimeKind.Utc);
+
+        // Act
+        obra.AtualizarPosicao(1115, novaData);
+
+        // Assert
+        obra.PosicaoAtual.Should().Be(1115);
+        obra.DataUltimaAtualizacaoPosicao.Should().Be(novaData);
+    }
+
+    [Fact]
+    public void AtualizarPosicao_ComDataNula_DeveUsarUtcNow()
+    {
+        // Arrange
+        var dataInicial = new DateTime(2025, 6, 1, 0, 0, 0, DateTimeKind.Utc);
+        var obra = new Obra("Obra X", TipoObra.Manga, 10, dataInicial, 0);
+        var antes = DateTime.UtcNow;
+
+        // Act
+        obra.AtualizarPosicao(20, dataUltimaAtualizacao: null);
+
+        // Assert
+        obra.PosicaoAtual.Should().Be(20);
+        obra.DataUltimaAtualizacaoPosicao.Should().BeOnOrAfter(antes).And.BeCloseTo(DateTime.UtcNow, TimeSpan.FromSeconds(2));
+    }
+
+    [Fact]
+    public void AtualizarPosicao_ComPosicaoNegativa_DeveLancarExcecao()
+    {
+        // Arrange
+        var obra = new Obra("Obra X", TipoObra.Manga, 10, DateTime.UtcNow, 0);
+
+        // Act
+        var act = () => obra.AtualizarPosicao(-1, DateTime.UtcNow);
+
+        // Assert
+        act.Should().Throw<ArgumentException>().WithParameterName("posicaoAtual");
+    }
+
+    [Fact]
+    public void AtualizarPosicao_ComPosicaoZero_DevePermitir()
+    {
+        // Arrange
+        var obra = new Obra("Obra Reiniciada", TipoObra.Livro, 5, DateTime.UtcNow, 0);
+
+        // Act
+        obra.AtualizarPosicao(0, DateTime.UtcNow);
+
+        // Assert
+        obra.PosicaoAtual.Should().Be(0);
+    }
 }

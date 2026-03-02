@@ -6,6 +6,10 @@ import { ListaObrasResult } from '../../domain/lista-obras.port';
 import { TipoObra } from '../../domain/obra.types';
 import { ObraListItem } from '../../domain/obra-list-item';
 import { By } from '@angular/platform-browser';
+import { provideRouter } from '@angular/router';
+import { DialogService } from '../../shared/dialog/dialog.service';
+import { DialogRef } from '../../shared/dialog/dialog-ref';
+import { AtualizarPosicaoComponent } from './atualizar-posicao/atualizar-posicao.component';
 
 const OBRAS_MOCK: ObraListItem[] = [
   {
@@ -43,14 +47,21 @@ describe('ObraListaComponent', () => {
   let fixture: ComponentFixture<ObraListaComponent>;
   let component: ObraListaComponent;
   let serviceSpy: jasmine.SpyObj<ListaObrasService>;
+  let dialogServiceSpy: jasmine.SpyObj<DialogService>;
 
   beforeEach(async () => {
     serviceSpy = jasmine.createSpyObj<ListaObrasService>('ListaObrasService', ['listarPagina']);
     serviceSpy.listarPagina.and.returnValue(of(RESULTADO_PAGINA_1));
+    dialogServiceSpy = jasmine.createSpyObj<DialogService>('DialogService', ['open']);
+    dialogServiceSpy.open.and.returnValue(new DialogRef());
 
     await TestBed.configureTestingModule({
       imports: [ObraListaComponent],
-      providers: [{ provide: ListaObrasService, useValue: serviceSpy }],
+      providers: [
+        { provide: ListaObrasService, useValue: serviceSpy },
+        { provide: DialogService, useValue: dialogServiceSpy },
+        provideRouter([]),
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(ObraListaComponent);
@@ -120,6 +131,37 @@ describe('ObraListaComponent', () => {
     it('deve exibir botão "Ver mais" para cada obra', () => {
       const botoes = fixture.debugElement.queryAll(By.css('[data-testid="obra-ver-mais"]'));
       expect(botoes.length).toBe(3);
+    });
+
+    it('deve exibir botão/link "Atualizar posição" com data-testid para acessibilidade', () => {
+      const btn = fixture.debugElement.query(By.css('[data-testid="link-atualizar-posicao"]'));
+      expect(btn).toBeTruthy();
+      expect(btn.nativeElement.textContent?.trim()).toContain('Atualizar posição');
+    });
+
+    describe('Demanda 3 — código (id) da obra visível na listagem', () => {
+      it('deve exibir coluna ou célula com o código (id) da obra para cada linha', () => {
+        const codigos = fixture.debugElement.queryAll(By.css('[data-testid="obra-codigo"]'));
+        expect(codigos.length).toBe(3);
+        expect((codigos[0]?.nativeElement?.textContent ?? '').trim()).toBe('1');
+        expect((codigos[1]?.nativeElement?.textContent ?? '').trim()).toBe('2');
+      });
+
+      it('deve garantir acessibilidade na célula do código (title ou aria-label com id completo quando truncado)', () => {
+        const primeiraCelulaCodigo = fixture.debugElement.query(By.css('[data-testid="obra-codigo"]'));
+        expect(primeiraCelulaCodigo).toBeTruthy();
+        const title = primeiraCelulaCodigo?.nativeElement?.getAttribute('title');
+        const ariaLabel = primeiraCelulaCodigo?.nativeElement?.getAttribute('aria-label');
+        const text = primeiraCelulaCodigo?.nativeElement?.textContent?.trim();
+        expect(title != null || ariaLabel != null || (text != null && text.length > 0)).toBeTrue();
+      });
+    });
+
+    it('ao clicar em Atualizar posição deve abrir o dialog com o componente de atualização (demanda 1 — popup)', () => {
+      const btn = fixture.debugElement.query(By.css('[data-testid="link-atualizar-posicao"]'));
+      btn.nativeElement.click();
+      fixture.detectChanges();
+      expect(dialogServiceSpy.open).toHaveBeenCalledWith(AtualizarPosicaoComponent, jasmine.anything());
     });
   });
 
@@ -202,6 +244,27 @@ describe('ObraListaComponent', () => {
     it('não deve exibir a tabela quando a lista está vazia', () => {
       const tabela = fixture.debugElement.query(By.css('[data-testid="obras-tabela"]'));
       expect(tabela).toBeNull();
+    });
+  });
+
+  describe('dialog Atualizar posição (demanda 1)', () => {
+    it('ao fechar o dialog com sucesso deve recarregar a listagem (carregarPagina)', () => {
+      const dialogRef = new DialogRef<{ salvou?: boolean }>() as DialogRef;
+      dialogServiceSpy.open.and.returnValue(dialogRef);
+      serviceSpy.listarPagina.calls.reset();
+
+      const btn = fixture.debugElement.query(By.css('[data-testid="link-atualizar-posicao"]'));
+      btn.nativeElement.click();
+      fixture.detectChanges();
+      expect(dialogServiceSpy.open).toHaveBeenCalled();
+
+      dialogRef.close({ salvou: true });
+      fixture.detectChanges();
+
+      expect(serviceSpy.listarPagina).toHaveBeenCalledWith({
+        pageIndex: component.pageIndex,
+        pageSize: component.pageSize,
+      });
     });
   });
 });

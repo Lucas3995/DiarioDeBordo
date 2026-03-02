@@ -32,7 +32,7 @@ Refatora o código para **melhorias técnicas e conceituais** com base **exclusi
    - Não alterar ficheiros de teste (conforme convenção do projeto).
 
 4. **Executar testes**  
-   Após cada passo (ou lote pequeno), executar o comando de testes do projeto (ex.: `npm run test`, `dotnet test`). Se algum teste falhar: tratar como **regressão da refatoração**. Analisar a falha, ajustar o código de produção (não o teste) e repetir até todos passarem.
+   Após cada passo (ou lote pequeno), executar a **suíte completa** de testes do projeto (backend e frontend). Objetivo: **verificar que as regras de negócio continuam funcionando** após a refatoração. Se algum teste falhar: tratar como **regressão da refatoração**; analisar a falha, ajustar o código de produção (não o teste) e repetir até todos passarem. Se o ambiente do host não permitir rodar os testes (ex.: Node &lt; 20 para o frontend), usar a **containerização do projeto** (ex.: `./scripts/frontend-test-docker.sh` no DiarioDeBordo).
 
 5. **Repetir** até todos os achados do relatório estarem tratados e a suíte de testes verde.
 
@@ -43,7 +43,7 @@ Refatora o código para **melhorias técnicas e conceituais** com base **exclusi
 - **Não adicionar nem remover comportamentos.** Refatoração é mudança de estrutura, não de funcionalidade.
 - **Não editar testes** para “acomodar” a refatoração. Se um teste quebra, a refatoração está a alterar comportamento — reverter ou ajustar o código de produção.
 - **Não realizar nova análise** em busca de code smells ou necessidades de refatoração além do relatório. Análise extra só para diagnosticar falhas de teste ou build causadas pela refatoração.
-- **Não deixar a suíte de testes falhar** ao concluir. Executar testes localmente antes de dar por concluída a tarefa.
+- **Não deixar a suíte de testes falhar** ao concluir. Executar **todos** os testes (backend e frontend) antes de dar por concluída a tarefa; usar Docker/containerização quando o host não tiver o ambiente correto.
 
 ---
 

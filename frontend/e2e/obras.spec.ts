@@ -77,6 +77,12 @@ test.describe('Módulo Obras — Listagem paginada', () => {
       await expect(botoes).toHaveCount(10);
     });
 
+    test('Demanda 3: deve exibir coluna/célula com código (id) da obra na tabela', async ({ page }) => {
+      const codigos = page.locator('[data-testid="obra-codigo"]');
+      await expect(codigos.first()).toBeVisible();
+      await expect(codigos).toHaveCount(10);
+    });
+
     test.describe('Controles de paginação (requer backend)', () => {
       test('deve exibir o seletor de pageSize', async ({ page }) => {
         await expect(page.locator('[data-testid="page-size-select"]')).toBeVisible();
@@ -114,6 +120,43 @@ test.describe('Módulo Obras — Listagem paginada', () => {
         const nomes = page.locator('[data-testid="obra-nome"]');
         await expect(nomes).toHaveCount(12);
       });
+    });
+  });
+
+  test.describe('Atualizar posição em popup (demanda 1)', () => {
+    test('deve exibir o botão "Atualizar posição" na página de obras', async ({ page }) => {
+      await expect(page.locator('[data-testid="link-atualizar-posicao"]')).toBeVisible();
+      await expect(page.locator('[data-testid="link-atualizar-posicao"]')).toContainText(
+        'Atualizar posição'
+      );
+    });
+
+    test('ao clicar em Atualizar posição deve abrir o dialog com o formulário (overlay e campo identificador)', async ({
+      page,
+    }) => {
+      await page.locator('[data-testid="link-atualizar-posicao"]').click();
+      await expect(page.locator('[data-testid="dialog-overlay"]')).toBeVisible();
+      await expect(page.locator('[data-testid="atualizar-posicao-identificador"]')).toBeVisible();
+      await expect(page).toHaveURL(/\/obras/);
+    });
+
+    test('ao fechar o dialog a lista permanece visível e a URL continua /obras', async ({
+      page,
+    }) => {
+      await page.locator('[data-testid="link-atualizar-posicao"]').click();
+      await expect(page.locator('[data-testid="dialog-overlay"]')).toBeVisible();
+      await page.locator('[data-testid="atualizar-posicao-fechar"]').click();
+      await expect(page.locator('[data-testid="dialog-overlay"]')).not.toBeVisible();
+      await expect(page).toHaveURL(/\/obras/);
+      await expect(page.locator('h2')).toContainText('Acompanhamento de Obras');
+    });
+
+    test('Demanda 2: não deve exibir o checkbox "Criar obra se não existir" no formulário de atualizar posição', async ({
+      page,
+    }) => {
+      await page.locator('[data-testid="link-atualizar-posicao"]').click();
+      await expect(page.locator('[data-testid="dialog-overlay"]')).toBeVisible();
+      await expect(page.locator('[data-testid="atualizar-posicao-criar"]')).not.toBeVisible();
     });
   });
 });

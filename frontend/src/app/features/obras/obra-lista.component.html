@@ -1,21 +1,37 @@
 <div class="obras-container">
   <h2 class="obras-titulo">Acompanhamento de Obras</h2>
+  <p class="obras-acoes">
+    <button type="button" class="btn-atualizar-posicao" data-testid="link-atualizar-posicao" (click)="abrirDialogAtualizarPosicao()">
+      Atualizar posição
+    </button>
+  </p>
 
   @if (obras.length > 0) {
     <table class="obras-tabela" data-testid="obras-tabela">
       <thead>
         <tr>
-          <th>Nome</th>
-          <th>Tipo</th>
-          <th>Última Atualização</th>
-          <th>Posição Atual</th>
-          <th>Previsão</th>
-          <th></th>
+          <th scope="col">Código</th>
+          <th scope="col">Nome</th>
+          <th scope="col">Tipo</th>
+          <th scope="col">Última Atualização</th>
+          <th scope="col">Posição Atual</th>
+          <th scope="col">Previsão</th>
+          <th scope="col"></th>
         </tr>
       </thead>
       <tbody>
         @for (obra of obras; track obra.id) {
           <tr class="obra-linha">
+            <td>
+              <span
+                class="obra-codigo"
+                data-testid="obra-codigo"
+                [title]="obra.id"
+                [attr.aria-label]="'Código da obra ' + obra.nome + ': ' + obra.id"
+              >
+                {{ obra.id.length >= 8 ? (obra.id | slice:0:8) + '…' : obra.id }}
+              </span>
+            </td>
             <td>
               <span data-testid="obra-nome">{{ obra.nome }}</span>
             </td>
@@ -34,7 +50,7 @@
               </span>
             </td>
             <td>
-              <span data-testid="obra-posicao">{{ formatarPosicaoObra(obra) }}</span>
+              <span data-testid="obra-posicao">{{ formatarPosicao(obra.posicaoAtual, obra.tipo) }}</span>
             </td>
             <td>
               <span data-testid="obra-previsao">

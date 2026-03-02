@@ -1,4 +1,5 @@
 using DiarioDeBordo.Application.Auth;
+using DiarioDeBordo.Application.Obras;
 using DiarioDeBordo.Application.Obras.Listar;
 using DiarioDeBordo.Domain.Interfaces;
 using DiarioDeBordo.Persistence.Auth;
@@ -34,6 +35,7 @@ public static class DependencyInjection
             sp.GetRequiredService<DiarioDeBordoDbContext>());
 
         services.AddScoped<IObraLeituraRepository, ObraLeituraRepository>();
+        services.AddScoped<IObraEscritaRepository, ObraEscritaRepository>();
         services.AddScoped<IUsuarioRepository, UsuarioRepository>();
 
         return services;

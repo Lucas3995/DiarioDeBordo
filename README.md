@@ -80,6 +80,8 @@ Para obter a porcentagem de cobertura de testes (backend e frontend), execute a 
 
 As linhas finais exibem **Backend: X%** e **Frontend: Y%**. Relatórios detalhados ficam em `backend/TestResults` e `frontend/coverage/frontend/`.
 
+Se o host não tiver Node 20+ (exigido pelo Angular CLI), execute os testes do frontend via Docker: `./scripts/frontend-test-docker.sh` (Node 22 + Chromium, mesmo ambiente do CI).
+
 ---
 
 ## Tecnologias e frameworks
