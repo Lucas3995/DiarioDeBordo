@@ -14,6 +14,9 @@ import { DialogRef } from './dialog-ref';
 /** Token para fornecer o ViewContainerRef onde os dialogs serão ancorados. */
 export const DIALOG_CONTAINER_REF = new InjectionToken<ViewContainerRef>('DIALOG_CONTAINER_REF');
 
+/** Token para injetar os dados passados em DialogOptions.data ao abrir o dialog. */
+export const DIALOG_DATA = new InjectionToken<unknown>('DIALOG_DATA');
+
 export interface DialogOptions<R = unknown> {
   /** Dados a passar ao componente aberto (injetável). */
   data?: unknown;
@@ -77,9 +80,15 @@ export class DialogService {
     const parent = container.element.nativeElement.parentElement ?? container.element.nativeElement;
     parent.appendChild(overlay);
 
-    const extraProviders = options?.getProviders?.(ref) ?? [];
+    const providers: Provider[] = [
+      { provide: DialogRef, useValue: ref },
+      ...(options?.getProviders?.(ref) ?? []),
+    ];
+    if (options?.data !== undefined) {
+      providers.push({ provide: DIALOG_DATA, useValue: options.data });
+    }
     const injector = Injector.create({
-      providers: [{ provide: DialogRef, useValue: ref }, ...extraProviders],
+      providers,
       parent: container.injector,
     });
 

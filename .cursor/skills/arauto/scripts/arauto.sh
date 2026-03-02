@@ -12,11 +12,16 @@ PR_BODY_FILE=""
 SKIP_WATCH=false
 DRY_RUN=false
 PREVIEW=false
+SKIP_CHECKOUT_MAIN=false
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --preview)
       PREVIEW=true
+      shift
+      ;;
+    --no-checkout-main)
+      SKIP_CHECKOUT_MAIN=true
       shift
       ;;
     --commit-msg)
@@ -44,7 +49,7 @@ while [[ $# -gt 0 ]]; do
       shift
       ;;
     -h|--help)
-      echo "Uso: arauto.sh [--preview] [--commit-msg \"msg\"] [--pr-title \"título\"] [--pr-body \"corpo\" | --pr-body-file path] [--no-watch] [--dry-run]"
+      echo "Uso: arauto.sh [--preview] [--commit-msg \"msg\"] [--pr-title \"título\"] [--pr-body \"corpo\" | --pr-body-file path] [--no-watch] [--no-checkout-main] [--dry-run]"
       echo "  Só reutiliza PR existente se estiver OPEN; se MERGED/CLOSED, cria novo PR e valida as automações desse PR."
       exit 0
       ;;
@@ -167,9 +172,11 @@ for i in {1..12}; do
 done
 
 if [[ -z "$RUN_ID" ]]; then
-  run git checkout main
-  run git fetch
-  run git pull
+  if [[ "$SKIP_CHECKOUT_MAIN" != true ]]; then
+    run git checkout main
+    run git fetch
+    run git pull
+  fi
   emit_result "no_run" "" "$PR_URL"
   exit 0
 fi
@@ -181,9 +188,11 @@ sleep 45
 # Obter todos os runs da branch (vários workflows podem ter sido disparados)
 RUN_IDS=$(gh run list --branch "$BRANCH" --limit 10 --json databaseId,status,conclusion -q '.[].databaseId' 2>/dev/null | sort -u || true)
 if [[ -z "$RUN_IDS" ]]; then
-  run git checkout main
-  run git fetch
-  run git pull
+  if [[ "$SKIP_CHECKOUT_MAIN" != true ]]; then
+    run git checkout main
+    run git fetch
+    run git pull
+  fi
   emit_result "no_run" "" "$PR_URL"
   exit 0
 fi
@@ -207,9 +216,13 @@ if [[ -n "$FAILED_RUN_ID" ]]; then
   exit 1
 fi
 
-echo "=== Voltar à main e atualizar ==="
-run git checkout main
-run git fetch
-run git pull
+if [[ "$SKIP_CHECKOUT_MAIN" != true ]]; then
+  echo "=== Voltar à main e atualizar ==="
+  run git checkout main
+  run git fetch
+  run git pull
+else
+  echo "=== (--no-checkout-main: mantendo-se na branch $BRANCH) ==="
+fi
 emit_result "success" "" "$PR_URL"
 echo "=== Arauto: entrega concluída. ==="

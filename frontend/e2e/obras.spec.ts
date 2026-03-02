@@ -144,5 +144,13 @@ test.describe('Módulo Obras — Listagem paginada', () => {
       await expect(page).toHaveURL(/\/obras/);
       await expect(page.locator('h2')).toContainText('Acompanhamento de Obras');
     });
+
+    test('Demanda 2: não deve exibir o checkbox "Criar obra se não existir" no formulário de atualizar posição', async ({
+      page,
+    }) => {
+      await page.locator('[data-testid="link-atualizar-posicao"]').click();
+      await expect(page.locator('[data-testid="dialog-overlay"]')).toBeVisible();
+      await expect(page.locator('[data-testid="atualizar-posicao-criar"]')).not.toBeVisible();
+    });
   });
 });

@@ -59,49 +59,6 @@
       </div>
     </div>
 
-    <div class="campo campo-checkbox">
-      <label class="checkbox-option">
-        <input type="checkbox" [(ngModel)]="criarSeNaoExistir" data-testid="atualizar-posicao-criar" />
-        <span class="checkbox-label">Criar obra se não existir</span>
-      </label>
-    </div>
-
-    @if (criarSeNaoExistir) {
-      <div class="campos-criacao">
-        <p class="secao-titulo">Dados da nova obra</p>
-        <div class="campo">
-          <label for="nomeParaCriar" class="label">Nome (nova obra)</label>
-          <input
-            id="nomeParaCriar"
-            type="text"
-            class="input"
-            [(ngModel)]="nomeParaCriar"
-            [placeholder]="valorIdentificador || 'Nome da obra'"
-            data-testid="atualizar-posicao-nome-criar"
-          />
-        </div>
-        <div class="campo">
-          <label for="tipoParaCriar" class="label">Tipo</label>
-          <select id="tipoParaCriar" class="input input-select" [(ngModel)]="tipoParaCriar" data-testid="atualizar-posicao-tipo-criar">
-            @for (t of tiposObra; track t) {
-              <option [value]="t">{{ t }}</option>
-            }
-          </select>
-        </div>
-        <div class="campo">
-          <label for="ordemParaCriar" class="label">Ordem de preferência</label>
-          <input
-            id="ordemParaCriar"
-            type="number"
-            min="0"
-            class="input input-number"
-            [(ngModel)]="ordemPreferenciaParaCriar"
-            data-testid="atualizar-posicao-ordem-criar"
-          />
-        </div>
-      </div>
-    }
-
     @if (erro) {
       <p class="mensagem erro" role="alert" data-testid="atualizar-posicao-erro">{{ erro }}</p>
     }

@@ -1,8 +1,16 @@
 {
 	"folders": [
 		{
+			"name": "Repo",
 			"path": "."
+		},
+		{
+			"name": "Frontend",
+			"path": "frontend"
 		}
 	],
-	"settings": {}
+	"settings": {
+		"typescript.tsdk": "frontend/node_modules/typescript/lib",
+		"typescript.enablePromptUseWorkspaceTsdk": true
+	}
 }
