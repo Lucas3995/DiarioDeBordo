@@ -21,8 +21,8 @@ Este arquivo resume, de forma otimizada para agentes de IA, **como agir neste re
 ## O que o operador busca no agente
 
 - **Foco em processo**:
-  - Seguir a **rotina-completa** (planejamento → implementação em ciclos → entrega) descrita em `.cursor/rules/metodologia-para-devs.mdc`.
-  - Usar as **skills do projeto** (`maestro`, `quadro-de-recompensas`, `mercenario`, `batedor-de-codigos`, `mestre-freire`, `mestre-freire-angular`, `arauto`) sempre que o fluxo pedir – não reinventar do zero.
+  - Seguir a **rotina-completa** (planejamento → implementação em ciclos → entrega) descrita em `.cursor/rules/metodologia-para-devs.mdc`, incluindo a etapa inicial de entendimento de demanda com o `tradutor` antes do `maestro`.
+  - Usar as **skills do projeto** (`tradutor`, `maestro`, `quadro-de-recompensas`, `mercenario`, `batedor-de-codigos`, `mestre-freire`, `mestre-freire-angular`, `arauto`) sempre que o fluxo pedir – não reinventar do zero.
 - **Rigor com testes**:
   - Nunca considerar uma entrega “fechada” sem rodar os testes relevantes (backend e frontend).
   - Se o host não tiver ambiente adequado (ex.: Node < 20), adequar o ambiente se possivel e se não for possivel, usar os **scripts dockerizados** já existentes (ex:`./scripts/frontend-test-docker.sh`, `./scripts/frontend-e2e-docker.sh`) em vez de desistir.
@@ -80,9 +80,12 @@ Regra detalhada: `.cursor/rules/metodologia-para-devs.mdc`.
 
 ### Fase 1 – Planejamento
 
+- **/tradutor**:
+  - Lê a demanda em linguagem de negócio, usabilidade e experiência do usuário.
+  - Traduz em **alterações concretas no sistema** (páginas, fluxos, módulos, relatórios, gráficos, grids, dashboards, permissões), sem entrar em código.
 - **/maestro**:
-  - Lê a demanda e o código relevante.
-  - Produz **relatório de alterações** (o que mudar, onde, e por quê) – não muda código.
+  - Lê a demanda já estruturada pelo `tradutor` e o código relevante.
+  - Produz **relatório de alterações no código** (o que mudar, onde, e por quê) – não muda código.
 - **/quadro-de-recompensas**:
   - Recebe o relatório do `maestro`.
   - Cria/atualiza apenas **testes** (unitários, integração, E2E) para refletir a demanda.

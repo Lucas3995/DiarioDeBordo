@@ -106,7 +106,7 @@ Se o host não tiver Node 20+ (exigido pelo Angular CLI), execute os testes do f
 - **TDD**: testes antes do código; Red-Green-Refactor; testes unitários e de integração; FIRST e AAA.
 - **Segurança e LGPD**: 2FA na autenticação; sem concatenação em SQL; minimização de dados; criptografia em repouso/trânsito e em campo para sensíveis; direitos do titular operacionalizáveis (acesso, correção, eliminação, portabilidade).
 - **DevSecOps**: pipelines para teste, build, deploy e gestão de secrets; Git com PRs, mensagens explícitas e SemVer quando aplicável.
-- **Metodologia rotina-completa**: planejamento (Maestro + Quadro de Recompensas), implementação em ciclos (Mercenário + Batedor de Códigos + Mestre Freire) e entrega (Arauto); ver seção [Metodologia de desenvolvimento](#metodologia-de-desenvolvimento-rotina-completa).
+- **Metodologia rotina-completa**: planejamento (Tradutor + Maestro + Quadro de Recompensas), implementação em ciclos (Mercenário + Batedor de Códigos + Mestre Freire) e entrega (Arauto); ver seção [Metodologia de desenvolvimento](#metodologia-de-desenvolvimento-rotina-completa).
 
 Detalhes nas regras em [.cursor/rules](.cursor/rules).
 
@@ -122,10 +122,11 @@ O projeto adota uma **metodologia de trabalho para agentes de desenvolvimento** 
 flowchart TB
   subgraph planejamento [1. Planejamento]
     D[Demanda]
-    M[Maestro: relatório de tarefas]
+    T[Tradutor: entender demanda e definir alterações no sistema]
+    M[Maestro: relatório de tarefas no código]
     Q[Quadro de Recompensas: testes]
     V1[Validar com operador]
-    D --> M --> Q --> V1
+    D --> T --> M --> Q --> V1
   end
 
   subgraph implementacao [2. Implementação - ciclo]
@@ -157,7 +158,8 @@ flowchart TB
 
 | Fase | Skill | Papel |
 |------|--------|--------|
-| **1. Planejamento** | **Maestro** | Analisa a demanda e o código e produz relatório estruturado das alterações necessárias. |
+| **1. Planejamento** | **Tradutor** | Entende a demanda em linguagem de negócio, usabilidade e UX e traduz em alterações concretas de sistema (páginas, módulos, fluxos, relatórios, gráficos, grids, dashboards, permissões), sem entrar em código. |
+| | **Maestro** | A partir do resultado do Tradutor, analisa o código e produz relatório estruturado das alterações necessárias no código. |
 | | **Quadro de Recompensas** | Cria testes automáticos (unitários, integração, E2E) a partir do relatório de tarefas. |
 | **2. Implementação** | **Mercenário** | Implementa regras de negócio no código para que os testes passem e a demanda seja atendida. |
 | | **Batedor de Códigos** | Analisa o código e produz relatório de inadequações (code smells, SOLID, Clean Architecture, DDD). |
