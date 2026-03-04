@@ -208,6 +208,15 @@ Quando o operador pedir para você atuar como “tradutor”, prefira estruturar
 
 Adapte o nível de detalhe ao pedido do operador: seja mais enxuto em respostas rápidas e mais aprofundado quando o operador pedir análise detalhada.
 
+### Quando o entregável forem cards em `demandas/`
+
+O resultado do tradutor pode ser a **redacção de cards** em `demandas/` (um ficheiro `.md` por card). Nesse caso:
+
+- **Sempre validar com o operador antes de prosseguir:** gerar **um card de cada vez**; anunciar o card; apresentar o conteúdo **formatado no corpo da resposta** (secções com títulos, listas, parágrafos); **aguardar validação ou orientação** do operador antes de criar o ficheiro.
+- **Manter o operador engajado:** fazer **mais perguntas** (clarificar escopo, prioridades, personas, critérios de aceitação); resumir o que se entendeu antes de escrever; oferecer escolhas (ex.: fatiar por fluxo vs por persona); validar cada card antes de passar ao próximo.
+
+Para processo e convenções detalhados (regras aditivas, requisitos técnicos padrão, riscos vs requisitos, rastreabilidade), seguir o rule **cards-demandas** (ou as "Convenções" descritas em `demandas/README.md`).
+
 ---
 
 ## Exemplos de uso
