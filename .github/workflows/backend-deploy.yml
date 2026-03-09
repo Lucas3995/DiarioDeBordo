@@ -81,7 +81,7 @@ jobs:
       # =====================================================================
 
       - name: "[PLACEHOLDER] Configurar credenciais AWS"
-        uses: aws-actions/configure-aws-credentials@v4
+        uses: aws-actions/configure-aws-credentials@v6
         if: false  # Remover esta linha quando implementar
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
