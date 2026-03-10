@@ -1,11 +1,9 @@
-using DiarioDeBordo.Domain.Obras;
-
-namespace DiarioDeBordo.Application.Obras.Listar;
+namespace DiarioDeBordo.Domain.Obras;
 
 /// <summary>
-/// Interface de repositório de leitura para obras — pertence à camada de Application
+/// Interface de repositório de leitura para obras — pertence à camada de Domain
 /// seguindo a direção de dependência da Clean Architecture:
-/// Application define o contrato; Persistence implementa.
+/// Domain define o contrato; Persistence implementa.
 /// </summary>
 public interface IObraLeituraRepository
 {

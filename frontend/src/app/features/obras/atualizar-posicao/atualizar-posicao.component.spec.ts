@@ -75,23 +75,23 @@ describe('AtualizarPosicaoComponent', () => {
 
   describe('verPreview()', () => {
     it('com identificador vazio deve definir erro e não chamar o serviço', () => {
-      component.valorIdentificador = '   ';
+      component.valorIdentificador.set('   ');
       component.verPreview();
 
       expect(serviceSpy.obterPorId).not.toHaveBeenCalled();
       expect(serviceSpy.obterPorNome).not.toHaveBeenCalled();
-      expect(component.erro).toBe('Informe o nome da obra.');
+      expect(component.erro()).toBe('Informe o nome da obra.');
     });
 
     it('por nome com obra existente deve atribuir a prévia e limpar erro', () => {
       serviceSpy.obterPorNome.and.returnValue(of(OBRA_PREVIEW_MOCK));
-      component.obraSelecionada = null;
-      component.valorIdentificador = 'One Piece';
+      component.obraSelecionada.set(null);
+      component.valorIdentificador.set('One Piece');
       component.verPreview();
 
       expect(serviceSpy.obterPorNome).toHaveBeenCalledWith('One Piece');
-      expect(component.preview).toEqual(OBRA_PREVIEW_MOCK);
-      expect(component.erro).toBeNull();
+      expect(component.preview()).toEqual(OBRA_PREVIEW_MOCK);
+      expect(component.erro()).toBeNull();
     });
 
     it('quando API retorna 404 deve abrir o prompt de obra nova (Demanda 2 — item 3)', () => {
@@ -105,20 +105,20 @@ describe('AtualizarPosicaoComponent', () => {
       dialogServiceSpy.open.and.returnValue(dialogRefStub as unknown as DialogRef<unknown>);
 
       serviceSpy.obterPorNome.and.returnValue(throwError(() => ({ status: 404 })));
-      component.obraSelecionada = null;
-      component.valorIdentificador = 'Obra Inexistente';
-      component.novaPosicao = 5;
+      component.obraSelecionada.set(null);
+      component.valorIdentificador.set('Obra Inexistente');
+      component.form.controls.novaPosicao.setValue(5);
 
       component.verPreview();
 
       expect(dialogServiceSpy.open).toHaveBeenCalledWith(PromptObraNovaComponent, jasmine.objectContaining({
         data: jasmine.objectContaining({ nomeDefault: 'Obra Inexistente' }),
       }));
-      expect(component.erro).toBeNull();
-      expect(component.preview).not.toBeNull();
-      expect(component.preview!.tipo).toBe(TipoObra.Manga);
-      expect(component.preview!.nome).toBe('Obra Inexistente');
-      expect((component.preview as ObraDetalheComObraNova).obraNova).toBe(true);
+      expect(component.erro()).toBeNull();
+      expect(component.preview()).not.toBeNull();
+      expect(component.preview()!.tipo).toBe(TipoObra.Manga);
+      expect(component.preview()!.nome).toBe('Obra Inexistente');
+      expect((component.preview() as ObraDetalheComObraNova).obraNova).toBe(true);
     });
 
     it('quando API retorna 404 e usuário cancela o prompt deve exibir mensagem informativa (Demanda 2 — item 3)', () => {
@@ -127,21 +127,21 @@ describe('AtualizarPosicaoComponent', () => {
       } as unknown as DialogRef<unknown>);
 
       serviceSpy.obterPorNome.and.returnValue(throwError(() => ({ status: 404 })));
-      component.obraSelecionada = null;
-      component.valorIdentificador = 'Qualquer';
+      component.obraSelecionada.set(null);
+      component.valorIdentificador.set('Qualquer');
 
       component.verPreview();
 
       expect(dialogServiceSpy.open).toHaveBeenCalledWith(PromptObraNovaComponent, jasmine.any(Object));
-      expect(component.erro).toMatch(/Obra não encontrada/i);
-      expect(component.preview).toBeNull();
+      expect(component.erro()).toMatch(/Obra não encontrada/i);
+      expect(component.preview()).toBeNull();
     });
   });
 
   describe('template — prévia com código da obra (Demanda 3 — item 2)', () => {
     it('quando preview é de obra existente (não obraNova) deve exibir o código (id) na secção prévia', () => {
-      component.preview = OBRA_PREVIEW_MOCK;
-      component.novaPosicao = 1111;
+      component.preview.set(OBRA_PREVIEW_MOCK);
+      component.form.controls.novaPosicao.setValue(1111);
       fixture.detectChanges();
 
       const previewEl = fixture.debugElement.query(By.css('[data-testid="atualizar-posicao-preview"]'));
@@ -157,8 +157,8 @@ describe('AtualizarPosicaoComponent', () => {
         id: '',
         obraNova: true,
       };
-      component.preview = previewObraNova;
-      component.novaPosicao = 10;
+      component.preview.set(previewObraNova);
+      component.form.controls.novaPosicao.setValue(10);
       fixture.detectChanges();
 
       const previewEl = fixture.debugElement.query(By.css('[data-testid="atualizar-posicao-preview"]'));
@@ -176,8 +176,8 @@ describe('AtualizarPosicaoComponent', () => {
         ...OBRA_PREVIEW_MOCK,
         obraNova: true,
       };
-      component.preview = previewObraNova;
-      component.novaPosicao = 10;
+      component.preview.set(previewObraNova);
+      component.form.controls.novaPosicao.setValue(10);
       fixture.detectChanges();
 
       const previewEl = fixture.debugElement.query(By.css('[data-testid="atualizar-posicao-preview"]'));
@@ -204,11 +204,11 @@ describe('AtualizarPosicaoComponent', () => {
     });
 
     it('deve permitir texto livre no campo nome (valor digitado sem seleção de sugestão)', () => {
-      component.valorIdentificador = 'Obra digitada livre';
+      component.valorIdentificador.set('Obra digitada livre');
       fixture.detectChanges();
       const input = fixture.debugElement.query(By.css('[data-testid="atualizar-posicao-identificador"], [data-testid="atualizar-posicao-nome-obra"]'));
       expect(input).toBeTruthy();
-      expect(component.valorIdentificador).toBe('Obra digitada livre');
+      expect(component.valorIdentificador()).toBe('Obra digitada livre');
     });
   });
 
@@ -232,9 +232,9 @@ describe('AtualizarPosicaoComponent', () => {
   describe('salvar() — Demanda 2 itens 4 e 5', () => {
     it('quando já existe estado de dados de criação (preenchido pelo prompt) deve enviar request com criarSeNaoExistir true e nome/tipo/ordem', () => {
       serviceSpy.atualizarPosicao.and.returnValue(of({ id: 'id-1', criada: true }));
-      component.valorIdentificador = 'Obra Nova';
-      component.novaPosicao = 1;
-      component.dadosCriacaoPendentes = { nome: 'Obra Nova', tipo: TipoObra.Manga, ordemPreferencia: 0 };
+      component.valorIdentificador.set('Obra Nova');
+      component.form.controls.novaPosicao.setValue(1);
+      component.dadosCriacaoPendentes.set({ nome: 'Obra Nova', tipo: TipoObra.Manga, ordemPreferencia: 0 });
 
       component.salvar();
 
@@ -264,8 +264,8 @@ describe('AtualizarPosicaoComponent', () => {
         of({ id: 'id-novo', criada: true })
       );
 
-      component.valorIdentificador = 'Obra Inexistente';
-      component.novaPosicao = 10;
+      component.valorIdentificador.set('Obra Inexistente');
+      component.form.controls.novaPosicao.setValue(10);
       component.salvar();
 
       expect(dialogServiceSpy.open).toHaveBeenCalledWith(PromptObraNovaComponent, jasmine.any(Object));
@@ -315,8 +315,8 @@ describe('AtualizarPosicaoComponent uso em popup (demanda 1 — DialogRef injeta
     serviceSpy.atualizarPosicao.and.returnValue(
       of({ id: 'id-1', criada: false })
     );
-    component.valorIdentificador = 'One Piece';
-    component.novaPosicao = 1111;
+    component.valorIdentificador.set('One Piece');
+    component.form.controls.novaPosicao.setValue(1111);
     component.salvar();
 
     tick(DELAY_FECHAMENTO_APOS_SUCESSO_MS);

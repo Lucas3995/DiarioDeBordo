@@ -1,4 +1,3 @@
-using DiarioDeBordo.Application.Auth;
 using DiarioDeBordo.Domain.Auth;
 using Microsoft.EntityFrameworkCore;
 

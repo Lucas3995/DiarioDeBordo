@@ -1,6 +1,5 @@
-using DiarioDeBordo.Application.Auth;
+using DiarioDeBordo.Domain.Auth;
 using DiarioDeBordo.Domain.Common;
-using DiarioDeBordo.Domain.Interfaces;
 using DiarioDeBordo.Infrastructure.Auth;
 using DiarioDeBordo.Infrastructure.Common;
 using DiarioDeBordo.Infrastructure.Security;

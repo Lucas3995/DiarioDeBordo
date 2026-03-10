@@ -1,4 +1,3 @@
-using DiarioDeBordo.Application.Auth;
 using DiarioDeBordo.Application.Auth.Login;
 using DiarioDeBordo.Domain.Auth;
 using DiarioDeBordo.Infrastructure.Auth;
@@ -161,7 +160,8 @@ public sealed class AuthControllerTestFactory : WebApplicationFactory<Program>
             {
                 { "Jwt:Key", JwtKey },
                 { "Jwt:Issuer", JwtIssuer },
-                { "Jwt:Audience", JwtAudience }
+                { "Jwt:Audience", JwtAudience },
+                { "DataProtection:Key", "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=" }
             });
         });
 

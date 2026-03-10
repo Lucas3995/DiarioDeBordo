@@ -1,5 +1,5 @@
-using DiarioDeBordo.Application.Obras;
 using DiarioDeBordo.Application.Obras.ObterPorIdOuNome;
+using DiarioDeBordo.Domain.Common;
 using DiarioDeBordo.Domain.Obras;
 using FluentAssertions;
 using Moq;
@@ -12,6 +12,7 @@ namespace DiarioDeBordo.Tests.Unit.Obras;
 /// </summary>
 public sealed class GetObraPorIdOuNomeQueryHandlerTests
 {
+    private readonly IClock _clock = Mock.Of<IClock>(c => c.UtcNow == new DateTime(2025, 1, 1, 0, 0, 0, DateTimeKind.Utc));
     private readonly Mock<IObraEscritaRepository> _repoMock;
     private readonly GetObraPorIdOuNomeQueryHandler _handler;
 
@@ -26,7 +27,7 @@ public sealed class GetObraPorIdOuNomeQueryHandlerTests
     {
         // Arrange
         var data = new DateTime(2026, 2, 1, 0, 0, 0, DateTimeKind.Utc);
-        var obra = new Obra("One Piece", TipoObra.Manga, 1110, data, 1);
+        var obra = new Obra("One Piece", TipoObra.Manga, 1110, data, 1, _clock);
         _repoMock.Setup(r => r.ObterPorIdAsync(obra.Id, It.IsAny<CancellationToken>())).ReturnsAsync(obra);
         var query = new GetObraPorIdOuNomeQuery(Id: obra.Id, Nome: null);
 
@@ -47,7 +48,7 @@ public sealed class GetObraPorIdOuNomeQueryHandlerTests
     public async Task Handle_ComNomeExistente_DeveRetornarDtoDaObra()
     {
         // Arrange
-        var obra = new Obra("Solo Leveling", TipoObra.Manhwa, 179, DateTime.UtcNow, 2);
+        var obra = new Obra("Solo Leveling", TipoObra.Manhwa, 179, DateTime.UtcNow, 2, _clock);
         _repoMock.Setup(r => r.ObterPorNomeAsync("Solo Leveling", It.IsAny<CancellationToken>())).ReturnsAsync(obra);
         var query = new GetObraPorIdOuNomeQuery(Id: null, Nome: "Solo Leveling");
 

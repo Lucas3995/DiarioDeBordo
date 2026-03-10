@@ -1,7 +1,7 @@
-using DiarioDeBordo.Application.Obras;
 using DiarioDeBordo.Application.Obras.AtualizarPosicao;
 using DiarioDeBordo.Application.Obras.Listar;
 using DiarioDeBordo.Application.Obras.ObterPorIdOuNome;
+using DiarioDeBordo.Domain.Common;
 using DiarioDeBordo.Domain.Obras;
 using DiarioDeBordo.Persistence;
 using FluentAssertions;
@@ -272,7 +272,8 @@ public sealed class ObrasControllerTestFactory : WebApplicationFactory<Program>
             {
                 { "Jwt:Key", JwtKey },
                 { "Jwt:Issuer", JwtIssuer },
-                { "Jwt:Audience", JwtAudience }
+                { "Jwt:Audience", JwtAudience },
+                { "DataProtection:Key", "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=" }
             });
         });
 
@@ -323,6 +324,7 @@ public sealed class ObrasControllerTestFactory : WebApplicationFactory<Program>
     {
         using var scope = Services.CreateScope();
         var ctx = scope.ServiceProvider.GetRequiredService<DiarioDeBordoDbContext>();
+        var clock = scope.ServiceProvider.GetRequiredService<IClock>();
 
         if (!await ctx.Obras.AnyAsync())
         {
@@ -333,7 +335,8 @@ public sealed class ObrasControllerTestFactory : WebApplicationFactory<Program>
                     TipoObra.Manga,
                     posicaoAtual: i * 10,
                     dataUltimaAtualizacaoPosicao: new DateTime(2026, 1, i, 0, 0, 0, DateTimeKind.Utc),
-                    ordemPreferencia: i));
+                    ordemPreferencia: i,
+                    clock: clock));
             }
 
             await ctx.SaveChangesAsync();

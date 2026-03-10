@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { RouterOutlet, RouterLink } from '@angular/router';
 import { DialogHostComponent } from './shared/dialog/dialog-host.component';
 
@@ -18,6 +18,7 @@ import { DialogHostComponent } from './shared/dialog/dialog-host.component';
     <app-dialog-host />
   `,
   styleUrl: './app.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AppComponent {
   title = 'frontend';

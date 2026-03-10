@@ -1,6 +1,5 @@
 using DiarioDeBordo.Domain.Auth;
 using DiarioDeBordo.Domain.Common;
-using DiarioDeBordo.Domain.Interfaces;
 using DiarioDeBordo.Domain.Obras;
 using Microsoft.EntityFrameworkCore;
 

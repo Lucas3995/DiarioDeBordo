@@ -44,26 +44,26 @@ describe('ConfigComponent', () => {
 
   it('should initialize apiUrl from ApiConfigService', () => {
     expect(apiConfigSpy.getApiUrl).toHaveBeenCalled();
-    expect(component.apiUrl).toBe('https://api.initial.com');
+    expect(component.form.controls.apiUrl.value).toBe('https://api.initial.com');
   });
 
   describe('save()', () => {
     it('should call ApiConfigService.setApiUrl with the current apiUrl', () => {
-      component.apiUrl = 'https://api.new.com';
+      component.form.controls.apiUrl.setValue('https://api.new.com');
       component.save();
       expect(apiConfigSpy.setApiUrl).toHaveBeenCalledWith('https://api.new.com');
     });
 
     it('should set the confirmation message after save', () => {
       component.save();
-      expect(component.message).toBe('Configurações salvas.');
+      expect(component.message()).toBe('Configurações salvas.');
     });
 
     it('should clear the message after 3 seconds', fakeAsync(() => {
       component.save();
-      expect(component.message).toBe('Configurações salvas.');
+      expect(component.message()).toBe('Configurações salvas.');
       tick(3001);
-      expect(component.message).toBe('');
+      expect(component.message()).toBe('');
     }));
   });
 });

@@ -11,6 +11,6 @@ public sealed class GetObraPorIdOuNomeQueryValidator : AbstractValidator<GetObra
     {
         RuleFor(x => x)
             .Must(q => q.Id.HasValue || !string.IsNullOrWhiteSpace(q.Nome))
-            .WithMessage("Informe o Id ou o Nome da obra.");
+            .WithMessage(ObraValidationMessages.IdOuNomeObrigatorio);
     }
 }

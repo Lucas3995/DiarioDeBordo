@@ -10,15 +10,8 @@ namespace DiarioDeBordo.Api.Controllers;
 /// </summary>
 [ApiController]
 [Route("api/auth")]
-public sealed class AuthController : ControllerBase
+public sealed class AuthController(IMediator mediator) : ControllerBase
 {
-    private readonly IMediator _mediator;
-
-    public AuthController(IMediator mediator)
-    {
-        _mediator = mediator;
-    }
-
     /// <summary>
     /// Autentica um usuário com login e senha.
     /// Retorna 200 com token JWT se bem-sucedido, 401 se credenciais inválidas,
@@ -27,7 +20,7 @@ public sealed class AuthController : ControllerBase
     [HttpPost("login")]
     public async Task<IActionResult> Login([FromBody] LoginCommand command, CancellationToken cancellationToken)
     {
-        var result = await _mediator.Send(command, cancellationToken);
+        var result = await mediator.Send(command, cancellationToken);
 
         if (!result.Sucesso && !result.Requer2FA)
             return Unauthorized(new { result.Erro });

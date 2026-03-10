@@ -1,4 +1,3 @@
-using DiarioDeBordo.Api.Models;
 using DiarioDeBordo.Application.Obras.AtualizarPosicao;
 using DiarioDeBordo.Application.Obras.Listar;
 using DiarioDeBordo.Application.Obras.ObterPorIdOuNome;
@@ -86,18 +85,9 @@ public sealed class ObrasController(IMediator mediator) : ControllerBase
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> AtualizarPosicao(
-        [FromBody] AtualizarPosicaoObraRequest request,
+        [FromBody] AtualizarPosicaoObraCommand command,
         CancellationToken cancellationToken = default)
     {
-        var command = new AtualizarPosicaoObraCommand(
-            request.IdObra,
-            request.NomeObra,
-            request.NovaPosicao,
-            request.DataUltimaAtualizacao,
-            request.CriarSeNaoExistir,
-            request.NomeParaCriar,
-            request.TipoParaCriar,
-            request.OrdemPreferenciaParaCriar);
         try
         {
             var resultado = await mediator.Send(command, cancellationToken);

@@ -79,11 +79,11 @@ describe('ObraListaComponent', () => {
     });
 
     it('deve armazenar os items retornados', () => {
-      expect(component.obras).toEqual(OBRAS_MOCK);
+      expect(component.obras()).toEqual(OBRAS_MOCK);
     });
 
     it('deve armazenar o totalCount', () => {
-      expect(component.totalCount).toBe(25);
+      expect(component.totalCount()).toBe(25);
     });
   });
 
@@ -225,7 +225,7 @@ describe('ObraListaComponent', () => {
 
     it('deve atualizar o pageSize atual', () => {
       component.mudarPageSize(50);
-      expect(component.pageSize).toBe(50);
+      expect(component.pageSize()).toBe(50);
     });
   });
 
@@ -262,8 +262,8 @@ describe('ObraListaComponent', () => {
       fixture.detectChanges();
 
       expect(serviceSpy.listarPagina).toHaveBeenCalledWith({
-        pageIndex: component.pageIndex,
-        pageSize: component.pageSize,
+        pageIndex: component.pageIndex(),
+        pageSize: component.pageSize(),
       });
     });
   });

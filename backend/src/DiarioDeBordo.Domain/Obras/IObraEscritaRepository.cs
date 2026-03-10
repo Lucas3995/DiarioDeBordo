@@ -1,10 +1,8 @@
-using DiarioDeBordo.Domain.Obras;
-
-namespace DiarioDeBordo.Application.Obras;
+namespace DiarioDeBordo.Domain.Obras;
 
 /// <summary>
 /// Repositório de escrita para obras: obter por id/nome e persistir (adicionar/atualizar).
-/// Application define o contrato; Persistence implementa.
+/// Domain define o contrato; Persistence implementa.
 /// Compartilhado pelos casos de uso AtualizarPosicao e ObterPorIdOuNome.
 /// </summary>
 public interface IObraEscritaRepository

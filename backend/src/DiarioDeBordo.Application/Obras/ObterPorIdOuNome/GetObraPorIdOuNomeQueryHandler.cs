@@ -1,4 +1,3 @@
-using DiarioDeBordo.Application.Obras;
 using DiarioDeBordo.Domain.Obras;
 using MediatR;
 

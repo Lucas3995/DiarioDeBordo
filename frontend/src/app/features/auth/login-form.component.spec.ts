@@ -31,24 +31,24 @@ describe('LoginFormComponent', () => {
   // ────────────────── Campos vazios ──────────────────
 
   it('submeter com login vazio não deve chamar authService.login', () => {
-    component.login = '';
-    component.senha = 'camaradinha@123';
+    component.form.controls.login.setValue('');
+    component.form.controls.senha.setValue('camaradinha@123');
     component.submeter();
 
     expect(authServiceSpy.login).not.toHaveBeenCalled();
   });
 
   it('submeter com senha vazia não deve chamar authService.login', () => {
-    component.login = 'admin';
-    component.senha = '';
+    component.form.controls.login.setValue('admin');
+    component.form.controls.senha.setValue('');
     component.submeter();
 
     expect(authServiceSpy.login).not.toHaveBeenCalled();
   });
 
   it('submeter com campos só de espaços não deve chamar authService.login', () => {
-    component.login = '   ';
-    component.senha = '   ';
+    component.form.controls.login.setValue('   ');
+    component.form.controls.senha.setValue('   ');
     component.submeter();
 
     expect(authServiceSpy.login).not.toHaveBeenCalled();
@@ -60,8 +60,8 @@ describe('LoginFormComponent', () => {
     const mockResult: LoginResult = { sucesso: true, token: 'tok', expiresAt: null, requer2FA: false, erro: null };
     authServiceSpy.login.and.returnValue(of(mockResult));
 
-    component.login = 'admin';
-    component.senha = 'camaradinha@123';
+    component.form.controls.login.setValue('admin');
+    component.form.controls.senha.setValue('camaradinha@123');
     component.submeter();
 
     expect(authServiceSpy.login).toHaveBeenCalledWith({ login: 'admin', senha: 'camaradinha@123' });
@@ -73,8 +73,8 @@ describe('LoginFormComponent', () => {
     const mockResult: LoginResult = { sucesso: true, token: 'tok', expiresAt: null, requer2FA: false, erro: null };
     authServiceSpy.login.and.returnValue(of(mockResult));
 
-    component.login = 'admin';
-    component.senha = 'camaradinha@123';
+    component.form.controls.login.setValue('admin');
+    component.form.controls.senha.setValue('camaradinha@123');
     component.submeter();
     fixture.detectChanges();
 
@@ -88,8 +88,8 @@ describe('LoginFormComponent', () => {
   it('em erro deve exibir mensagem de erro no DOM', () => {
     authServiceSpy.login.and.returnValue(throwError(() => new Error('Credenciais inválidas.')));
 
-    component.login = 'admin';
-    component.senha = 'errada';
+    component.form.controls.login.setValue('admin');
+    component.form.controls.senha.setValue('errada');
     component.submeter();
     fixture.detectChanges();
 
@@ -108,8 +108,8 @@ describe('LoginFormComponent', () => {
     };
     authServiceSpy.login.and.returnValue(of(mockResult));
 
-    component.login = 'admin';
-    component.senha = 'errada';
+    component.form.controls.login.setValue('admin');
+    component.form.controls.senha.setValue('errada');
     component.submeter();
     fixture.detectChanges();
 

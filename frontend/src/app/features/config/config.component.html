@@ -1,16 +1,16 @@
 <h2>Configurações (Admin)</h2>
 <p>A URL da API e o token JWT são armazenados localmente no navegador.</p>
 
-<div class="config-field">
+<form class="config-field" [formGroup]="form" (submit)="$event.preventDefault()">
   <label for="apiUrl">URL da API (backend):</label>
   <input
     id="apiUrl"
     type="url"
-    [(ngModel)]="apiUrl"
+    formControlName="apiUrl"
     placeholder="http://localhost:5000"
     (blur)="save()"
   />
-</div>
+</form>
 
 <section class="config-section">
   <h3 class="config-section__title">Autenticação</h3>
@@ -26,18 +26,18 @@
   <p class="config-section__desc">
     Caso prefira, insira o token JWT manualmente (obtido via <code>POST /api/auth/login</code>).
   </p>
-  <div class="config-field">
+  <form class="config-field" [formGroup]="form" (ngSubmit)="save()">
     <label for="jwtToken">Token JWT (Bearer):</label>
     <input
       id="jwtToken"
       type="password"
-      [(ngModel)]="jwtToken"
+      formControlName="jwtToken"
       placeholder="eyJhbGciOi..."
       (blur)="save()"
     />
-  </div>
-  <button type="button" (click)="save()">Salvar token manualmente</button>
-  @if (message) {
-    <p class="message">{{ message }}</p>
+    <button type="submit">Salvar token manualmente</button>
+  </form>
+  @if (message()) {
+    <p class="message">{{ message() }}</p>
   }
 </section>

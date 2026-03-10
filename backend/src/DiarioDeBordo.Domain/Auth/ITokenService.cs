@@ -1,10 +1,8 @@
-using DiarioDeBordo.Domain.Auth;
-
-namespace DiarioDeBordo.Application.Auth;
+namespace DiarioDeBordo.Domain.Auth;
 
 /// <summary>
 /// Contrato para geração de tokens JWT.
-/// Definido na camada Application; implementado em Infrastructure
+/// Definido na camada Domain; implementado em Infrastructure
 /// para isolar detalhes de JWT da lógica de negócio.
 /// </summary>
 public interface ITokenService

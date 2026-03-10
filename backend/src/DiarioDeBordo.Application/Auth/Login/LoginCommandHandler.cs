@@ -1,3 +1,4 @@
+using DiarioDeBordo.Domain.Auth;
 using MediatR;
 
 namespace DiarioDeBordo.Application.Auth.Login;

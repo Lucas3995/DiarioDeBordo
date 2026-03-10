@@ -1,4 +1,4 @@
-using DiarioDeBordo.Application.Auth;
+using DiarioDeBordo.Domain.Auth;
 
 namespace DiarioDeBordo.Infrastructure.Auth;
 

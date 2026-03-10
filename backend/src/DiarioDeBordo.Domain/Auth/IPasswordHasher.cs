@@ -1,9 +1,9 @@
-namespace DiarioDeBordo.Application.Auth;
+namespace DiarioDeBordo.Domain.Auth;
 
 /// <summary>
 /// Contrato para hash e verificação de senhas.
-/// Definido na camada Application para que o handler não dependa da biblioteca
-/// de hash concreta (BCrypt, PBKDF2, etc.). Implementado em Infrastructure.
+/// Definido na camada Domain (política de senha é regra de domínio).
+/// Implementado em Infrastructure.
 /// </summary>
 public interface IPasswordHasher
 {

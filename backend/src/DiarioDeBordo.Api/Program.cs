@@ -1,8 +1,9 @@
 using DiarioDeBordo.Api.Composition;
 using DiarioDeBordo.Api.Middleware;
 using DiarioDeBordo.Application;
-using DiarioDeBordo.Application.Auth;
 using DiarioDeBordo.Application.Status;
+using DiarioDeBordo.Domain.Auth;
+using DiarioDeBordo.Domain.Common;
 using DiarioDeBordo.Infrastructure;
 using DiarioDeBordo.Persistence;
 using DiarioDeBordo.Persistence.Seed;
@@ -109,7 +110,8 @@ if (app.Environment.IsDevelopment())
     var dbContext = scope.ServiceProvider.GetService<DiarioDeBordoDbContext>();
     if (dbContext is not null)
     {
-        await ObrasSeed.AplicarAsync(dbContext);
+        var clock = scope.ServiceProvider.GetRequiredService<IClock>();
+        await ObrasSeed.AplicarAsync(dbContext, clock);
 
         var passwordHasher = scope.ServiceProvider.GetRequiredService<IPasswordHasher>();
         await UsuariosSeed.AplicarAsync(dbContext, passwordHasher);

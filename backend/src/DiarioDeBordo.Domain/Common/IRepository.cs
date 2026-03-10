@@ -1,6 +1,4 @@
-using DiarioDeBordo.Domain.Common;
-
-namespace DiarioDeBordo.Domain.Interfaces;
+namespace DiarioDeBordo.Domain.Common;
 
 /// <summary>
 /// Contrato base de repositório orientado ao domínio (DDD).

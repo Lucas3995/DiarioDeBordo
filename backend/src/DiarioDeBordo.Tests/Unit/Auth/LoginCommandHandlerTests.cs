@@ -1,4 +1,3 @@
-using DiarioDeBordo.Application.Auth;
 using DiarioDeBordo.Application.Auth.Login;
 using DiarioDeBordo.Domain.Auth;
 using FluentAssertions;
