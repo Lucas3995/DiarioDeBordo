@@ -20,9 +20,37 @@ Refatora o código para **melhorias técnicas e conceituais** com base **exclusi
 - **Testes obrigatórios:** após cada refatoração (ou lote coerente), executar a suíte de testes. **Todos devem continuar a passar.** Se falharem, a causa é a refatoração — corrigir até passarem.
 - **Análise limitada:** as únicas análises permitidas são (1) a **análise prévia**, fornecida pelo relatório, e (2) **análise para resolver problemas** introduzidos pela própria refatoração (ex.: teste que passou a falhar, compilação quebrada). **Proibido** fazer varreduras em busca de novos smells ou novas necessidades de refatoração.
 
+### Princípios Fowler (Refactoring 2nd Ed.)
+
+- **Two Hats (Kent Beck):** Alternar constantemente entre dois chapéus — Chapéu 1 (adicionar features, mudar comportamento) e Chapéu 2 (refatorar, melhorar estrutura sem mudar comportamento). Nunca usar os dois ao mesmo tempo. Esta skill opera **exclusivamente** com o Chapéu 2.
+- **Design Stamina Hypothesis:** Bom design sustenta velocidade de desenvolvimento ao longo do tempo. Refatorar não é custo — é investimento que mantém a taxa de entrega sustentável.
+- **Green Bar Discipline:** Nunca refatorar com testes falhando. O ciclo é: testes verdes → refatorar → testes verdes. Se um teste falha durante refatoração, desfazer e tentar passos menores.
+- **Step Size:** Cada mudança deve ser pequena (~5 linhas), testável imediatamente e comitável individualmente. Se o teste fala, o passo foi grande demais — reduzir.
+- **Quando refatorar — 5 gatilhos:**
+  1. **Rule of Three** — terceira ocorrência de duplicação → refatorar.
+  2. **Preparatória** — antes de adicionar feature, refatorar para facilitar a adição.
+  3. **Compreensão** — ao ler código difícil, refatorar para deixar a compreensão no código.
+  4. **Garbage collection** — ao encontrar código morto ou desnecessário, remover.
+  5. **Oportunística** — ao tocar num ficheiro por outro motivo, melhorar o que estiver próximo.
+- **Quando NÃO refatorar — 3 condições:**
+  1. Código que **não será modificado** — se funciona e ninguém toca, deixar.
+  2. **Reescrever é mais fácil** — custo de refatoração supera o de reescrita.
+  3. **API pública** — alterar assinaturas públicas causa impacto nos consumidores; usar Expandable-Contractible.
+- **Branch by Abstraction:** Para migrações longas (1-2 semanas), introduzir camada de abstração; implementar nova versão atrás da abstração; migrar consumidores gradualmente; remover abstração.
+- **Expandable-Contractible Pattern:** Para mudanças em APIs ou BD — expandir (adicionar nova versão mantendo a antiga), migrar consumidores, contrair (remover versão antiga).
+
 ---
 
 ## Fluxo de trabalho
+
+0. **Pré-fase: Seam Analysis (código legado)**  
+   Quando o código a refatorar **não tem testes suficientes** (legacy code):
+   1. Mapear seams disponíveis no componente (object, link, preprocessing)
+   2. Quebrar dependências usando catálogo de 25 técnicas (ver skill [codigo-legado](../codigo-legado/SKILL.md))
+   3. Escrever **characterization tests** que documentem comportamento atual
+   4. Somente após essa cobertura, seguir para o passo 1 abaixo
+   
+   **Critério:** Se o relatório indica smells em código sem testes → esta pré-fase é **obrigatória** antes de refatorar.
 
 1. **Receber o relatório**  
    Relatório de inadequações com achados (ID, smell, ficheiro, localização, evidência, princípio violado). Se o utilizador não fornecer relatório, solicitar ou indicar que esta skill exige relatório como entrada.
@@ -41,11 +69,14 @@ Refatora o código para **melhorias técnicas e conceituais** com base **exclusi
 4. **Refatorar em passos pequenos com verificação TDD**  
    - Um achado (ou grupo coerente de achados no mesmo ficheiro) por vez.  
    - Aplicar apenas alterações que **mitiguem o achado** sem mudar comportamento.
+   - **Ritmo Fowler:** mudança pequena (~5 linhas) → testar → commit → repetir. Dezenas de refactorings por dia em desenvolvimento ativo; commits granulares (1 refactoring por commit).
+   - **Se teste falha:** desfazer a mudança; tentar passos menores. O teste falhando significa que o passo alterou comportamento.
    - **Ciclo TDD de segurança:** testes existentes protegem (Red = confiança na rede) → refatorar (Green = manter testes verdes) → verificar (todos os testes continuam verdes).  
    - Não alterar ficheiros de teste (conforme convenção do projeto).
+   - Para achados que mapeiam a **cadeias de refactoring** (§Cadeias de Refactoring em [reference.md](reference.md)), seguir a sequência pré-definida em vez de decidir técnica a técnica.
 
 5. **Executar testes**  
-   Após cada passo (ou lote pequeno), executar a **suíte completa** de testes do projeto (backend e frontend). Objetivo: **verificar que as regras de negócio continuam funcionando** após a refatoração. Se algum teste falhar: tratar como **regressão da refatoração**; analisar a falha, ajustar o código de produção (não o teste) e repetir até todos passarem. Se o ambiente do host não permitir rodar os testes (ex.: Node &lt; 20 para o frontend), usar a **containerização do projeto** (ex.: `./scripts/frontend-test-docker.sh` no DiarioDeBordo).
+   Após cada passo (ou lote pequeno), executar a **suíte completa** de testes do projeto (backend e frontend). Objetivo: **verificar que as regras de negócio continuam funcionando** após a refatoração. Se algum teste falhar: tratar como **regressão da refatoração**; analisar a falha, ajustar o código de produção (não o teste) e repetir até todos passarem. Se o ambiente do host não permitir rodar os testes (ex.: Node &lt; 20 para o frontend), usar a **containerização do projeto** (ex.: `./scripts/frontend-test-docker.sh`).
 
 6. **Repetir** até todos os achados do relatório estarem tratados e a suíte de testes verde.
 

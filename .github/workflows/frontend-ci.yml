@@ -16,12 +16,12 @@ jobs:
   lint-build-test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
-          node-version: '22'
+          node-version: '20.19.0'
           cache: 'npm'
           cache-dependency-path: frontend/package-lock.json
 
@@ -39,10 +39,10 @@ jobs:
         continue-on-error: true
 
       - name: Unit tests
-        run: npm run test
+        run: ng test --no-watch --browsers=ChromeHeadlessCI
 
       - name: Coverage (summary)
-        run: npm run test:coverage
+        run: ng test --no-watch --browsers=ChromeHeadlessCI --configuration=coverage
         continue-on-error: true
 
       - name: Build
@@ -60,12 +60,12 @@ jobs:
       run:
         working-directory: frontend
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
-          node-version: '22'
+          node-version: '20.19.0'
           cache: 'npm'
           cache-dependency-path: frontend/package-lock.json
 

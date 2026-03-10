@@ -8,7 +8,7 @@
 
 ## Uso por agentes de IA
 
-- **Índice rápido:** Conceitos centrais (§1) | Lógica (§2) | Atividades (§3) | Técnicas (§4) | Padrões (§5) | Princípios (§6) | Estruturas e algoritmos (§7) | Normas (§8) | Índice de termos (§9).
+- **Índice rápido:** Conceitos centrais (§1) | Lógica (§2) | Atividades (§3) | Técnicas (§4) | Padrões (§5) | Princípios (§6) | Estruturas e algoritmos (§7) | Normas (§8) | DDD (§9) | Qualidade (§10) | Linguagem Ubíqua (§11) | Termos (§12) | Naming (§13) | Funções (§14) | Error handling, DbC, Assertiva (§15).
 - **Como usar:** Para "como expressar regra X no código" → §2 Lógica, §4 Técnicas, §8 Normas. Para "que conceito aplicar" → §1. Para "que fazer ao implementar" → §3. Para "que padrão usar" → §5.
 - **Formato das entradas:** Cada item usa **Nome** (termo chave), depois Definição / Quando usar / No código, em bullets.
 
@@ -157,10 +157,10 @@ A linguagem usada no código deve espelhar a linguagem usada pelo negócio.
 
 | Regra | Aplicação |
 |-------|-----------|
-| **Nomes de classes = termos do negócio** | `Pedido`, `Obra`, `Medicao`, `ContratoLocacao` — nunca `Data1`, `ObjectHelper`, `Manager`. |
+| **Nomes de classes = termos do negócio** | Usar termos do domínio do projeto — nunca `Data1`, `ObjectHelper`, `Manager`. |
 | **Métodos = ações do domínio** | `aprovar()`, `calcularMultaAtraso()`, `emitirNota()` — nunca `process()`, `handle()`, `doStuff()`. |
 | **Enums/constantes = vocabulário do negócio** | `StatusPedido.PAGO`, `TipoContrato.LOCACAO` — nunca `STATUS_2`, `TIPO_A`. |
-| **Consistência entre contextos** | Se o negócio chama de "Medição" e não "Measurement", usar "Medicao" no código (sem traduzir para inglês se o domínio é pt-br). |
+| **Consistência entre contextos** | Se o negócio usa um termo em pt-br, manter o mesmo termo no código (sem traduzir para inglês). |
 | **Glossário vivo** | Manter alinhamento com especialistas do domínio; quando o termo muda no negócio, renomear no código. |
 
 ---
@@ -176,7 +176,99 @@ A linguagem usada no código deve espelhar a linguagem usada pelo negócio.
 - **Normas:** um lugar por regra, nomes do domínio, condições explícitas, sem números mágicos, exceções de negócio claras, métodos focados, imutabilidade.
 - **DDD:** Value Object, Entity, Aggregate Root, Domain Service, Repository, Domain Event, Factory, Linguagem Ubíqua, Bounded Context.
 - **Qualidade:** funções totais, erros tipados, validação explícita, tipos em vez de primitivos, separação de efeitos.
+- **Naming:** intenção revelada, desinformação evitada, distinções significativas, pronúncia, buscabilidade, escopo.
+- **Funções:** tamanho, argumentos, efeitos colaterais, Command-Query Separation, exceções vs códigos.
+- **Error handling:** exceções vs códigos de retorno, Special Case, Design by Contract, Programação Assertiva.
+- **Boundaries:** wrapping 3rd-party, learning tests.
+- **Emergence:** 4 regras de design simples.
 
 ---
 
 **Objetivo:** O código deve ser tradução fiel e legível da regra de negócio, permitindo alterações com segurança e clareza.
+
+---
+
+## 13. Regras de Naming (Clean Code — Cap. 2)
+
+Nomes são 90% da legibilidade. Regras acionáveis para escolha de nomes.
+
+| Regra | O que fazer | Evitar |
+|-------|-------------|--------|
+| **Revelar intenção** | Nome diz por que existe, o que faz, como é usado | `d`, `temp`, `data1` |
+| **Evitar desinformação** | Não usar nomes que sugerem significado errado | `accountList` se não é List; `hp`, `aix`, `sco` (nomes de plataforma) |
+| **Fazer distinções significativas** | Diferença no nome = diferença no conceito | `a1`/`a2`, `Info`/`Data` como sufixos sem significado |
+| **Usar nomes pronunciáveis** | Nomes que se pode falar em revisão | `genymdhms` → `generationTimestamp` |
+| **Usar nomes buscáveis** | Constantes nomeadas para valores usados em múltiplos locais | `5` espalhado no código → `WORK_DAYS_PER_WEEK = 5` |
+| **Escopo ↔ tamanho do nome** | Escopo longo = nome longo; escopo curto (5 linhas) = `i` aceitável | Variável de loop com nome longo; constante global com nome curto |
+| **Sem prefixos/encodings** | Sem notação húngara, sem `m_`, sem `I` em interfaces | `m_name`, `IShape` (preferir `Shape` para interface, `ShapeImpl` se preciso) |
+| **Nomes de classes = substantivos** | Classes: `Customer`, `Account`, `AddressParser` | Classes com nome de verbo (`Process`, `Handle`) |
+| **Nomes de métodos = verbos** | Métodos: `save`, `calculateTotal`, `canApprove` | Métodos com nome de substantivo |
+| **Uma palavra por conceito** | Escolher uma e manter: `fetch`/`retrieve`/`get` — não misturar | `getUser` + `fetchAccount` + `retrieveOrder` |
+| **Adicionar contexto significativo** | Prefixar com classe/módulo quando nome isolado é ambíguo | `state` → `addrState` ou classe `Address` com campo `state` |
+
+---
+
+## 14. Regras de Funções (Clean Code — Cap. 3)
+
+Funções são os verbos da linguagem do domínio. Regras para mantê-las expressivas.
+
+| Regra | Orientação | Threshold/Exemplo |
+|-------|------------|-------------------|
+| **Tamanho** | Funções devem ser pequenas; idealmente 5-20 linhas | >20 linhas → considerar Extract Function |
+| **Fazer uma coisa** | Cada função executa um único nível de abstração | Se tem seções separáveis por comentários → é mais de uma coisa |
+| **Um nível de abstração** | Todos os statements no mesmo nível | Não misturar `getHtml()` com `append("\n")` |
+| **Leitura top-down** | Código lê como narrativa; cada função leva à próxima | Funções chamadas logo abaixo da chamadora |
+| **Argumentos** | Zero (niladic) melhor; 1 (monadic) ótimo; 2 (dyadic) aceitável; 3+ perigoso | Flag arguments → separar em 2 funções |
+| **Sem efeitos colaterais** | Função não faz coisas ocultas além do que o nome diz | `checkPassword()` que também inicializa sessão → renomear ou separar |
+| **Command-Query Separation** | Funções fazem algo **ou** respondem algo — não ambos | `set()` retorna boolean → separar em `attributeExists()` + `setAttribute()` |
+| **Exceções > códigos de retorno** | Preferir exceptions a códigos de erro para separar fluxo feliz do tratamento | Extrair body do try em função; catch em função separada |
+| **Don't Repeat Yourself** | Duplicação em funções é a raiz de muitos problemas | Extrair função compartilhada; chamar |
+
+---
+
+## 15. Error Handling, Design by Contract e Programação Assertiva
+
+### Error handling (Clean Code — Cap. 7)
+
+| Regra | Orientação |
+|-------|------------|
+| **Exceções sobre códigos de retorno** | Códigos de retorno poluem o chamador com if/else; exceções separam fluxo normal do tratamento de erro |
+| **Write Try-Catch-Finally first** | Começar pela estrutura de tratamento para definir expectativas do chamador |
+| **Exceções com contexto** | Incluir informação suficiente para diagnosticar: operação tentada, tipo de falha, estado |
+| **Definir classes de exceção pelo chamador** | Categorizar exceções pela necessidade de quem trata, não pela fonte |
+| **Special Case Pattern** | Criar classe que encapsula caso especial (ex: `NullCustomer` com comportamento default) em vez de null checks |
+| **Não retornar null** | Retornar null obriga caller a checar; retornar coleção vazia, Optional, ou Special Case |
+| **Não passar null** | Passar null como argumento causa NPE; usar assertion ou exceção no receptor |
+
+### Design by Contract (Pragmatic Programmer — Hunt & Thomas)
+
+Contratos explícitos entre caller e callee:
+
+| Elemento | Definição | No código |
+|----------|-----------|-----------|
+| **Pré-condições** | O que o caller deve garantir antes de chamar | Validação na entrada do método; assertion se violado |
+| **Pós-condições** | O que o método garante ao retornar | Estado do sistema após execução; verificável por testes |
+| **Invariantes de classe** | O que é sempre verdade sobre o objeto | Verificável no construtor e após cada mutação |
+
+**Regra:** Se pré-condição violada → culpa do caller. Se pós-condição violada → bug no método. Documentar ambas explicitamente.
+
+### Programação Assertiva (Pragmatic Programmer)
+
+- **"Isso nunca pode acontecer"** → se não pode, coloque um assert. Assertions documentam e verificam suposições.
+- **Assertions em produção:** manter assertions ativas (não desativar em release) — se a suposição falha, melhor falhar ruidosamente do que corromper dados silenciosamente.
+- **Quando usar:** condições que, se violadas, indicam bug (não input inválido de usuário — para isso use validação).
+
+### Boundaries — Encapsular APIs externas (Clean Code — Cap. 8)
+
+| Prática | Orientação |
+|---------|------------|
+| **Wrapping 3rd-party APIs** | Envolver biblioteca externa em adapter próprio; limita superfície de acoplamento |
+| **Learning tests** | Ao adotar lib, escrever testes que exploram seu comportamento; servem como documentação e detectam breaking changes em upgrades |
+
+### 4 Regras de Design Simples (Kent Beck — Clean Code Cap. 12)
+
+Em ordem de prioridade:
+1. **Passa todos os testes** — sistema verificável faz o que se propõe
+2. **Sem duplicação** — DRY; cada conhecimento representado uma vez
+3. **Expressa intenção** — nomes claros, funções pequenas, padrões reconhecíveis
+4. **Minimiza número de classes e métodos** — não criar abstrações desnecessárias; YAGNI

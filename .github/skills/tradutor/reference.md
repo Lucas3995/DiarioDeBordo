@@ -10,9 +10,9 @@ Material de apoio para os passos 8, 9 e 10 do workflow do tradutor. Consumo por 
 
 | Princípio | Aplicação |
 |-----------|-----------|
-| **Um termo por conceito** | Não alternar entre sinônimos ("Medição" e "Aferição" para o mesmo conceito). |
-| **Termos do domínio, não técnicos** | "Obra", "Contrato", "Medição" — não "registro", "item", "dado". |
-| **Alinhamento código ↔ documentação** | Se o código usa `Medicao`, a documentação diz "Medição". |
+| **Um termo por conceito** | Não alternar entre sinônimos para o mesmo conceito. |
+| **Termos do domínio, não técnicos** | Usar os termos que o negócio usa — não "registro", "item", "dado". |
+| **Alinhamento código ↔ documentação** | Se o código usa `XyzDominio`, a documentação diz "Xyz Domínio". |
 | **Glossário vivo** | Atualizado a cada demanda; termos novos são adicionados, obsoletos removidos. |
 
 ### Checklist para o tradutor
@@ -27,7 +27,7 @@ Material de apoio para os passos 8, 9 e 10 do workflow do tradutor. Consumo por 
 
 | Termo | Definição | Uso no sistema | Observações |
 |-------|-----------|----------------|-------------|
-| _Ex.: Medição_ | _Aferição do progresso físico de uma etapa da obra._ | _Entidade, grid, relatório_ | _Não confundir com "Apontamento" (registro de horas)._ |
+| _Ex.: TermoDoDomínio_ | _Definição precisa no contexto do negócio._ | _Entidade, grid, relatório_ | _Notas de desambiguação, se necessário._ |
 
 ---
 
@@ -104,3 +104,29 @@ A IA é ferramenta válida; o foco é **mitigar riscos**, não evitar o uso.
 - [ ] Para cada uso identificado: mapeado risco + estratégia de mitigação?
 - [ ] Mitigações registradas no entregável para que maestro e quadro as tratem?
 - [ ] Transparência ao usuário final prevista (flag "gerado por IA" quando aplicável)?
+
+---
+
+## Definições Operacionais para Requisitos (Wazlawick)
+
+Cada requisito traduzido deve ter **definição operacional** (como medir/verificar), não apenas constitutiva (o que é). Fonte: [engenharia-de-software reference.md](../engenharia-de-software/reference.md) §12.
+
+### Constitutiva vs Operacional
+
+| Tipo | O que faz | Exemplo |
+|------|-----------|----------|
+| **Constitutiva** | Define por componentes/conceitos | "O sistema deve ser fácil de usar" |
+| **Operacional** | Define por COMO MEDIR | "O usuário completa o fluxo em ≤ 5 cliques e ≤ 30s" |
+
+### Checklist para o tradutor
+
+- [ ] Cada requisito tem definição operacional (critério mensurável)?
+- [ ] Verbos acionáveis ("demonstrar", "reduzir para X") em vez de triviais ("propor", "estudar")?
+- [ ] Limitações de escopo explícitas (o que NÃO será feito)?
+- [ ] Evitados erros de "métrica não operacionalizada" ("rápido", "fácil" sem número)?
+
+### Template enriquecido
+
+| Requisito | Def. Constitutiva | Def. Operacional | Limitações |
+|-----------|-------------------|-------------------|-------------|
+| _Ex.: Melhoria de performance_ | _O sistema deve responder mais rápido_ | _Tempo de resposta do endpoint X ≤ 200ms p95_ | _Apenas endpoint X; não inclui batch jobs_ |

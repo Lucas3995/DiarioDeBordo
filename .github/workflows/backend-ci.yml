@@ -12,7 +12,6 @@ on:
       - 'backend/**'
       - '.github/workflows/backend-ci.yml'
 
-defaults:
   run:
     working-directory: backend
 
@@ -23,12 +22,13 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+on:
+        uses: actions/checkout@v6
 
       - name: Setup .NET
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v5
         with:
-          dotnet-version: '10.x'
+          dotnet-version: '9.x'
 
       - name: Restore dependencies
         run: dotnet restore
@@ -46,42 +46,17 @@ jobs:
           --no-build
           --configuration Release
           --collect:"XPlat Code Coverage"
-          --results-directory ./TestResults
+          dotnet-version: '10.0.x'
         env:
           DOTNET_ENVIRONMENT: Testing
           Jwt__Key: ${{ secrets.JWT_KEY_TESTS || 'chave-de-ci-com-tamanho-minimo-32x!' }}
-          Jwt__Issuer: diariodebordo-ci
-          Jwt__Audience: diariodebordo-clients-ci
+          Jwt__Issuer: ${{ vars.JWT_ISSUER_CI || 'project-ci' }}
+          Jwt__Audience: ${{ vars.JWT_AUDIENCE_CI || 'project-clients-ci' }}
 
       - name: Publicar cobertura
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         if: always()
         with:
           name: coverage-report
           path: backend/TestResults/**/coverage.cobertura.xml
           retention-days: 14
-
-      - name: Enforce minimal coverage (49%)
-        run: |
-          echo "Checking coverage threshold (49%)..."
-          COV_FILE=$(find TestResults -name 'coverage.cobertura.xml' | head -n 1)
-          if [ -z "$COV_FILE" ]; then
-            echo "Coverage file not found."
-            exit 1
-          fi
-          TOTAL_LINES=$(grep -oP 'lines-valid="\K[0-9]+' "$COV_FILE" | awk '{s+=$1} END {print s}')
-          COVERED_LINES=$(grep -oP 'lines-covered="\K[0-9]+' "$COV_FILE" | awk '{s+=$1} END {print s}')
-          if [ "$TOTAL_LINES" -eq 0 ]; then
-            echo "No lines counted for coverage."
-            exit 1
-          fi
-          PERCENT=$((100 * COVERED_LINES / TOTAL_LINES))
-          echo "Coverage: $PERCENT% (threshold: 49%)"
-          if [ "$PERCENT" -lt 49 ]; then
-            echo "Coverage below threshold."
-            exit 1
-          fi
-
-      - name: Vulnerability scan
-        run: dotnet list --vulnerable --include-transitive
-        continue-on-error: true

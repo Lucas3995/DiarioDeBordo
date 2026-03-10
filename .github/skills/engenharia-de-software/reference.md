@@ -218,3 +218,149 @@ Para resumo por parte, termos-chave por capítulo e trechos de princípios/defin
 - **Resiliência (4 Rs):** reconhecimento (do problema), resistência, recuperação, restabelecimento; no nível organizacional: antecipar, responder, aprender.
 - **Defeito / erro / falha:** defeito no sistema → erro de sistema (estado incorreto) → falha (manifestação observada pelo usuário).
 - **Stakeholder:** ver envolvido (termo preferido na skill).
+
+---
+
+## 10. Código Legado e Evolução (Feathers)
+
+Complemento à seção 7 (Evolução e manutenção) com abordagem operacional para código legado.
+
+**Definição operacional:** Legacy code = código sem testes. Não importa idade, qualidade ou tecnologia. Sem testes, qualquer mudança é arriscada.
+
+### Dois modos de trabalho
+
+| Modo | Descrição | Risco |
+|------|-----------|-------|
+| **Edit and Pray** | Alterar sem testes; esperar que funcione | Alto — sem feedback; regressões silenciosas |
+| **Cover and Modify** | Cobrir com testes antes de alterar; modificar com rede de segurança | Baixo — feedback rápido; regressões detectadas |
+
+### Legacy Code Change Algorithm (5 passos)
+
+1. **Identificar pontos de mudança** — onde no código a mudança precisa acontecer
+2. **Encontrar pontos de teste** — onde posso escrever testes que cubram a mudança
+3. **Quebrar dependências** — tornar código testável (25 técnicas no catálogo)
+4. **Escrever characterization tests** — documentar comportamento existente
+5. **Fazer mudança + refatorar** — com rede de segurança dos testes
+
+### Modelo de Seams
+
+Seam = ponto onde comportamento pode ser alterado sem editar o código no ponto.
+
+| Tipo | Mecanismo | Preferência |
+|------|-----------|-------------|
+| **Object Seam** | Polimorfismo, override, DI | ✅ Preferido em OO |
+| **Link Seam** | Substituição em link-time | Quando object seam impossível |
+| **Preprocessing Seam** | Macros, #define | Último recurso |
+
+### Relação com Evolução (Sommerville Cap. 9)
+
+- Sommerville trata evolução como **processo organizacional** (sistemas legados, custos de manutenção)
+- Feathers complementa com **técnica operacional** — como efetivamente alterar código legado no dia a dia
+- **Síntese:** planejamento de evolução (Sommerville) + execução segura (Feathers) = evolução sustentável
+
+**Skill dedicada:** Ver [codigo-legado](../codigo-legado/SKILL.md) para workflow completo e catálogo de 25 técnicas.
+
+---
+
+## 11. Rigor e Determinismo (Knuth — referência filosófica)
+
+Complemento filosófico à engenharia de software. Fonte: *The Art of Computer Programming* (Donald Knuth).
+
+### Princípios
+
+- **Análise de correção** complementa testes — testes mostram presença de bugs, análise formal pode mostrar ausência (em escopo limitado)
+- **Teste ≠ Prova:** testes verificam amostras; provas verificam todos os casos. Ambos são necessários; nenhum é suficiente sozinho
+- **Complexidade graduada:** problemas devem ser abordados em níveis crescentes de dificuldade (Knuth usa exercícios graduados 1-50; equivalente em software: do unit test mais simples ao cenário mais complexo)
+- **Literate Programming:** código deve ser legível como narrativa — "explicar para humanos o que queremos que o computador faça". Specs e skills devem seguir este princípio
+
+### Aplicação prática no toolkit
+
+| Princípio Knuth | Onde se aplica |
+|-----------------|----------------|
+| Complexidade graduada | Test List Management (Beck) — começar pelo mais simples |
+| Literate Programming | SKILL.md como narrativa, não apenas lista de instruções |
+| Análise de correção | Complementar TDD em caminhos críticos (ex: algoritmos financeiros) |
+| Cross-referencing | Skills referenciam umas às outras (§N → §M) explicitamente |
+
+---
+
+## 12. Rigor Científico em Especificação (Wazlawick)
+
+Complemento à seção 5 (Spec-driven development) com framework de rigor metodológico. Fonte: Wazlawick, *Metodologia de Pesquisa para Ciência da Computação*, 2ª ed.
+
+### 5 Níveis de Maturidade de Especificação
+
+Mapeamento dos níveis de maturidade de pesquisa (Wazlawick Cap. 2) para qualidade de specs em desenvolvimento de software.
+
+| Nível | Pesquisa (Wazlawick) | Spec (equivalente) | Critério |
+|-------|---------------------|---------------------|----------|
+| **L1** | Apresentação de produto | Spec vaga — descreve o que será feito sem critérios verificáveis | Sem métricas, sem hipótese, sem baseline |
+| **L2** | Survey / compilação | Spec baseada em análise de existentes — "fizemos como X faz" | Referência a soluções existentes, sem comparação mensurável |
+| **L3** | Presumivelmente melhor | Spec com hipótese plausível — "acreditamos que será melhor" | Hipótese formulada, métricas definidas, sem evidência empírica |
+| **L4** | Reconhecidamente melhor | Spec com evidência — "medimos e é melhor por X%" | Baseline + medição + comparação; resultado reproduzível |
+| **L5** | Prova formal | Spec irrefutável — prova lógica/formal da correção | Demonstração formal; aplicável a algoritmos, protocolos, invariantes |
+
+**Regra:** Toda spec deve declarar seu nível. O nível mínimo aceitável para entrega é **L3** (hipótese formulada + métricas definidas). L4 é o alvo para features de valor de negócio.
+
+### 7 Regras Operacionais para Spec-Driven Development
+
+1. **Definições operacionais obrigatórias** — Todo critério de aceite deve ter definição operacional (como medir), não apenas constitutiva (o que é).
+   - ❌ Constitutiva: "O sistema deve ser fácil de usar"
+   - ✅ Operacional: "O usuário completa o fluxo de cadastro em ≤ 5 cliques e ≤ 30 segundos"
+
+2. **Specs orientadas por hipótese** — Toda spec expressa como: "Acredito que [X]; o mecanismo é [Y]; saberemos que funciona quando [Z]".
+   - Hipótese é especulativa (pode estar errada), testável (pode ser verificada) e fundamentada (tem justificativa).
+
+3. **Baselines obrigatórias para melhoria** — Toda alegação de melhoria requer baseline medida antes da alteração. Sem baseline, não há como verificar melhoria.
+
+4. **Mapeamento de variáveis para cada critério:**
+   - **Variável independente** — o que manipulamos (ex.: algoritmo de ordenação)
+   - **Variável dependente** — o que medimos (ex.: tempo de resposta)
+   - **Variável medida** — observada sem controle (ex.: carga real do sistema)
+   - **Variável manipulada** — controlada pelo experimentador (ex.: tamanho do dataset)
+
+5. **Limitações de escopo explícitas** — Cada spec declara o que NÃO será feito/verificado. Evita expansão de escopo não intencional.
+
+6. **Justificativa com evidência** — Cada feature justificada com evidência (dados, feedback, métricas), não apenas intuição.
+
+7. **Nível de maturidade reconhecido** — Cada spec declara explicitamente em que nível (L1-L5) se encontra.
+
+### Taxonomia de Erros Comuns em Especificação
+
+Erros recorrentes mapeados de Wazlawick Cap. 4 para contexto de desenvolvimento de software.
+
+| Erro | Descrição | Exemplo em SW | Correção |
+|------|-----------|---------------|----------|
+| **Síndrome da Intersecção Esquecida** | Revisar domínio e ferramenta separadamente, ignorar a interseção | Estudar DDD e Angular sem analisar como DDD se aplica ao Angular | Focar na interseção: como conceitos se aplicam ao contexto específico |
+| **Generalização de problema local** | Tratar problema específico como universal | "Toda API precisa de GraphQL" a partir de um caso | Delimitar escopo; não generalizar de caso único |
+| **Seleção a priori de ferramenta** | Escolher solução antes de entender o problema | "Vamos usar MongoDB" antes de analisar o modelo de dados | Problema primeiro; ferramenta depois |
+| **Métrica não operacionalizada** | Critério de aceite subjetivo, não mensurável | "Deve ser rápido", "fácil de usar" | Operacionalizar: tempo ≤ X, cliques ≤ Y |
+| **Verbos triviais vs acionáveis** | Usar verbos vagos que não definem resultado verificável | "Propor", "estudar", "analisar" | Usar: "demonstrar", "provar", "medir", "reduzir para X" |
+| **Objetivo = Tema** | Confundir objetivo com tópico geral | "O objetivo é performance" | Objetivo = verbo + objeto + critério: "Reduzir tempo de resposta do endpoint X para ≤ 200ms" |
+| **Justificativa do tema, não da hipótese** | Justificar por que o assunto é importante, não por que a solução proposta funcionará | "Performance é importante" sem explicar por que a abordagem escolhida vai funcionar | Justificar o mecanismo: "Cache em memória reduzirá latência porque elimina I/O de disco" |
+| **Ausência de limitações** | Não declarar o que está fora do escopo | Scope creep; expectativas não gerenciadas | Seção explícita de limitações em cada spec |
+
+### Revisão Sistemática como Modelo para Exploração de Codebase
+
+A revisão sistemática (Wazlawick §3.2) mapeia-se para exploração de codebase antes de implementar:
+
+| Etapa de Revisão | Equivalente em Codebase |
+|-----------------|------------------------|
+| Definir pergunta de pesquisa | Definir o que precisa ser alterado e por quê |
+| Estabelecer critérios de inclusão/exclusão | Definir quais módulos/camadas são relevantes |
+| Buscar em bases de dados | Buscar no código existente (grep, semantic search) |
+| Selecionar estudos relevantes | Selecionar arquivos/componentes a analisar |
+| Extrair dados | Mapear dependências, contratos, comportamentos existentes |
+| Sintetizar resultados | Produzir relatório de impacto (maestro) |
+
+### Referência Estatística para Métricas
+
+Fórmulas de Wazlawick §3.4.6-8 como referência para métricas quantitativas em specs L4+.
+
+- **Variância** $s^2 = \frac{1}{n-1} \sum_{i=1}^{n}(x_i - \bar{x})^2$ — dispersão dos valores medidos; alta variância indica inconsistência.
+- **Covariância** $\text{cov}(X,Y) = \frac{1}{n-1} \sum_{i=1}^{n}(x_i - \bar{x})(y_i - \bar{y})$ — relação linear entre variáveis; positiva = variam juntas.
+- **Correlação** $r = \frac{\text{cov}(X,Y)}{s_X \cdot s_Y}$ — covariância normalizada (-1 a +1); |r| ≥ 0.7 = correlação forte.
+
+**Uso prático:** ao comparar alternativas (L4), calcular variância para garantir consistência das medições; correlação para verificar se a variável independente de fato influencia a dependente.
+
+**Skill dedicada para spec-driven:** Ver skills [tradutor](../tradutor/SKILL.md), [maestro](../maestro/SKILL.md) e [quadro-de-recompensas](../quadro-de-recompensas/SKILL.md) que aplicam estes princípios nas etapas de planejamento.

@@ -14,9 +14,8 @@ Agente responsável pela **implementação de código de produção** na rotina-
 - Não refatorar desnecessariamente — foco em atender os testes.
 - Rodar os testes após cada alteração para verificar progresso.
 - Ter atenção para usar as estruturas de dados corretas e conceitos como Distribuição Gaussiana, Hashing, Pilhas e Filas, FIFO ou LIFO, Grafos, Árvores, Heap/Memória, Vantagem da Partição (log), Árvore de Procura Binária, AVL Trees, B-Tree e B+ Tree
-- Backend: `dotnet test backend/src/DiarioDeBordo.Tests/DiarioDeBordo.Tests.csproj -c Release` ; otimização class para heap vs struct para stack evitando boxing
-- Frontend: `cd frontend && npm run test` ; cuidado com para elementos visuais seguirem padroes de acessibilidade, UX/UI, design e qualidade visual
-- **Nota:** o runner de testes unitários do frontend está em transição de Karma/Jasmine para Vitest (declarado como correto no agent quadro-de-recompensas). Até a migração, `npm run test` executa `ng test` (Karma).
+- Backend: executar a suíte de testes do backend conforme documentado no README do projeto (ex.: `dotnet test backend/src/DiarioDeBordo.Tests/DiarioDeBordo.Tests.csproj -c Release`); otimização class para heap vs struct para stack evitando boxing
+- Frontend: `cd frontend && ng test --no-watch --browsers=ChromeHeadlessCI` ; cuidado com para elementos visuais seguirem padrões de acessibilidade, UX/UI, design e qualidade visual
 - Validar com o operador após cada ciclo de implementação.
 - Seguir a metodologia descrita em `.github/copilot-instructions.md`.
 

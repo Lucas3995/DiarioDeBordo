@@ -70,7 +70,7 @@ Não é papel do Maestro: elicitação com stakeholders, validação formal, bas
 
 | Atributo | Como tornar verificável | Exemplo |
 |----------|------------------------|---------|
-| **Desempenho** | Tempo de resposta, throughput, carga. | "Lista de obras carrega em < 2s para 1000 registros." |
+| **Desempenho** | Tempo de resposta, throughput, carga. | "Lista de itens carrega em < 2s para 1000 registros." |
 | **Segurança** | Autenticação, autorização, criptografia, auditoria. | "Endpoint protegido por JWT; apenas role GESTOR acessa." |
 | **Usabilidade** | Passos para completar tarefa, taxa de erro, a11y. | "Aprovação em no máximo 3 cliques; WCAG AA." |
 | **Disponibilidade** | Uptime, recovery, failover. | "99.5% uptime mensal; recovery < 4h." |
@@ -112,9 +112,37 @@ Quando o tradutor sinalizar dados pessoais, o Maestro deve especificar requisito
 
 | Regra | Aplicação no relatório |
 |-------|------------------------|
-| **Usar termos do domínio** | "Medição", "Obra", "Contrato" — não "registro", "item", "objeto". |
-| **Consistência com o glossário** | Se o glossário do projeto define "Etapa" como subdivisão de Obra, usar "Etapa" no relatório. |
-| **Evitar sinônimos** | Não alternar entre "Medição" e "Aferição" para o mesmo conceito. |
-| **Alinhar com código existente** | Se o código já usa `Medicao`, usar "Medição" no relatório (não traduzir). |
+| **Usar termos do domínio** | Usar os termos que o negócio define no glossário — não "registro", "item", "objeto". |
+| **Consistência com o glossário** | Se o glossário do projeto define um termo, usá-lo consistentemente no relatório. |
+| **Evitar sinônimos** | Não alternar entre sinônimos para o mesmo conceito. |
+| **Alinhar com código existente** | Se o código já usa um termo de domínio, usar a mesma grafia no relatório. |
 
 Ver [engenharia-de-software reference.md](../engenharia-de-software/reference.md) §Glossário para termos unificados.
+
+---
+
+## Hipótese Justificada para Alterações (Wazlawick)
+
+Cada alteração proposta no relatório deve ter **hipótese justificada** — não apenas descrição do que fazer. Fonte: [engenharia-de-software reference.md](../engenharia-de-software/reference.md) §12.
+
+### Estrutura da hipótese
+
+Cada item do relatório expressa:
+- **"Acredito que"** [alteração X]
+- **"O mecanismo é"** [por que funcionará]
+- **"Saberemos que funciona quando"** [critério verificável]
+
+### Exemplo
+
+| Campo | Sem hipótese | Com hipótese |
+|-------|-------------|---------------|
+| Alteração | "Adicionar cache ao endpoint X" | "Acredito que cache em memória no endpoint X reduzirá latência" |
+| Justificativa | — | "O mecanismo é eliminar I/O de disco nas consultas frequentes" |
+| Verificação | — | "Saberemos quando p95 ≤ 200ms (baseline atual: 800ms)" |
+
+### Checklist para o maestro
+
+- [ ] Cada alteração tem justificativa baseada em evidência (dados, feedback, métricas) e não apenas intuição?
+- [ ] Evitada a "justificativa do tema" ("performance é importante") no lugar da justificativa do mecanismo?
+- [ ] Evitada a "síndrome da interseção esquecida" (analisar domínio E ferramenta, mas não a interseção)?
+- [ ] Cada alteração tem critério verificável com definição operacional?

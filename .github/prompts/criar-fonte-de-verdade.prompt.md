@@ -11,7 +11,7 @@ Este comando é uma **evolução do agent mode "Plan"**: produz um plano como fo
 
 A próxima mensagem considera que estamos a trabalhar numa metodologia **spec-driven development** para desenvolvimento assistido por IA. Caso necessário, faz pesquisas para aprofundar como queremos trabalhar, sanar ambiguidades e fechar lacunas nos teus conceitos sobre o assunto.
 
-Tu és um arquiteto e engenheiro de software fullstack senior especializado em sistemas web com TypeScript e Angular no frontend e C#/.NET no backend. O DiarioDeBordo é um sistema pessoal de acompanhamento de obras (manga, manhwa, anime, livros, filmes, séries). Substitui o bloco de notas, centralizando progresso (posição/parte), links de onde consome, previsão de lançamentos, situação (parado/em andamento/concluída/em hiato), metadados (nota 0–10, sinopse, capa), comentários por parte e ordenação por preferência do usuário. Aplicação on-premise (local ou Docker) para uso pessoal. Termos do domínio: Obra, Parte, Posição, Situação, Link, Preferência, Comentário. Foste convidado a atuar no sistema de acompanhamento de obras pessoais. O backend expõe uma API REST e o frontend Angular consome essa API.
+Tu és um arquiteto e engenheiro de software senior. Ler o `README.md` na raiz do repositório para entender o domínio, a stack tecnológica e o contexto do projeto. Usar essa informação como base de contexto para as próximas ações.
 
 ## Tarefa
 

@@ -165,3 +165,172 @@ Checklist adaptado para auditoria completa. Executar em ordem.
 12. **Módulos existentes ou faltantes:** split/merge necessário? Over-engineering?
 13. **DDD:** entidades anêmicas, God Services, repositórios com lógica, bounded contexts.
 14. **Pontos adicionais:** Main, fronteiras, Humble Object, independências, arquitetura gritante.
+15. **Padrões não-aplicados:** situações onde pattern GoF resolveria o problema (ver seção abaixo).
+
+---
+
+## Padrões Não-Aplicados (design pattern smells)
+
+Situações onde um padrão GoF resolveria o problema mas não foi aplicado. Detectar como categoria de smell adicional.
+
+| Sinal no código | Padrão que resolveria | Evidência |
+|-----------------|----------------------|-----------|
+| Múltiplas subclasses para combinações de comportamento | **Decorator** | N subclasses com combinatórias; herança explode |
+| if/else ou switch baseado em tipo/enum (comportamento) | **Strategy**, **Command**, **Visitor** | Mesmo switch em vários locais; adicionar tipo obriga tocar em muitos arquivos |
+| `new ConcreteClass()` espalhado por código de domínio | **Factory Method** ou **Abstract Factory** | Acoplamento a implementação concreta; impossível mockar |
+| Método com múltiplos algoritmos selecionados por flag | **Strategy** | Flag booleana ou enum seleciona bloco de código |
+| Objeto com estados e transições complexas | **State** | if/switch sobre estado; métodos com guard clauses por estado |
+| Notificação manual (chamada direta) entre objetos | **Observer** | Objeto A chama B.notify() diretamente; acoplamento bidirecional |
+| Subsistema complexo com múltiplos pontos de entrada | **Facade** | Clientes conhecem detalhes internos do subsistema |
+| Criação condicional de objetos similares | **Factory Method** | if/switch para decidir qual classe instanciar |
+| Herança profunda para reutilização | **Composição** (Bridge, Strategy) | Árvore > 3 níveis; classes-filhas usam poucos métodos do pai |
+| Parsing/travessia de estrutura com lógica dispersa | **Visitor** ou **Iterator** | Código de processamento misturado com código de travessia |
+
+**Referência cruzada:** Para lookup completo problema→padrão, ver [padroes-de-design/selecao-por-problema.md](../padroes-de-design/selecao-por-problema.md).
+
+---
+
+## Métricas Quantitativas de Referência (Clean Craftsmanship)
+
+Thresholds sugeridos para elevar observação a smell. Não são regras absolutas — usar como referência junto com julgamento contextual.
+
+| Métrica | Threshold sugerido | Severidade |
+|---------|-------------------|------------|
+| **Linhas por função** | > 20 linhas | Medium — considerar Extract Method |
+| **Linhas por classe** | > 200 linhas | High — considerar Extract Class |
+| **Complexidade ciclomática** | > 10 | High — considerar decomposição |
+| **Parâmetros por método** | > 3 | Low — considerar Parameter Object ou Builder |
+| **Profundidade de herança** | > 3 níveis | Medium — considerar composição |
+| **Dependências de uma classe** | > 7 | Medium — possível God Object |
+| **Cobertura de testes** | < 80% em código alterado | Blocker para entrega |
+
+### Boy Scout Rule (operacionalizado)
+
+Cada ciclo de análise (batedor) + refactoring (mestre-freire) deve deixar o código **mensuradamente melhor**:
+- Reduzir pelo menos 1 smell de severidade alta
+- Não introduzir novos smells
+- Cobertura de testes não deve diminuir
+
+### Quando elevar severity
+
+| De | Para | Critério |
+|----|------|----------|
+| Improvement | Warning | Smell afeta mais de 1 arquivo ou módulo |
+| Warning | Blocker | Smell impacta segurança, corretude ou bloqueia testabilidade |
+| Qualquer | Ignore | Smell é intencional e documentado (ex: Facade longa por design) |
+
+---
+
+## Heurísticas Clean Code (Robert C. Martin — Cap. 17)
+
+66 heurísticas acionáveis para diagnóstico. Cada heurística é um **sinal** de inadequação; usar como checklist complementar aos smells acima.
+
+### General (G1-G34)
+
+| Código | Nome | Diagnóstico | Ação |
+|--------|------|-------------|------|
+| **G1** | Multiple Languages in One Source File | Ficheiro mistura linguagens (HTML+JS+CSS inline, SQL em strings) | Separar por ficheiro; templates, queries externalizadas |
+| **G2** | Obvious Behavior Is Unimplemented | Função não faz o que o nome promete (Principle of Least Surprise) | Implementar comportamento esperado ou renomear |
+| **G3** | Incorrect Behavior at the Boundaries | Confiança na intuição em vez de testar limites | Testar todas as condições de fronteira explicitamente |
+| **G4** | Overridden Safeties | Warnings desativados, testes ignorados, serialVersionUID removido | Restaurar mecanismos de segurança; investigar causa |
+| **G5** | Duplication | Código duplicado em qualquer forma (blocos, cadeias, polimorfismo ausente) | Extrair; DRY — cada conhecimento em representação única |
+| **G6** | Code at Wrong Level of Abstraction | Detalhe de implementação em classe base ou abstração | Separar alto nível de baixo nível; mover para camada adequada |
+| **G7** | Base Classes Depending on Their Derivatives | Classe base conhece ou referencia subclasses | Inverter dependência; base não deve saber das derivadas |
+| **G8** | Too Much Information | Interface expõe mais que o necessário | Reduzir superfície da API; esconder dados e utilitários |
+| **G9** | Dead Code | Código nunca executado (if impossível, catch não alcançável) | Remover imediatamente |
+| **G10** | Vertical Separation | Variável/função definida longe de onde é usada | Aproximar definição do uso |
+| **G11** | Inconsistency | Coisas similares feitas de formas diferentes | Padronizar; consistência gera previsibilidade |
+| **G12** | Clutter | Artefatos sem propósito (construtor default vazio, variável não usada) | Remover; manter código limpo |
+| **G13** | Artificial Coupling | Coisas não relacionadas acopladas por conveniência | Mover para local semanticamente correto |
+| **G14** | Feature Envy | Método usa mais dados de outra classe que da própria | Move Method |
+| **G15** | Selector Arguments | Boolean/enum seleciona comportamento dentro da função | Separar em funções distintas |
+| **G16** | Obscured Intent | Expressões run-on, magic numbers, nomes codificados | Explicitar intenção com nomes e variáveis intermediárias |
+| **G17** | Misplaced Responsibility | Código em local inesperado (Principle of Least Surprise) | Mover para onde o leitor espera encontrar |
+| **G18** | Inappropriate Static | Método static quando deveria ser de instância | Converter para método de instância (permite polimorfismo) |
+| **G19** | Use Explanatory Variables | Cálculos complexos sem nomes intermediários | Extrair variáveis com nomes significativos |
+| **G20** | Function Names Should Say What They Do | Nome não indica o que a função faz | Renomear para refletir ação completa |
+| **G21** | Understand the Algorithm | Código funciona "por acaso"; testes passam sem compreensão | Refatorar até a lógica ser óbvia |
+| **G22** | Make Logical Dependencies Physical | Módulo assume dependência sem declará-la | Explicitar dependência via parâmetro ou injeção |
+| **G23** | Prefer Polymorphism to If/Else or Switch/Case | Switch sobre tipo quando polimorfismo é mais adequado | ONE SWITCH rule; criar objetos polimórficos |
+| **G24** | Follow Standard Conventions | Desvio das convenções da equipa/indústria | Alinhar com padrões acordados |
+| **G25** | Replace Magic Numbers with Named Constants | Números literais sem significado claro | Extrair para constante nomeada |
+| **G26** | Be Precise | Decisões imprecisas (null não verificado, float para moeda) | Usar tipos corretos; verificar todas as condições |
+| **G27** | Structure over Convention | Decisão de design depende de convenção de nomes | Usar estrutura (classes base, enums, tipos) para impor decisões |
+| **G28** | Encapsulate Conditionals | Condicionais complexas inline | Extrair para função com nome descritivo |
+| **G29** | Avoid Negative Conditionals | Negações obscurecem leitura | Reformular como positiva |
+| **G30** | Functions Should Do One Thing | Função com múltiplas seções/responsabilidades | Dividir em funções de propósito único |
+| **G31** | Hidden Temporal Couplings | Ordem de chamada implícita (deve chamar A antes de B) | Explicitar com bucket brigade (output de A é input de B) |
+| **G32** | Don't Be Arbitrary | Estrutura sem justificativa clara | Documentar razão; estrutura deve comunicar intenção |
+| **G33** | Encapsulate Boundary Conditions | +1 e -1 espalhados pelo código | Centralizar condições de fronteira em um local |
+| **G34** | Functions Should Descend Only One Level of Abstraction | Statements em níveis de abstração diferentes | Separar por nível; cada função um degrau abaixo do nome |
+
+### Comments (C1-C5)
+
+| Código | Nome | Diagnóstico | Ação |
+|--------|------|-------------|------|
+| **C1** | Inappropriate Information | Metadados (autor, data, SPR) em comentários | Mover para controle de versão |
+| **C2** | Obsolete Comment | Comentário desatualizado | Atualizar ou remover |
+| **C3** | Redundant Comment | Comentário diz o que o código já diz | Remover |
+| **C4** | Poorly Written Comment | Comentário confuso, mal escrito | Reescrever com clareza; conciso e ortográfico |
+| **C5** | Commented-Out Code | Código comentado ("talvez precise depois") | Remover; controle de versão guarda histórico |
+
+### Environment (E1-E2)
+
+| Código | Nome | Diagnóstico | Ação |
+|--------|------|-------------|------|
+| **E1** | Build Requires More Than One Step | Build exige múltiplos passos manuais | Automatizar em um único comando |
+| **E2** | Tests Require More Than One Step | Rodar testes exige múltiplos passos | Automatizar em um único comando |
+
+### Functions (F1-F4)
+
+| Código | Nome | Diagnóstico | Ação |
+|--------|------|-------------|------|
+| **F1** | Too Many Arguments | Função com >3 argumentos | Introduce Parameter Object; Combine into Class |
+| **F2** | Output Arguments | Argumentos usados como saída (mutados pela função) | Alterar estado do próprio objeto; retornar resultado |
+| **F3** | Flag Arguments | Boolean que seleciona comportamento | Separar em duas funções |
+| **F4** | Dead Function | Método nunca chamado | Remover |
+
+### Names (N1-N7)
+
+| Código | Nome | Diagnóstico | Ação |
+|--------|------|-------------|------|
+| **N1** | Choose Descriptive Names | Nome genérico ou vago | Renomear com nome que revele intenção |
+| **N2** | Choose Names at Appropriate Level of Abstraction | Nome expõe implementação em vez de conceito | Renomear para nível de abstração adequado |
+| **N3** | Use Standard Nomenclature Where Possible | Nome ignora convenções conhecidas (Decorator, Factory) | Usar nomenclatura padrão quando aplicável |
+| **N4** | Unambiguous Names | Nome pode significar mais de uma coisa | Renomear para ser inequívoco |
+| **N5** | Use Long Names for Long Scopes | Variável de escopo longo com nome curto (i, x) | Nomes longos para escopos longos; curtos para 5 linhas |
+| **N6** | Avoid Encodings | Prefixos de tipo/escopo (m_, f_, Hungarian) | Remover notação húngara e prefixos |
+| **N7** | Names Should Describe Side-Effects | Nome esconde efeito colateral (getX() que também cria) | Renomear para revelar todos os efeitos |
+
+### Tests (T1-T9)
+
+| Código | Nome | Diagnóstico | Ação |
+|--------|------|-------------|------|
+| **T1** | Insufficient Tests | Testes não cobrem tudo que poderia quebrar | Adicionar testes até cobertura adequada |
+| **T2** | Use a Coverage Tool | Sem ferramenta de cobertura | Adotar ferramenta; visualizar gaps |
+| **T3** | Don't Skip Trivial Tests | Testes triviais pulados ("é óbvio") | Escrever; valor documental alto |
+| **T4** | An Ignored Test Is a Question about an Ambiguity | @Ignore/skip como lembrete de requisito ambíguo | Resolver ambiguidade; ativar ou remover teste |
+| **T5** | Test Boundary Conditions | Limites não testados | Testar min, max, zero, null, overflow |
+| **T6** | Exhaustively Test Near Bugs | Bug encontrado; área não explorada exaustivamente | Testes exaustivos na vizinhança do bug |
+| **T7** | Patterns of Failure Are Revealing | Padrão nos testes que falham não investigado | Analisar padrão; revela causa raiz |
+| **T8** | Test Coverage Patterns Can Be Revealing | Código não coberto por testes que passam | Investigar; gaps de cobertura revelam lógica não testada |
+| **T9** | Tests Should Be Fast | Testes lentos → equipe para de rodar | Otimizar; isolar I/O; paralelizar |
+
+---
+
+## Code Smells — Fowler (Refactoring 2nd Ed.)
+
+Smells adicionais de Fowler **não cobertos** pelas categorias acima. Complementam o catálogo existente.
+
+| Smell | Definição | Sinais no código | Refatoração primária |
+|-------|-----------|------------------|---------------------|
+| **Mysterious Name** | Nome de função, variável ou classe que não comunica propósito | Leitor precisa ler o corpo para entender o que faz | Change Function Declaration, Rename Variable, Rename Field |
+| **Repeated Switches** | **Mesmo** switch/if-else sobre o mesmo discriminador em **múltiplos locais** | Adicionar enum/tipo obriga alterar N ficheiros; distinto de "Switch Statements" (único switch) | Replace Conditional with Polymorphism |
+| **Loops** | Loop imperativo quando pipeline (map/filter/reduce) seria mais expressivo | for/while com acumuladores, filtros inline, transformações manuais | Replace Loop with Pipeline |
+| **Lazy Element** | Função ou classe que faz tão pouco que não justifica existência (mais amplo que Lazy Class) | Função de uma linha que só repassa; classe com 1 método trivial | Inline Function, Inline Class, Collapse Hierarchy |
+| **Insider Trading** | Módulos trocam dados internos em excesso; pior que Inappropriate Intimacy por envolver fronteiras de módulo | Módulos acessam internals um do outro; acoplamento entre boundaries | Move Function/Field, Hide Delegate, Replace with Delegate |
+| **Global Data** | Dados acessíveis por qualquer ponto do programa | Variáveis globais, singletons mutáveis, static state compartilhado | Encapsulate Variable |
+| **Mutable Data** | Dados alterados em múltiplos pontos sem controle | Variáveis reatribuídas em contextos diferentes; efeitos colaterais difíceis de rastrear | Encapsulate Variable, Split Variable, Change Reference to Value, Separate Query from Modifier |
+| **Comments (deodorant)** | Comentário que mascara código ruim em vez de explicar "por quê" | Bloco de comentário antes de código confuso; se remover comentário, código fica incompreensível | Extract Function, Change Function Declaration (tornar código auto-explicativo) |
+
+**Cross-reference:** Para técnicas de refatoração completas, ver [mestre-freire/reference.md](../mestre-freire/reference.md) §Catálogo de Refatorações e §Mapeamento Smell → Refatoração.

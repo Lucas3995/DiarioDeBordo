@@ -5,13 +5,13 @@ description: Executa o fluxo completo de entrega ao repositório remoto: commit 
 
 # Arauto — Entrega ao repositório remoto
 
-Fluxo em 5 etapas. Executar em sequência; não pular etapas. Entrega só está concluída quando os workflows do PR estiverem verdes e, em seguida, o repositório local estiver em `main` atualizada (checkout, fetch, pull). Se `gh` não estiver disponível, depende de confirmação manual do utilizador.
+Fluxo em 5 etapas. Executar em sequência; não pular etapas. Entrega só está concluída quando os workflows do PR estiverem verdes e, em seguida, o repositório local estiver em `Master` atualizada (checkout, fetch, pull). Se `gh` não estiver disponível, depende de confirmação manual do utilizador.
 
 ---
 
 ## Execução via script (recomendada)
 
-Para reduzir uso de créditos do Cursor, executar o fluxo através do script: o agente faz **uma** chamada ao script e lê o retorno; só volta a agir se as automações do PR falharem (para reportar e sugerir correções). O script faz tudo: imprime contexto (status e diffs) no início, `git add -A` (respeitando .gitignore), commit, push, PR, **monitoração obrigatória dos workflows do PR** (watch) e, em sucesso, checkout para `main`, fetch e pull.
+Para reduzir uso de créditos do Cursor, executar o fluxo através do script: o agente faz **uma** chamada ao script e lê o retorno; só volta a agir se as automações do PR falharem (para reportar e sugerir correções). O script faz tudo: imprime contexto (status e diffs) no início, `git add -A` (respeitando .gitignore), commit, push, PR, **monitoração obrigatória dos workflows do PR** (watch) e, em sucesso, checkout para `Master`, fetch e pull.
 
 **Monitorar o PR é obrigatório:** o agente **nunca** deve dar a entrega como concluída sem ter **efectivamente monitorado** os workflows do PR (via script com watch ou, se o script não fizer watch, manualmente com `gh run list --branch BRANCH` e `gh run watch <run-id>` no run mais recente). Só informar «Entrega concluída» / «Workflows verdes» depois de ter assistido à conclusão dos runs. Não pular esta etapa.
 
@@ -20,7 +20,7 @@ Para reduzir uso de créditos do Cursor, executar o fluxo através do script: o 
 
 ```bash
 BRANCH_ATUAL=$(git branch --show-current)
-if [[ "$BRANCH_ATUAL" == "main" || "$BRANCH_ATUAL" == "master" ]]; then
+if [[ "$BRANCH_ATUAL" == "main" || "$BRANCH_ATUAL" == "Master" ]]; then
   NOVA_BRANCH="feat/arauto-$(date +%Y%m%d-%H%M%S)"
   git switch -c "$NOVA_BRANCH"
 fi
@@ -50,13 +50,13 @@ Opções: `--preview` (opcional; só imprime status e diffs e sai, para preparar
 
 4. **Ler a saída** do script (no início vêm status e diffs; no fim, linhas parseáveis `ARAUTO_*`) e **interpretar o resultado** para agir em conformidade. **Não considerar entrega concluída sem ter monitorado o PR:** se o script terminou com `success` mas o agente não tiver a certeza de que o run **deste** push foi assistido (ex.: script fez watch de run antigo), o agente deve **monitorar manualmente**: `gh run list --branch BRANCH --limit 5` e `gh run watch <run-id>` no run mais recente; só então informar conclusão.
    - O script espera o run mais recente da branch (run deste push), aguarda 45s e faz `gh run watch` nesse run. Só emite sucesso quando o run estiver verde.
-   - **`ARAUTO_RESULT=success`** — Informar «Entrega concluída. Todos os workflows do PR estão verdes. Repositório local em main atualizada.» e, se existir, o `ARAUTO_PR_URL` para o utilizador abrir o PR.
+   - **`ARAUTO_RESULT=success`** — Informar «Entrega concluída. Todos os workflows do PR estão verdes. Repositório local em Master atualizada.» e, se existir, o `ARAUTO_PR_URL` para o utilizador abrir o PR.
    - **`ARAUTO_RESULT=failure`** — **Não** marcar a entrega como concluída. Reportar que o workflow falhou; usar `ARAUTO_RUN_ID` e os logs impressos entre «--- Logs do(s) step(s)...» e «--- Fim dos logs ---» para **entender o problema**.
      - **Verificação obrigatória:** antes de qualquer alteração de código de produção, avaliar se a falha é por **testes do CI desatualizados** (ex.: teste espera status 403 ou resposta antiga, mas a regra de negócio ou o contrato da API mudou e agora devolve 400 ou outro formato). Se for o caso: **corrigir apenas os testes** (E2E, unitários, integração) para refletir o comportamento atual; **não alterar regras de negócio nem código de produção** para satisfazer expectativas antigas dos testes. Depois fazer commit/push e executar o arauto novamente.
      - Se a falha **não** for por testes desatualizados (ex.: bug real, handler em falta, lógica quebrada), tratar como **nova demanda**: usar o `tradutor` para interpretar o erro em linguagem de negócio/fluxo/uso; usar o `maestro` para relatório de alterações; seguir a rotina-completa (planejamento → implementação → entrega) e só então executar o arauto novamente.
    - **`ARAUTO_RESULT=no_gh`** — Não considerar entrega concluída. Informar que `gh` não está disponível ou autenticado e que o utilizador deve criar/ver o PR e verificar a aba **Actions** manualmente.
    - **`ARAUTO_RESULT=pr_only`** — PR foi criado/aberto com `--no-watch`. Informar o `ARAUTO_PR_URL` e que a validação de workflows não foi executada; o utilizador deve verificar a aba Actions.
-   - **`ARAUTO_RESULT=no_run`** — main foi atualizada mas nenhum run foi detectado para a branch. Informar e pedir ao utilizador que verifique a aba Actions manualmente.
+   - **`ARAUTO_RESULT=no_run`** — Master foi atualizada mas nenhum run foi detectado para a branch. Informar e pedir ao utilizador que verifique a aba Actions manualmente.
 
 Só voltar a fazer algo (ex.: sugerir correções e pedir nova execução do script) se **`ARAUTO_RESULT=failure`**. Em sucesso ou no_run/pr_only/no_gh, informar o utilizador e encerrar.
 
@@ -99,7 +99,7 @@ git push -u origin <branch>   # primeira vez
 git push                       # branch já rastreada
 ```
 
-- Nunca usar `--force` em `main` ou `develop`. Se a branch estiver protegida, reportar e usar PR.
+- Nunca usar `--force` em `Master` ou `develop`. Se a branch estiver protegida, reportar e usar PR.
 - Se o push for rejeitado por restrição de branch principal, informar o utilizador e seguir para o passo 3.
 
 ---
@@ -176,18 +176,18 @@ gh run list --branch "$BRANCH" --limit 20
 
 ---
 
-## 5. Voltar à main e atualizar (após sucesso dos workflows)
+## 5. Voltar à Master e atualizar (após sucesso dos workflows)
 
 Só executar quando todos os workflows críticos do PR estiverem com conclusão **success**. Último passo da entrega.
 
 ```bash
-git checkout main
+git checkout Master
 git fetch
 git pull
 ```
 
-- Deixar o repositório local em `main` atualizada com o remoto.
-- Em seguida, informar ao utilizador: «Entrega concluída. Todos os workflows do PR estão verdes. Repositório local em `main` atualizada.»
+- Deixar o repositório local em `Master` atualizada com o remoto.
+- Em seguida, informar ao utilizador: «Entrega concluída. Todos os workflows do PR estão verdes. Repositório local em `Master` atualizada.»
 
 ---
 

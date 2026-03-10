@@ -14,6 +14,15 @@
 - **Validar antes de prosseguir**: anunciar o que vai ser feito, aguardar validação ou orientação quando fizer sentido.
 - **Oferecer escolhas** quando existir mais de um caminho válido (ex.: fatiar por fluxo vs por persona; ordem de refatorações).
 
+### Fundamentação — Método Dialógico (Freire)
+
+O envolvimento do operador é fundamentado na pedagogia dialógica de Paulo Freire:
+
+- **Diálogo, não transferência:** Educação autêntica é diálogo — não transferência de conhecimento. O agente não "entrega solução pronta"; co-constrói com o operador.
+- **Inéditos viáveis:** Propor alternativas criativas dentro de restrições conhecidas — inovar no possível, não no fantasioso. Quando há limitação técnica ou de escopo, buscar o "inédito viável" e apresentá-lo ao operador.
+- **Consciência crítica:** O operador deve entender **o quê** e **por quê**, não receber caixa-preta. Explicar decisões técnicas relevantes; tornar o processo transparente.
+- **Práxis:** Ciclo reflexão→ação — o "Ação em etapas" abaixo é a operacionalização desse princípio. Cada ciclo (planejamento→execução→validação→confirmação) é práxis.
+
 Para as etapas da rotina-completa aplicar este princípio dessa forma:
 - **Geração de cards** (demandas): validar cada card, apresentar conteúdo formatado, perguntar sobre escopo e personas.
 - **Planejamento (maestro / quadro-de-recompensas)**: ao identificar o que será criado/alterado/excluído/mergeado para testes e implementação, envolver o operador (resumir impacto, perguntar se algo deve ficar de fora ou em outro card).
@@ -84,6 +93,37 @@ Ao executar tarefas com assistência de IA, aplicar mitigações para áreas de 
 
 **Framing:** São estratégias de **mitigação para melhorar o trabalho com IA**, não proibições de uso. A IA é ferramenta válida; o foco é prevenir problemas recorrentes.
 
+## Specs como Narrativa (Literate Programming — Knuth)
+
+Skills e specs devem ser **legíveis por humanos como narrativa**, não apenas instruções para máquina:
+
+- **Explicar para humanos** o que queremos que o computador faça — specs bilíngues (narrativa + executável).
+- **Cross-referencing explícito:** Skills referenciam umas às outras com links diretos (§N → §M); não depender de contexto implícito.
+- **Complexidade graduada:** Abordar problemas do mais simples ao mais complexo (reflete no Test List Management — começar pelo teste mais simples).
+- **Código como literatura:** Nomes, estrutura e organização devem contar uma história coerente do domínio.
+
+## Craftsmanship (Clean Craftsmanship — Uncle Bob)
+
+Princípios de artesanato de software que permeiam toda a rotina-completa:
+
+- **Boy Scout Rule:** Cada ciclo (batedor→mestre-freire) deve deixar o código **mensuradamente melhor**. Nunca degradar qualidade.
+- **Profissionalismo:** Qualidade não é opcional — é responsabilidade do craftsperson. Entregar sem testes ou com smells não-tratados é falha profissional.
+- **Disciplina sobre velocidade:** Testes antes de código (TDD); refactoring após cada ciclo; CI verde antes de entrega. Não pular etapas para "ir mais rápido".
+- **Ownership:** O agente é responsável pelo código que gera — não "foi a IA que fez"; entender, revisar e garantir qualidade de todo output.
+
+## Pragmatismo (The Pragmatic Programmer — Hunt & Thomas)
+
+Princípios pragmáticos selecionados que orientam decisões técnicas no dia-a-dia:
+
+- **Broken Windows:** Não tolerar código quebrado, designs ruins ou decisões ruinosas. Corrigir ao encontrar (ou ao menos marcar para correção) — uma janela quebrada leva a abandono geral.
+- **Ortogonalidade:** Componentes independentes — alterar um não afeta os outros. Testar: "se eu mudar X, quantas coisas quebram?" Se muitas, falta ortogonalidade.
+- **Reversibilidade:** Decisões devem ser reversíveis sempre que possível. Evitar compromissos irreversíveis com tecnologias, frameworks ou fornecedores. Isolar decisões atrás de abstrações.
+- **Tracer Bullets:** Para requisitos novos ou incertos, implementar um fluxo ponta-a-ponta mínimo ("bala traçante") que atravesse todas as camadas. Iterar a partir do feedback, não da especulação.
+- **Design by Contract:** Pré-condições (o que o caller deve garantir), pós-condições (o que a função garante) e invariantes (o que é sempre verdade). Documenta-los explicitamente. Se violar, falhar ruidosamente.
+- **Programação Assertiva:** Usar assertions para documentar e verificar suposições. "Isso nunca pode acontecer" — se não pode, coloque um assert.
+- **DRY (Don't Repeat Yourself):** Cada pedaço de conhecimento deve ter representação única, não ambígua e autoritativa. DRY não é sobre duplicação de código — é sobre duplicação de **conhecimento**.
+- **Automação Ubíqua:** Automatizar tudo que for repetitivo e propenso a erros humanos. Manual é para pensamento criativo; mecânico é para máquinas. (Reflete `poupar-creditos-com-skills.instructions.md`.)
+
 ## Skills da rotina-completa disponíveis
 
 As skills da rotina-completa estão em `.github/skills/`:
@@ -98,4 +138,7 @@ As skills da rotina-completa estão em `.github/skills/`:
 | mestre-freire | `.github/skills/mestre-freire/` | Refatora conforme relatório, sem mudar comportamento |
 | mestre-freire-angular | `.github/skills/mestre-freire-angular/` | Complemento Angular para mestre-freire |
 | engenharia-de-software | `.github/skills/engenharia-de-software/` | Referência de ES (Pressman + Sommerville): requisitos, modelagem, testes, qualidade, segurança |
+| padroes-de-design | `.github/skills/padroes-de-design/` | Seleção e aplicação de design patterns (GoF): 23 padrões, lookup por problema |
+| codigo-legado | `.github/skills/codigo-legado/` | Alteração segura de código legado (Feathers): seams, dependency-breaking, characterization tests |
+| referencia-dotnet | `.github/skills/referencia-dotnet/` | Referência .NET stack-specific: Caching, EF Core, API Versioning |
 | arauto | `.github/skills/arauto/` | Entrega: commit, push, PR, validação CI |

@@ -136,6 +136,8 @@ Ordem das camadas (exterior → interior):
 - Ter serviços diferentes **não significa** ter módulos desacoplados.
 - Se alteração no serviço A obriga alteração no B → há dependência e acoplamento.
 - Um serviço sem limites bem definidos é apenas um conjunto de classes com chamadas mais caras que usam outra URL.
+- **Limites DENTRO, não ENTRE:** A fronteira arquitetural relevante está **dentro** de cada serviço (separação de políticas, camadas, componentes internos), não na fronteira de rede entre serviços. Microsserviços sem boa estrutura interna são monolitos distribuídos.
+- **Serviços não são arquitetura:** São mecanismo de entrega/deploy. A arquitetura é a organização de políticas e regras dentro de cada unidade.
 
 ---
 
@@ -163,6 +165,36 @@ Ordem das camadas (exterior → interior):
 
 - A arquitetura deve expressar o **tipo de sistema** (gestão de pátio, imobiliária, etc.), não o framework usado.
 - Frameworks não devem interferir na arquitetura.
+- **Teste do grito:** ao olhar a estrutura de pastas, o leitor deve dizer "isso é um sistema de gestão de contratos" — não "isso é um projeto Angular" ou "isso é ASP.NET".
+- **Organização por Componente > por Recurso > por Camada:**
+  1. **Por Camada** (pior): `controllers/`, `services/`, `repositories/` — espalha domínio; não grita.
+  2. **Por Recurso/Feature** (melhor): `pedidos/`, `usuarios/`, `contratos/` — agrupamento vertical por conceito.
+  3. **Por Componente** (melhor): cada recurso como componente coeso com camadas internas — API pública estreita; internação das camadas.
+
+### Paradigmas como Disciplinas Negativas (Cap. 3-4-5)
+
+Paradigmas de programação não são capacidades adicionadas — são **restrições retiradas**:
+
+| Paradigma | O que REMOVE | Implicação |
+|-----------|-------------|------------|
+| **Programação Estruturada** | `goto` — remove transferência direta de controle | Lógica organizada em sequência/seleção/iteração |
+| **OO** | Ponteiros de função — remove transferência indireta | Polimorfismo seguro; DIP possível; inversão de dependência |
+| **Funcional** | Atribuição — remove mutação de estado | Imutabilidade; sem race conditions; raciocínio mais fácil |
+
+### Testes como Componentes Arquiteturais (Cap. 28)
+
+- Testes são **parte da arquitetura**, não um artefato secundário.
+- Design de testabilidade é decisão arquitetural: se o sistema é difícil de testar, a arquitetura tem problemas.
+- Testes acoplados a detalhes (BD, framework, UI) são frágeis — aplicar Humble Object e DIP para isolar.
+- **API estrutural de testes:** criar API específica para testes que desacopla de detalhes, permitindo evolução independente.
+
+### BD, Web e Frameworks como Detalhes (Caps. 30-34)
+
+| Detalhe | Por que é detalhe | Consequência |
+|---------|-------------------|-------------|
+| **Banco de Dados** | Modelo relacional/NoSQL é detalhe de armazenamento; dados em memória são entidades | Não deixar SQL/ORM vazar para regras de negócio; repositório abstrai |
+| **Web** | Mecanismo de entrega (HTTP, REST) | Controllers são adaptadores; regras de negócio não sabem que estão na web |
+| **Frameworks** | Ferramentas, não arquitetura | Manter framework na camada mais externa; não herdar de classes do framework em domínio |
 
 ### App-tidão (Cap. 28 – Kent Beck)
 

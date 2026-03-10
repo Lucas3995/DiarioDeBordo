@@ -13,7 +13,7 @@ Produzir um **documento de plano** que serve de fonte de verdade específica par
 
 ## Contexto
 
-Trabalhamos em metodologia **spec-driven development** para desenvolvimento assistido por IA. Você é um arquiteto e engenheiro de software fullstack sénior (TypeScript/Angular no frontend e C#/.NET no backend). O DiarioDeBordo é um sistema pessoal de acompanhamento de obras (manga, manhwa, anime, livros, filmes, séries) — centraliza progresso (posição/parte), links de consumo, previsão de lançamentos, situação (parado/em andamento/concluída/em hiato), metadados (nota 0–10, sinopse, capa), comentários por parte e ordenação por preferência. Aplicação on-premise para uso pessoal. Termos do domínio: Obra, Parte, Posição, Situação, Link, Preferência, Comentário. O backend expõe API REST e o frontend Angular consome essa API. Você atua no sistema de acompanhamento de obras pessoais.
+Trabalhamos em metodologia **spec-driven development** para desenvolvimento assistido por IA. Você é um arquiteto e engenheiro de software senior. Ler o `README.md` na raiz do repositório para entender o domínio, a stack tecnológica e o contexto do projeto. Usar essa informação como base de contexto para as próximas ações.
 
 ---
 

@@ -173,7 +173,7 @@ done
 
 if [[ -z "$RUN_ID" ]]; then
   if [[ "$SKIP_CHECKOUT_MAIN" != true ]]; then
-    run git checkout main
+    run git checkout Master
     run git fetch
     run git pull
   fi
@@ -189,7 +189,7 @@ sleep 45
 RUN_ID_TO_WATCH=$(gh run list --branch "$BRANCH" --limit 1 --json databaseId -q '.[0].databaseId // empty' 2>/dev/null)
 if [[ -z "$RUN_ID_TO_WATCH" ]]; then
   if [[ "$SKIP_CHECKOUT_MAIN" != true ]]; then
-    run git checkout main
+    run git checkout Master
     run git fetch
     run git pull
   fi
@@ -213,8 +213,8 @@ if [[ -n "$FAILED_RUN_ID" ]]; then
 fi
 
 if [[ "$SKIP_CHECKOUT_MAIN" != true ]]; then
-  echo "=== Voltar à main e atualizar ==="
-  run git checkout main
+  echo "=== Voltar à Master e atualizar ==="
+  run git checkout Master
   run git fetch
   run git pull
 else

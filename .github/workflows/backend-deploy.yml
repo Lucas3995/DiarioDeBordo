@@ -1,5 +1,4 @@
 name: Backend Deploy (Serverless)
-# STATUS: PLACEHOLDER — Deploy AWS não implementado. Steps com if:false são TODOs.
 
 # Trigger em push na branch main após CI verde.
 # Secrets necessários (configurar em Settings > Secrets and variables > Actions):
@@ -32,12 +31,12 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Setup .NET
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v5
         with:
-          dotnet-version: '10.x'
+          dotnet-version: '10.0.x'
 
       - name: Restore
         run: dotnet restore
@@ -47,7 +46,7 @@ jobs:
 
       - name: Testes (gate obrigatório antes do deploy)
         run: >
-          dotnet test
+          dotnet test backend/src/DiarioDeBordo.Tests/DiarioDeBordo.Tests.csproj
           --no-build
           --configuration Release
           --collect:"XPlat Code Coverage"
@@ -57,7 +56,7 @@ jobs:
 
       - name: Publicar artefato
         run: >
-          dotnet publish src/DiarioDeBordo.Api/DiarioDeBordo.Api.csproj
+          dotnet publish ${{ vars.API_PROJECT || 'backend/src/DiarioDeBordo.Api/DiarioDeBordo.Api.csproj' }}
           --no-build
           --configuration Release
           --output ./publish
@@ -68,7 +67,7 @@ jobs:
       #
       # Opção A — AWS Lambda com AWS Lambda .NET Tool:
       #   - Instalar: dotnet tool install -g Amazon.Lambda.Tools
-      #   - Deploy:   dotnet lambda deploy-function DiarioDeBordo \
+      #   - Deploy:   dotnet lambda deploy-function <YourFunctionName> \
       #               --region ${{ secrets.AWS_REGION }} ...
       #
       # Opção B — Container serverless (ECS Fargate / App Runner):
@@ -82,7 +81,7 @@ jobs:
       # =====================================================================
 
       - name: "[PLACEHOLDER] Configurar credenciais AWS"
-        uses: aws-actions/configure-aws-credentials@v4
+        uses: aws-actions/configure-aws-credentials@v6
         if: false  # Remover esta linha quando implementar
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}

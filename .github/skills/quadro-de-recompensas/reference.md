@@ -82,7 +82,7 @@ TDD/BDD como referência de estilo: teste como especificação executável; nome
 
 **3 Leis do TDD (Uncle Bob):**
 1. Não escreva código de produção sem antes ter um teste falhando.
-2. Escreva apenas o suficiente do teste para que ele falhe.
+2. Escreva apenas o suficiente do teste para que ele falha.
 3. Escreva apenas o suficiente de código de produção para o teste passar.
 
 ---
@@ -124,14 +124,14 @@ Integrar `jest-axe` (Angular) ou equivalente nos testes de componente para cober
 
 ---
 
-## Mapeamento ao projeto (DiarioDeBordo)
+## Mapeamento ao projeto
 
 ### Frontend (Angular)
 
 | Tipo | Localização | Comando |
 |------|-------------|---------|
-| **Unitários** | `*.spec.ts` ao lado do ficheiro sob teste (ex.: `auth.service.spec.ts`, `obra-lista.component.spec.ts`) | `npm run test` ou `ng test` |
-| **E2E** | `frontend/e2e/*.spec.ts` (ex.: `app.spec.ts`, `obras.spec.ts`) | Conforme config do projeto (ex.: `ng e2e`) |
+| **Unitários** | `*.spec.ts` ao lado do ficheiro sob teste (ex.: `auth.service.spec.ts`, `feature-list.component.spec.ts`) | `npm run test` ou `ng test` |
+| **E2E** | `frontend/e2e/*.spec.ts` (ex.: `app.spec.ts`, `feature-name.spec.ts`) | Conforme config do projeto (ex.: `ng e2e`) |
 
 Estrutura típica: `frontend/src/app/` com subpastas por camada (application, domain, infrastructure, features); cada módulo pode ter um ou mais ficheiros `.spec.ts`.
 
@@ -139,10 +139,87 @@ Estrutura típica: `frontend/src/app/` com subpastas por camada (application, do
 
 | Tipo | Localização | Comando |
 |------|-------------|---------|
-| **Unitários** | `backend/src/DiarioDeBordo.Tests/Unit/` (ex.: `GetStatusQueryHandlerTests.cs`, `LoginCommandHandlerTests.cs`) | `dotnet test` (na pasta do projeto de testes ou na solution) |
-| **Integração** | `backend/src/DiarioDeBordo.Tests/Integration/` (ex.: `ObrasControllerTests.cs`, `AuthControllerTests.cs`) | `dotnet test` |
+| **Unitários** | `backend/src/<Project>.Tests/Unit/` (ex.: `GetStatusQueryHandlerTests.cs`, `LoginCommandHandlerTests.cs`) | `dotnet test` (na pasta do projeto de testes ou na solution) |
+| **Integração** | `backend/src/<Project>.Tests/Integration/` (ex.: `FeatureControllerTests.cs`, `AuthControllerTests.cs`) | `dotnet test` |
 
 Executar a suíte a partir da raiz do backend ou da solution: `dotnet test` para todos os testes; ou especificar o projeto de testes.
+
+---
+
+## Estratégias Red Path — Implementação no Green (Kent Beck)
+
+Três estratégias para fazer o teste passar (fase Green do TDD). Escolher conforme confiança e complexidade.
+
+| Estratégia | Como funciona | Quando usar |
+|------------|---------------|-------------|
+| **Fake It** | Retornar constante → depois generalizar para variável/cálculo real | Incerteza sobre o algoritmo; bootstrap de primeira implementação; quando precisa de "um passo de cada vez" |
+| **Triangulation** | Escrever 2+ testes com exemplos distintos → forçar generalização | Quando não sabe qual abstração usar; padrão emerge de múltiplos exemplos |
+| **Obvious Implementation** | Implementar diretamente a solução correta | Quando a solução é transparente e simples; alto nível de confiança |
+
+**Regra de auto-calibração:** Se testes começam a falhar inesperadamente → reduzir o tamanho do passo (voltar para Fake It). Se tudo passa facilmente → aumentar o passo (usar Obvious Implementation).
+
+---
+
+## Test Data Strategies (Kent Beck)
+
+| Estratégia | Descrição | Quando usar |
+|------------|-----------|-------------|
+| **Evident Data** | Dados no teste tornam explícita a relação input→output (ex: `conta(100, taxa=0.1) → 110`) | Sempre que possível — máxima legibilidade |
+| **Constantes simbólicas** | Usar nomes de constantes significativos em vez de magic numbers no teste | Quando o valor em si não importa, mas a relação sim |
+| **Dados realistas** | Dados do domínio real (CPFs válidos, emails reais) | Testes de integração ou quando formato é relevante para a regra |
+| **One to Many** | Começar com 1 elemento → depois testar com N elementos → generalizar | Coleções, listas, agregações |
+
+---
+
+## Test List Management (Kent Beck)
+
+Manter **lista dinâmica de testes** como ferramenta de escopo durante implementação:
+
+1. Antes de implementar, listar todos os testes que expressam o comportamento desejado
+2. Começar pelo mais simples (confiança + momentum)
+3. À medida que implementa, novos testes surgem → adicionar à lista
+4. Riscar testes implementados; adicionar novos que surgirem
+5. A lista evita perda de foco — quando surgir ideia, anotar na lista e continuar no teste atual
+
+**Anti-padrão:** Sair implementando sem lista → escopo se expande, foco se perde, testes ficam incompletos.
+
+---
+
+## Comfort Level e Step Size (Kent Beck)
+
+Auto-calibração do tamanho do passo no TDD:
+
+| Sinal | Ação |
+|-------|------|
+| Testes passam facilmente, solução óbvia | Aumentar passo (Obvious Implementation) |
+| Teste falha inesperadamente | Reduzir passo (Fake It, baby steps) |
+| Não sabe qual teste escrever primeiro | Escrever o mais simples possível (degenerate case) |
+| Muitos testes falhando ao mesmo tempo | Reverter última mudança; passo menor |
+| Feedback loop > 10 segundos | Dividir teste ou isolar dependência |
+
+**Princípio:** Passos menores quando inseguro, maiores quando confiante. O tamanho do passo é variável, não fixo.
+
+---
+
+## Characterization Tests (Michael Feathers)
+
+Testes que **documentam comportamento existente** — não prescrevem comportamento desejado.
+
+| Aspecto | Characterization Test | Test Prescritivo (TDD normal) |
+|---------|-----------------------|-------------------------------|
+| **Propósito** | Documentar o que o código **faz** | Definir o que o código **deveria fazer** |
+| **Quando escrever** | Antes de alterar código legado | Antes de implementar feature nova |
+| **Asserção vem de…** | Executar código e observar resultado | Requisito/especificação |
+| **Falha significa…** | Comportamento mudou (pode ser intencional) | Bug ou implementação incompleta |
+
+**Workflow para criar characterization test:**
+1. Chamar o código como está
+2. Colocar asserção com valor qualquer
+3. Rodar → ver valor real na falha
+4. Ajustar asserção para valor real → teste passa
+5. Comportamento documentado ✅
+
+**Regra:** Characterization tests são **rede de segurança para legacy code** — criar antes de qualquer refatoração em código sem testes. Ver skill [codigo-legado](../codigo-legado/SKILL.md) para workflow completo.
 
 ---
 
@@ -151,3 +228,40 @@ Executar a suíte a partir da raiz do backend ou da solution: `dotnet test` para
 - **ISO/IEC/IEEE 29119** (Software Testing): processos de teste, documentação, técnicas.
 - **ISTQB Glossary:** terminologia (teste de aceite, regressão, cobertura).
 - **IEEE 829:** estrutura de documentação de testes.
+
+---
+
+## Rigor nas Variáveis de Teste (Wazlawick)
+
+Cada teste deve ter **variáveis claras** e, quando aplicável, **baseline definida**. Fonte: [engenharia-de-software reference.md](../engenharia-de-software/reference.md) §12.
+
+### Mapeamento de variáveis por teste
+
+| Conceito | Definição | Exemplo no teste |
+|----------|-----------|-------------------|
+| **Variável independente** | O que manipulamos (input) | Dados de entrada do Arrange |
+| **Variável dependente** | O que medimos (output) | Resultado verificado no Assert |
+| **Baseline** | Valor de referência antes da alteração | Comportamento documentado por characterization test |
+
+### Checklist para criação de testes
+
+- [ ] Cada teste identifica claramente: variável independente (input) e dependente (output esperado)?
+- [ ] Para testes de melhoria: baseline medida antes da alteração?
+- [ ] Critérios de aceite com definição operacional ("tempo ≤ 200ms") e não constitutiva ("deve ser rápido")?
+- [ ] Limitações do teste documentadas (o que NÃO cobre)?
+
+---
+
+## Mapeamento ao projeto Diário de Bordo
+
+- Backend: testes unitários e integração em `backend/src/DiarioDeBordo.Tests/DiarioDeBordo.Tests.csproj` (xUnit, FluentAssertions, coverlet)
+  - Comando: `dotnet test backend/src/DiarioDeBordo.Tests/DiarioDeBordo.Tests.csproj -c Release`
+- Frontend: testes unitários e E2E em `frontend/src/app/**/*.spec.ts` e `frontend/e2e/*.spec.ts` (Angular CLI, Playwright)
+  - Comando unitário: `ng test --no-watch --browsers=ChromeHeadlessCI`
+  - Comando E2E: `playwright test --config=e2e/playwright.config.ts`
+
+### Exemplos de testes do domínio
+
+- Obra: teste de atualização de posição, validação de status, histórico de comentários.
+- Posição: teste de limites, validação de enum de status.
+- Histórico: teste de ordenação, inclusão de comentários.
