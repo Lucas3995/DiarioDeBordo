@@ -7,6 +7,7 @@ import {
   Injector,
   ComponentRef,
   Provider,
+  ApplicationRef,
 } from '@angular/core';
 import { take } from 'rxjs';
 import { DialogRef } from './dialog-ref';
@@ -47,6 +48,9 @@ const OVERLAY_STYLES: Record<string, string> = {
 @Injectable({ providedIn: 'root' })
 export class DialogService {
   private readonly injectedContainerRef = inject(DIALOG_CONTAINER_REF, { optional: true });
+  private readonly appRef = inject(ApplicationRef);
+  private readonly appInjector = inject(Injector);
+
   /** Preenchido por setContainer() quando não se usa DIALOG_CONTAINER_REF (ex.: DialogHost). */
   private dynamicContainerRef: ViewContainerRef | null = null;
 
@@ -62,23 +66,23 @@ export class DialogService {
   /**
    * Abre um dialog com o componente dado.
    * Retorna DialogRef para fechar e observar afterClosed().
-   * Se o container não estiver configurado, em modo desenvolvimento é logado um erro e é retornado um DialogRef sem UI.
+   *
+   * O serviço usa um `ViewContainerRef` fornecido via token ou `setContainer`
+   * para injetar o componente na árvore Angular. Se nenhum container estiver
+   * disponível, criamos um overlay no `document.body` e geramos o componente
+   * usando `ApplicationRef` como fallback; nenhum
+   * erro é lançado e o dialog continua funcionando. Esse caminho garante que
+   * `open()` nunca falhe mesmo que a aplicação esqueça de configurar um host.
    */
   open<T, R = unknown>(component: Type<T>, options?: DialogOptions<R>): DialogRef<R> {
     const ref = new DialogRef<R>();
     const container = this.containerRef;
-    if (!container) {
-      if (typeof ngDevMode !== 'undefined' && ngDevMode) {
-        console.error(
-          'DialogService.open: container não configurado. Garanta que DIALOG_CONTAINER_REF está fornecido ou que DialogHostComponent está no template e setContainer() foi chamado.'
-        );
-      }
-      return ref;
-    }
 
     const overlay = this.criarOverlay();
-    const parent = container.element.nativeElement.parentElement ?? container.element.nativeElement;
-    parent.appendChild(overlay);
+    const parentElement = container
+      ? container.element.nativeElement.parentElement ?? container.element.nativeElement
+      : document.body;
+    parentElement.appendChild(overlay);
 
     const providers: Provider[] = [
       { provide: DialogRef, useValue: ref },
@@ -87,14 +91,40 @@ export class DialogService {
     if (options?.data !== undefined) {
       providers.push({ provide: DIALOG_DATA, useValue: options.data });
     }
+
     const injector = Injector.create({
       providers,
-      parent: container.injector,
+      parent: container?.injector ?? this.appInjector,
     });
 
-    const componentRef = this.anexarComponente(container, component, injector, overlay);
-    this.registarLimpezaAoFechar(ref, componentRef, overlay);
+    let componentRef: ComponentRef<T>;
+    if (container) {
+      componentRef = this.anexarComponente(container, component, injector, overlay);
+    } else {
+      // fallback: bootstrap o componente diretamente no elemento de overlay.
+      // `bootstrap` adiciona o componente ao ApplicationRef e insere sua
+      // raiz no nó fornecido, facilitando o uso sem ViewContainerRef.
+      componentRef = this.appRef.bootstrap(component, overlay);
+    }
 
+    // event listeners para fechamento via backdrop e tecla ESC
+    const backdropClick = (ev: MouseEvent) => {
+      if (ev.target === overlay) {
+        ref.close();
+      }
+    };
+    const escKey = (ev: KeyboardEvent) => {
+      if (ev.key === 'Escape' || ev.key === 'Esc') {
+        ref.close();
+      }
+    };
+    overlay.addEventListener('click', backdropClick);
+    document.addEventListener('keydown', escKey);
+
+    this.registarLimpezaAoFechar(ref, componentRef, overlay, () => {
+      overlay.removeEventListener('click', backdropClick);
+      document.removeEventListener('keydown', escKey);
+    });
     return ref;
   }
 
@@ -119,11 +149,13 @@ export class DialogService {
   private registarLimpezaAoFechar<T, R>(
     ref: DialogRef<R>,
     componentRef: ComponentRef<T>,
-    overlay: HTMLDivElement
+    overlay: HTMLDivElement,
+    cleanup?: () => void
   ): void {
     ref.afterClosed.pipe(take(1)).subscribe(() => {
       componentRef.destroy();
       overlay.remove();
+      if (cleanup) cleanup();
     });
   }
 }

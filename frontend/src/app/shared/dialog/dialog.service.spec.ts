@@ -81,6 +81,24 @@ describe('DialogService', () => {
       hostFixture.detectChanges();
       expect(hostFixture.nativeElement.querySelector('[data-testid="dialog-overlay"]')).toBeFalsy();
     });
+
+    it('fechar ao clicar no backdrop', () => {
+      service.open(TestDialogContentComponent);
+      hostFixture.detectChanges();
+      const overlay = hostFixture.nativeElement.querySelector('[data-testid="dialog-overlay"]') as HTMLElement;
+      overlay.click();
+      hostFixture.detectChanges();
+      expect(hostFixture.nativeElement.querySelector('[data-testid="dialog-overlay"]')).toBeFalsy();
+    });
+
+    it('fechar ao pressionar ESC', () => {
+      service.open(TestDialogContentComponent);
+      hostFixture.detectChanges();
+      const esc = new KeyboardEvent('keydown', { key: 'Escape' });
+      document.dispatchEvent(esc);
+      hostFixture.detectChanges();
+      expect(hostFixture.nativeElement.querySelector('[data-testid="dialog-overlay"]')).toBeFalsy();
+    });
   });
 });
 
@@ -94,9 +112,30 @@ describe('DialogService sem container', () => {
     service = TestBed.inject(DialogService);
   });
 
-  it('open() deve retornar DialogRef mesmo sem DIALOG_CONTAINER_REF (não quebra)', () => {
+  it('fallback deve criar overlay no body e retornar DialogRef válido', () => {
     const ref = service.open(TestDialogContentComponent);
     expect(ref).toBeInstanceOf(DialogRef);
+
+    // overlay é anexado ao body quando não existe container Angular
+    const overlay = document.body.querySelector('[data-testid="dialog-overlay"]');
+    expect(overlay).toBeTruthy();
+
     ref.close();
+    expect(document.body.querySelector('[data-testid="dialog-overlay"]')).toBeFalsy();
+  });
+
+  it('fechar por clique no backdrop e ESC no fallback', () => {
+    // clique no vento
+    service.open(TestDialogContentComponent);
+    let overlay = document.body.querySelector('[data-testid="dialog-overlay"]') as HTMLElement;
+    expect(overlay).toBeTruthy();
+    overlay.click();
+    expect(document.body.querySelector('[data-testid="dialog-overlay"]')).toBeFalsy();
+
+    // ESC também deve funcionar
+    service.open(TestDialogContentComponent);
+    const esc = new KeyboardEvent('keydown', { key: 'Escape' });
+    document.dispatchEvent(esc);
+    expect(document.body.querySelector('[data-testid="dialog-overlay"]')).toBeFalsy();
   });
 });

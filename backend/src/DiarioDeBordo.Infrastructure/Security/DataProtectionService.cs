@@ -1,7 +1,7 @@
 using System.Security.Cryptography;
 using System.Text;
 using DiarioDeBordo.Domain.Common;
-using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
 
 namespace DiarioDeBordo.Infrastructure.Security;
 
@@ -16,11 +16,11 @@ public sealed class DataProtectionService : IDataProtectionService
     private const int TagSize = 16;
     private readonly byte[] _key;
 
-    public DataProtectionService(IConfiguration configuration)
+    public DataProtectionService(IOptions<DataProtectionOptions> options)
     {
-        var keyBase64 = configuration["DataProtection:Key"]
+        var keyBase64 = options?.Value?.Key
             ?? throw new InvalidOperationException(
-                "DataProtection:Key não configurada. Defina uma chave AES-256 em Base64 via variável de ambiente ou vault.");
+                "DataProtection:Key não configurada. Defina uma chave AES-256 em Base64 via IOptions/DataProtectionOptions.");
 
         _key = Convert.FromBase64String(keyBase64);
 

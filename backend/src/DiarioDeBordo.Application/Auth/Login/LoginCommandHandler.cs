@@ -1,5 +1,6 @@
 using DiarioDeBordo.Domain.Auth;
 using MediatR;
+using DiarioDeBordo.Application.Auth;
 
 namespace DiarioDeBordo.Application.Auth.Login;
 
@@ -19,61 +20,16 @@ namespace DiarioDeBordo.Application.Auth.Login;
 /// </summary>
 public sealed class LoginCommandHandler : IRequestHandler<LoginCommand, LoginResponse>
 {
-    private const string ErroGenerico = "Credenciais inválidas.";
+    private readonly IAuthenticationService _authenticationService;
 
-    private readonly IUsuarioRepository _usuarioRepository;
-    private readonly ITokenService _tokenService;
-    private readonly IPasswordHasher _passwordHasher;
-
-    public LoginCommandHandler(
-        IUsuarioRepository usuarioRepository,
-        ITokenService tokenService,
-        IPasswordHasher passwordHasher)
+    public LoginCommandHandler(IAuthenticationService authenticationService)
     {
-        _usuarioRepository = usuarioRepository;
-        _tokenService = tokenService;
-        _passwordHasher = passwordHasher;
+        _authenticationService = authenticationService;
     }
 
-    public async Task<LoginResponse> Handle(LoginCommand request, CancellationToken cancellationToken)
+    public Task<LoginResponse> Handle(LoginCommand request, CancellationToken cancellationToken)
     {
-        var usuario = await _usuarioRepository.BuscarPorLoginAsync(request.Login, cancellationToken);
-
-        // Usuário não encontrado — executar verificação com hash fictício para equalizar tempo
-        // e evitar que um atacante distinga "login inexistente" de "senha errada" por timing.
-        if (usuario is null)
-        {
-            _passwordHasher.Verificar(request.Senha, "$2a$12$invalidhashplaceholderXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX");
-            return Falha();
-        }
-
-        if (!usuario.Ativo)
-            return Falha();
-
-        var senhaValida = _passwordHasher.Verificar(request.Senha, usuario.SenhaHash);
-        if (!senhaValida)
-            return Falha();
-
-        if (usuario.Requer2FA)
-        {
-            return new LoginResponse(
-                Token: null,
-                ExpiresAt: null,
-                Requer2FA: true,
-                Sucesso: false,
-                Erro: null);
-        }
-
-        var (token, expiresAt) = _tokenService.GerarToken(usuario);
-
-        return new LoginResponse(
-            Token: token,
-            ExpiresAt: expiresAt,
-            Requer2FA: false,
-            Sucesso: true,
-            Erro: null);
+        // Delegar toda a lógica de autenticação para o serviço extraído.
+        return _authenticationService.Authenticate(request, cancellationToken);
     }
-
-    private static LoginResponse Falha() =>
-        new(Token: null, ExpiresAt: null, Requer2FA: false, Sucesso: false, Erro: ErroGenerico);
 }

@@ -18,6 +18,12 @@ public static class DependencyInjection
     {
         services.AddSingleton<IClock, SystemClock>();
 
+        // opções fortemente tipadas para DataProtection (criadas manualmente sem depender de pacotes extra)
+        var dataProtSection = configuration.GetSection("DataProtection");
+        var key = dataProtSection["Key"];
+        services.AddSingleton(
+            Microsoft.Extensions.Options.Options.Create(new DataProtectionOptions(key ?? string.Empty)));
+
         services.AddScoped<IDataProtectionService, DataProtectionService>();
 
         services.AddSingleton<ITokenService>(sp =>
