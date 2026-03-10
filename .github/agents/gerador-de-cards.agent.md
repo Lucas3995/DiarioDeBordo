@@ -15,3 +15,7 @@ Agente responsável pela **fase de planejamento** da rotina-completa.
 - Consultar o reference do maestro (`.github/skills/maestro/reference.md`) para o formato esperado.
 - Sempre validar com o operador antes de dar o planejamento por concluído.
 - Seguir a metodologia descrita em `.github/copilot-instructions.md`.
+
+## Próximo passo
+
+Ao concluir o planejamento, **perguntar ao operador** se deseja prosseguir para a criação da fonte de verdade. Se o operador confirmar, invocar o prompt `/criar-fonte-de-verdade` (`.github/prompts/criar-fonte-de-verdade.prompt.md`). Nunca prosseguir automaticamente — aguardar confirmação explícita.

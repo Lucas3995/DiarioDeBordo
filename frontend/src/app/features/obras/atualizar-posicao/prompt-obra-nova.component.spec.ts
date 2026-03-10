@@ -32,7 +32,7 @@ describe('PromptObraNovaComponent (Demanda 2 — prompt obra nova)', () => {
 
       const inputNome = fixture.debugElement.query(By.css('[data-testid="prompt-obra-nova-nome"]'));
       expect(inputNome).toBeTruthy();
-      expect(component.nome).toBe(nomeDefault);
+      expect(component.form.controls.nome.value).toBe(nomeDefault);
       // Valor no modelo é refletido no input via ngModel (verificado por component.nome)
     });
 
@@ -46,7 +46,7 @@ describe('PromptObraNovaComponent (Demanda 2 — prompt obra nova)', () => {
       fixture.detectChanges();
       const inputOrdem = fixture.debugElement.query(By.css('[data-testid="prompt-obra-nova-ordem"]'));
       expect(inputOrdem).toBeTruthy();
-      expect(component.ordemPreferencia).toBe(0);
+      expect(component.form.controls.ordemPreferencia.value).toBe(0);
     });
   });
 
@@ -66,9 +66,9 @@ describe('PromptObraNovaComponent (Demanda 2 — prompt obra nova)', () => {
 
   describe('ao Prosseguir (item 2)', () => {
     it('deve chamar dialogRef.close com resultado prosseguir: true, nome, tipo e ordemPreferencia', () => {
-      component.nome = 'Nova Obra';
-      component.tipo = TipoObra.Manga;
-      component.ordemPreferencia = 1;
+      component.form.controls.nome.setValue('Nova Obra');
+      component.form.controls.tipo.setValue(TipoObra.Manga);
+      component.form.controls.ordemPreferencia.setValue(1);
       fixture.detectChanges();
 
       const btn = fixture.debugElement.query(By.css('[data-testid="prompt-obra-nova-prosseguir"]'));

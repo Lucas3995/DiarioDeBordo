@@ -28,7 +28,7 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '9.x'
+          dotnet-version: '10.x'
 
       - name: Restore dependencies
         run: dotnet restore
@@ -60,3 +60,28 @@ jobs:
           name: coverage-report
           path: backend/TestResults/**/coverage.cobertura.xml
           retention-days: 14
+
+      - name: Enforce minimal coverage (49%)
+        run: |
+          echo "Checking coverage threshold (49%)..."
+          COV_FILE=$(find TestResults -name 'coverage.cobertura.xml' | head -n 1)
+          if [ -z "$COV_FILE" ]; then
+            echo "Coverage file not found."
+            exit 1
+          fi
+          TOTAL_LINES=$(grep -oP 'lines-valid="\K[0-9]+' "$COV_FILE" | awk '{s+=$1} END {print s}')
+          COVERED_LINES=$(grep -oP 'lines-covered="\K[0-9]+' "$COV_FILE" | awk '{s+=$1} END {print s}')
+          if [ "$TOTAL_LINES" -eq 0 ]; then
+            echo "No lines counted for coverage."
+            exit 1
+          fi
+          PERCENT=$((100 * COVERED_LINES / TOTAL_LINES))
+          echo "Coverage: $PERCENT% (threshold: 49%)"
+          if [ "$PERCENT" -lt 49 ]; then
+            echo "Coverage below threshold."
+            exit 1
+          fi
+
+      - name: Vulnerability scan
+        run: dotnet list --vulnerable --include-transitive
+        continue-on-error: true

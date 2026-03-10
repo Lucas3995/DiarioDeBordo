@@ -6,15 +6,15 @@
     </p>
   </header>
 
-  <div class="formulario">
+  <form class="formulario" (submit)="$event.preventDefault()">
     <div class="campo-grupo">
       <div class="campo">
         <label for="valorNome" class="label">Nome da obra</label>
         <app-input-autocomplete
-          [value]="valorIdentificador"
+          [value]="valorIdentificador()"
           (valueChange)="onNomeInput($event)"
           (searchTerm)="onSearchTerm($event)"
-          [suggestions]="sugestoes"
+          [suggestions]="sugestoes()"
           (suggestionSelected)="selecionarSugestao($event)"
           [displayWith]="displayWithObra"
           [getItemId]="getItemIdObra"
@@ -36,7 +36,7 @@
           type="number"
           min="0"
           class="input input-number"
-          [(ngModel)]="novaPosicao"
+          [formControl]="form.controls.novaPosicao"
           data-testid="atualizar-posicao-nova-posicao"
         />
       </div>
@@ -47,17 +47,17 @@
           id="dataAtualizacao"
           type="date"
           class="input"
-          [(ngModel)]="dataUltimaAtualizacao"
+          [formControl]="form.controls.dataUltimaAtualizacao"
           data-testid="atualizar-posicao-data"
         />
       </div>
     </div>
 
-    @if (erro) {
-      <p class="mensagem erro" role="alert" data-testid="atualizar-posicao-erro">{{ erro }}</p>
+    @if (erro()) {
+      <p class="mensagem erro" role="alert" data-testid="atualizar-posicao-erro">{{ erro() }}</p>
     }
-    @if (sucesso) {
-      <p class="mensagem sucesso" role="status" data-testid="atualizar-posicao-sucesso">{{ sucesso }}</p>
+    @if (sucesso()) {
+      <p class="mensagem sucesso" role="status" data-testid="atualizar-posicao-sucesso">{{ sucesso() }}</p>
     }
 
     <div class="botoes">
@@ -65,7 +65,7 @@
         type="button"
         class="btn btn-secundario"
         (click)="verPreview()"
-        [disabled]="carregando"
+        [disabled]="carregando()"
         data-testid="atualizar-posicao-ver-preview"
       >
         Ver prévia
@@ -74,7 +74,7 @@
         type="button"
         class="btn btn-primario"
         (click)="salvar()"
-        [disabled]="carregando"
+        [disabled]="carregando()"
         data-testid="atualizar-posicao-salvar"
       >
         Salvar
@@ -83,19 +83,19 @@
         Fechar
       </button>
     </div>
-  </div>
+  </form>
 
-  @if (preview) {
+  @if (preview(); as previewData) {
     <aside class="preview" data-testid="atualizar-posicao-preview" aria-label="Prévia da atualização">
       <h3 class="preview-titulo">Prévia</h3>
-      @if (preview.obraNova) {
+      @if (previewData.obraNova) {
         <p><strong>Código:</strong> (será gerado)</p>
         <p><strong>Antes:</strong> — (obra nova)</p>
       } @else {
-        <p><strong>Código:</strong> {{ preview.id }}</p>
-        <p><strong>Antes:</strong> {{ rotuloPosicao(preview.tipo) }} {{ preview.posicaoAtual }} — {{ formatarData(preview.dataUltimaAtualizacaoPosicao) }}</p>
+        <p><strong>Código:</strong> {{ previewData.id }}</p>
+        <p><strong>Antes:</strong> {{ rotuloPosicao(previewData.tipo) }} {{ previewData.posicaoAtual }} — {{ formatarData(previewData.dataUltimaAtualizacaoPosicao) }}</p>
       }
-      <p><strong>Depois:</strong> {{ rotuloPosicao(preview.tipo) }} {{ novaPosicao }} — {{ dataParaEnvio ? formatarData(dataParaEnvio) : 'hoje' }}</p>
+      <p><strong>Depois:</strong> {{ rotuloPosicao(previewData.tipo) }} {{ form.controls.novaPosicao.value }} — {{ dataParaEnvio ? formatarData(dataParaEnvio) : 'hoje' }}</p>
     </aside>
   }
 </div>

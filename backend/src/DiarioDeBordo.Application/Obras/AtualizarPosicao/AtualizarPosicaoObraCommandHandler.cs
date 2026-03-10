@@ -1,4 +1,4 @@
-using DiarioDeBordo.Application.Obras;
+using DiarioDeBordo.Domain.Common;
 using DiarioDeBordo.Domain.Obras;
 using MediatR;
 
@@ -8,7 +8,7 @@ namespace DiarioDeBordo.Application.Obras.AtualizarPosicao;
 /// Handler do AtualizarPosicaoObraCommand: resolve obra por id ou nome,
 /// atualiza posição ou cria nova se não existir.
 /// </summary>
-public sealed class AtualizarPosicaoObraCommandHandler(IObraEscritaRepository repository)
+public sealed class AtualizarPosicaoObraCommandHandler(IObraEscritaRepository repository, IClock clock)
     : IRequestHandler<AtualizarPosicaoObraCommand, AtualizarPosicaoObraResponse>
 {
     public async Task<AtualizarPosicaoObraResponse> Handle(
@@ -37,7 +37,8 @@ public sealed class AtualizarPosicaoObraCommandHandler(IObraEscritaRepository re
                 request.TipoParaCriar.Value,
                 request.NovaPosicao,
                 data,
-                request.OrdemPreferenciaParaCriar.Value);
+                request.OrdemPreferenciaParaCriar.Value,
+                clock);
             await repository.AdicionarAsync(nova, cancellationToken);
             return new AtualizarPosicaoObraResponse(nova.Id, Criada: true);
         }

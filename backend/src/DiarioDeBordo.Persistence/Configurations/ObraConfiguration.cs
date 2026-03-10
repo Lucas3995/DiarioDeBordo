@@ -44,5 +44,11 @@ public sealed class ObraConfiguration : IEntityTypeConfiguration<Obra>
 
         builder.Property(o => o.DiasAteProximaParte);
         builder.Property(o => o.PartesJaPublicadas);
+
+        builder.Property(o => o.CriadoEm)
+            .IsRequired();
+
+        builder.Property(o => o.AtualizadoEm)
+            .IsRequired();
     }
 }

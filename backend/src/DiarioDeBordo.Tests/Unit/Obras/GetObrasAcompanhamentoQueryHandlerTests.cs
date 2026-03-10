@@ -1,4 +1,5 @@
 using DiarioDeBordo.Application.Obras.Listar;
+using DiarioDeBordo.Domain.Common;
 using DiarioDeBordo.Domain.Obras;
 using FluentAssertions;
 using Moq;
@@ -13,6 +14,7 @@ namespace DiarioDeBordo.Tests.Unit.Obras;
 /// </summary>
 public sealed class GetObrasAcompanhamentoQueryHandlerTests
 {
+    private static readonly IClock _clock = Mock.Of<IClock>(c => c.UtcNow == new DateTime(2025, 1, 1, 0, 0, 0, DateTimeKind.Utc));
     private readonly Mock<IObraLeituraRepository> _repositorioMock;
     private readonly GetObrasAcompanhamentoQueryHandler _handler;
 
@@ -80,7 +82,7 @@ public sealed class GetObrasAcompanhamentoQueryHandlerTests
     {
         // Arrange
         var data = new DateTime(2024, 6, 15, 8, 0, 0, DateTimeKind.Utc);
-        var obra = new Obra("One Piece", TipoObra.Manga, 1100, data, ordemPreferencia: 1);
+        var obra = new Obra("One Piece", TipoObra.Manga, 1100, data, ordemPreferencia: 1, _clock);
         ConfigurarRepositorio([obra], totalCount: 1);
         var query = new GetObrasAcompanhamentoQuery(0, 10);
 
@@ -104,11 +106,11 @@ public sealed class GetObrasAcompanhamentoQueryHandlerTests
         // Arrange
         var obras = new Obra[]
         {
-            new("Manga X", TipoObra.Manga, 1, DateTime.UtcNow, 1),
-            new("Anime Y", TipoObra.Anime, 10, DateTime.UtcNow, 2),
-            new("Serie Z", TipoObra.Serie, 3, DateTime.UtcNow, 3),
-            new("Manhwa W", TipoObra.Manhwa, 50, DateTime.UtcNow, 4),
-            new("Livro V", TipoObra.Livro, 20, DateTime.UtcNow, 5),
+            new("Manga X", TipoObra.Manga, 1, DateTime.UtcNow, 1, _clock),
+            new("Anime Y", TipoObra.Anime, 10, DateTime.UtcNow, 2, _clock),
+            new("Serie Z", TipoObra.Serie, 3, DateTime.UtcNow, 3, _clock),
+            new("Manhwa W", TipoObra.Manhwa, 50, DateTime.UtcNow, 4, _clock),
+            new("Livro V", TipoObra.Livro, 20, DateTime.UtcNow, 5, _clock),
         };
         ConfigurarRepositorio(obras, totalCount: obras.Length);
         var query = new GetObrasAcompanhamentoQuery(0, 10);
@@ -127,7 +129,7 @@ public sealed class GetObrasAcompanhamentoQueryHandlerTests
     public async Task Handle_ComDiasAteProxima_DeveMapearProximaInfoCorretamente()
     {
         // Arrange
-        var obra = new Obra("Vinland Saga", TipoObra.Manga, 200, DateTime.UtcNow, 1);
+        var obra = new Obra("Vinland Saga", TipoObra.Manga, 200, DateTime.UtcNow, 1, _clock);
         obra.DefinirDiasAteProxima(7);
         ConfigurarRepositorio([obra], totalCount: 1);
         var query = new GetObrasAcompanhamentoQuery(0, 10);
@@ -149,7 +151,7 @@ public sealed class GetObrasAcompanhamentoQueryHandlerTests
     public async Task Handle_ComPartesJaPublicadas_DeveMapearProximaInfoCorretamente()
     {
         // Arrange
-        var obra = new Obra("Tower of God", TipoObra.Manhwa, 600, DateTime.UtcNow, 2);
+        var obra = new Obra("Tower of God", TipoObra.Manhwa, 600, DateTime.UtcNow, 2, _clock);
         obra.DefinirPartesJaPublicadas(3);
         ConfigurarRepositorio([obra], totalCount: 1);
         var query = new GetObrasAcompanhamentoQuery(0, 10);
@@ -236,7 +238,7 @@ public sealed class GetObrasAcompanhamentoQueryHandlerTests
     private static Obra[] CriarObras(int quantidade)
     {
         return Enumerable.Range(1, quantidade)
-            .Select(i => new Obra($"Obra {i}", TipoObra.Manga, i * 10, DateTime.UtcNow, ordemPreferencia: i))
+            .Select(i => new Obra($"Obra {i}", TipoObra.Manga, i * 10, DateTime.UtcNow, ordemPreferencia: i, _clock))
             .ToArray();
     }
 }

@@ -13,7 +13,7 @@ namespace DiarioDeBordo.Domain.Obras;
 /// Datas são armazenadas em UTC; a exibição em fuso Brasil (UTC-3) é responsabilidade
 /// da camada de apresentação (frontend).
 /// </summary>
-public sealed class Obra : Entity
+public sealed class Obra : AuditableEntity
 {
     /// <summary>Nome da obra.</summary>
     public string Nome { get; private set; } = string.Empty;
@@ -60,7 +60,8 @@ public sealed class Obra : Entity
         TipoObra tipo,
         int posicaoAtual,
         DateTime dataUltimaAtualizacaoPosicao,
-        int ordemPreferencia)
+        int ordemPreferencia,
+        IClock clock) : base(clock)
     {
         ValidarNome(nome);
         ValidarOrdemPreferencia(ordemPreferencia);

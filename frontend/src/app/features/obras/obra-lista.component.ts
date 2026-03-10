@@ -1,7 +1,6 @@
-import { Component, OnInit, DestroyRef, inject } from '@angular/core';
+import { Component, OnInit, DestroyRef, inject, signal, computed, ChangeDetectionStrategy } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { SlicePipe } from '@angular/common';
 import { ListaObrasService } from '../../application/lista-obras.service';
 import { formatarDataRelativa, formatarDataTooltip } from '../../domain/datas';
 import { ObraListItem } from '../../domain/obra-list-item';
@@ -19,21 +18,26 @@ export const PAGE_SIZE_OPTIONS = [10, 25, 50, 100] as const;
 @Component({
   selector: 'app-obra-lista',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [SlicePipe],
   templateUrl: './obra-lista.component.html',
   styleUrl: './obra-lista.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ObraListaComponent implements OnInit {
-  obras: ObraListItem[] = [];
-  totalCount = 0;
-  pageIndex = 0;
-  pageSize = 10;
+  readonly obras = signal<ObraListItem[]>([]);
+  readonly totalCount = signal(0);
+  readonly pageIndex = signal(0);
+  readonly pageSize = signal(10);
   readonly pageSizeOptions = PAGE_SIZE_OPTIONS;
 
   /** Funções de domínio expostas ao template (evita middle man). */
   readonly formatarPosicao = formatarPosicao;
   readonly formatarDataRelativa = formatarDataRelativa;
   readonly formatarDataTooltip = formatarDataTooltip;
+
+  readonly temProximaPagina = computed(() => (this.pageIndex() + 1) * this.pageSize() < this.totalCount());
+  readonly primeiroItemDaPagina = computed(() => this.totalCount() === 0 ? 0 : this.pageIndex() * this.pageSize() + 1);
+  readonly ultimoItemDaPagina = computed(() => Math.min((this.pageIndex() + 1) * this.pageSize(), this.totalCount()));
 
   private readonly destroyRef = inject(DestroyRef);
 
@@ -75,40 +79,28 @@ export class ObraListaComponent implements OnInit {
 
   carregarPagina(): void {
     this.listaObrasService
-      .listarPagina({ pageIndex: this.pageIndex, pageSize: this.pageSize })
+      .listarPagina({ pageIndex: this.pageIndex(), pageSize: this.pageSize() })
       .subscribe((result) => {
-        this.obras = result.items;
-        this.totalCount = result.totalCount;
+        this.obras.set(result.items);
+        this.totalCount.set(result.totalCount);
       });
   }
 
   irParaProximaPagina(): void {
-    if (!this.temProximaPagina) return;
-    this.pageIndex++;
+    if (!this.temProximaPagina()) return;
+    this.pageIndex.update(i => i + 1);
     this.carregarPagina();
   }
 
   irParaPaginaAnterior(): void {
-    if (this.pageIndex <= 0) return;
-    this.pageIndex--;
+    if (this.pageIndex() <= 0) return;
+    this.pageIndex.update(i => i - 1);
     this.carregarPagina();
   }
 
   mudarPageSize(novoPageSize: number): void {
-    this.pageSize = novoPageSize;
-    this.pageIndex = 0;
+    this.pageSize.set(novoPageSize);
+    this.pageIndex.set(0);
     this.carregarPagina();
-  }
-
-  get temProximaPagina(): boolean {
-    return (this.pageIndex + 1) * this.pageSize < this.totalCount;
-  }
-
-  get primeiroItemDaPagina(): number {
-    return this.totalCount === 0 ? 0 : this.pageIndex * this.pageSize + 1;
-  }
-
-  get ultimoItemDaPagina(): number {
-    return Math.min((this.pageIndex + 1) * this.pageSize, this.totalCount);
   }
 }

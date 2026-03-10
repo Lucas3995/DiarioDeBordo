@@ -1,4 +1,5 @@
 name: Backend Deploy (Serverless)
+# STATUS: PLACEHOLDER — Deploy AWS não implementado. Steps com if:false são TODOs.
 
 # Trigger em push na branch main após CI verde.
 # Secrets necessários (configurar em Settings > Secrets and variables > Actions):
@@ -36,7 +37,7 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '9.x'
+          dotnet-version: '10.x'
 
       - name: Restore
         run: dotnet restore

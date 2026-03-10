@@ -1,5 +1,7 @@
+using DiarioDeBordo.Domain.Common;
 using DiarioDeBordo.Domain.Obras;
 using FluentAssertions;
+using Moq;
 
 namespace DiarioDeBordo.Tests.Unit.Obras;
 
@@ -10,6 +12,8 @@ namespace DiarioDeBordo.Tests.Unit.Obras;
 /// </summary>
 public sealed class ObraTests
 {
+    private readonly IClock _clock = Mock.Of<IClock>(c => c.UtcNow == new DateTime(2025, 1, 1, 0, 0, 0, DateTimeKind.Utc));
+
     // --------------- Criação válida ---------------
 
     [Fact]
@@ -19,7 +23,7 @@ public sealed class ObraTests
         var data = new DateTime(2024, 1, 15, 10, 0, 0, DateTimeKind.Utc);
 
         // Act
-        var obra = new Obra("One Piece", TipoObra.Manga, 1100, data, ordemPreferencia: 1);
+        var obra = new Obra("One Piece", TipoObra.Manga, 1100, data, ordemPreferencia: 1, _clock);
 
         // Assert
         obra.Nome.Should().Be("One Piece");
@@ -38,8 +42,8 @@ public sealed class ObraTests
     {
         // Arrange & Act
         var data = DateTime.UtcNow;
-        var obra1 = new Obra("Obra A", TipoObra.Anime, 10, data, 1);
-        var obra2 = new Obra("Obra B", TipoObra.Livro, 5, data, 2);
+        var obra1 = new Obra("Obra A", TipoObra.Anime, 10, data, 1, _clock);
+        var obra2 = new Obra("Obra B", TipoObra.Livro, 5, data, 2, _clock);
 
         // Assert
         obra1.Id.Should().NotBe(obra2.Id);
@@ -53,7 +57,7 @@ public sealed class ObraTests
     public void Criar_ComNomeVazioOuNulo_DeveLancarExcecao(string nome)
     {
         // Arrange & Act
-        var act = () => new Obra(nome, TipoObra.Manga, 1, DateTime.UtcNow, 0);
+        var act = () => new Obra(nome, TipoObra.Manga, 1, DateTime.UtcNow, 0, _clock);
 
         // Assert
         act.Should().Throw<ArgumentException>().WithParameterName("nome");
@@ -66,7 +70,7 @@ public sealed class ObraTests
         var nomeLongo = new string('x', 301);
 
         // Act
-        var act = () => new Obra(nomeLongo, TipoObra.Manga, 1, DateTime.UtcNow, 0);
+        var act = () => new Obra(nomeLongo, TipoObra.Manga, 1, DateTime.UtcNow, 0, _clock);
 
         // Assert
         act.Should().Throw<ArgumentException>().WithParameterName("nome");
@@ -78,7 +82,7 @@ public sealed class ObraTests
     public void Criar_ComPosicaoNegativa_DeveLancarExcecao()
     {
         // Arrange & Act
-        var act = () => new Obra("Obra X", TipoObra.Manga, -1, DateTime.UtcNow, 0);
+        var act = () => new Obra("Obra X", TipoObra.Manga, -1, DateTime.UtcNow, 0, _clock);
 
         // Assert
         act.Should().Throw<ArgumentException>().WithParameterName("posicaoAtual");
@@ -88,7 +92,7 @@ public sealed class ObraTests
     public void Criar_ComPosicaoZero_DevePermitir()
     {
         // Arrange & Act
-        var act = () => new Obra("Nova Obra", TipoObra.Serie, 0, DateTime.UtcNow, 0);
+        var act = () => new Obra("Nova Obra", TipoObra.Serie, 0, DateTime.UtcNow, 0, _clock);
 
         // Assert
         act.Should().NotThrow();
@@ -100,7 +104,7 @@ public sealed class ObraTests
     public void Criar_ComOrdemNegativa_DeveLancarExcecao()
     {
         // Arrange & Act
-        var act = () => new Obra("Obra X", TipoObra.Manga, 1, DateTime.UtcNow, ordemPreferencia: -1);
+        var act = () => new Obra("Obra X", TipoObra.Manga, 1, DateTime.UtcNow, ordemPreferencia: -1, _clock);
 
         // Assert
         act.Should().Throw<ArgumentException>().WithParameterName("ordemPreferencia");
@@ -110,7 +114,7 @@ public sealed class ObraTests
     public void Criar_ComOrdemZero_DevePermitir()
     {
         // Arrange & Act
-        var act = () => new Obra("Obra Top", TipoObra.Manga, 1, DateTime.UtcNow, ordemPreferencia: 0);
+        var act = () => new Obra("Obra Top", TipoObra.Manga, 1, DateTime.UtcNow, ordemPreferencia: 0, _clock);
 
         // Assert
         act.Should().NotThrow();
@@ -122,7 +126,7 @@ public sealed class ObraTests
     public void DefinirDiasAteProxima_ComValorValido_DeveSetarCampos()
     {
         // Arrange
-        var obra = new Obra("Vinland Saga", TipoObra.Manga, 200, DateTime.UtcNow, 1);
+        var obra = new Obra("Vinland Saga", TipoObra.Manga, 200, DateTime.UtcNow, 1, _clock);
 
         // Act
         obra.DefinirDiasAteProxima(7);
@@ -137,7 +141,7 @@ public sealed class ObraTests
     public void DefinirDiasAteProxima_ComValorNegativo_DeveLancarExcecao()
     {
         // Arrange
-        var obra = new Obra("Obra X", TipoObra.Manga, 1, DateTime.UtcNow, 0);
+        var obra = new Obra("Obra X", TipoObra.Manga, 1, DateTime.UtcNow, 0, _clock);
 
         // Act
         var act = () => obra.DefinirDiasAteProxima(-1);
@@ -152,7 +156,7 @@ public sealed class ObraTests
     public void DefinirPartesJaPublicadas_ComValorValido_DeveSetarCampos()
     {
         // Arrange
-        var obra = new Obra("Tower of God", TipoObra.Manhwa, 600, DateTime.UtcNow, 2);
+        var obra = new Obra("Tower of God", TipoObra.Manhwa, 600, DateTime.UtcNow, 2, _clock);
 
         // Act
         obra.DefinirPartesJaPublicadas(3);
@@ -169,7 +173,7 @@ public sealed class ObraTests
     public void DefinirPartesJaPublicadas_ComValorNaoPositivo_DeveLancarExcecao(int quantidade)
     {
         // Arrange
-        var obra = new Obra("Obra X", TipoObra.Manhwa, 1, DateTime.UtcNow, 0);
+        var obra = new Obra("Obra X", TipoObra.Manhwa, 1, DateTime.UtcNow, 0, _clock);
 
         // Act
         var act = () => obra.DefinirPartesJaPublicadas(quantidade);
@@ -184,7 +188,7 @@ public sealed class ObraTests
     public void LimparProximaInfo_ApósDefinir_DeveLimparTodosOsCampos()
     {
         // Arrange
-        var obra = new Obra("Berserk", TipoObra.Manga, 370, DateTime.UtcNow, 0);
+        var obra = new Obra("Berserk", TipoObra.Manga, 370, DateTime.UtcNow, 0, _clock);
         obra.DefinirDiasAteProxima(14);
 
         // Act
@@ -202,7 +206,7 @@ public sealed class ObraTests
     public void DefinirPartesJaPublicadas_ApósDiasAteProxima_DeveSobrescrever()
     {
         // Arrange
-        var obra = new Obra("Solo Leveling", TipoObra.Manhwa, 179, DateTime.UtcNow, 1);
+        var obra = new Obra("Solo Leveling", TipoObra.Manhwa, 179, DateTime.UtcNow, 1, _clock);
         obra.DefinirDiasAteProxima(7);
 
         // Act
@@ -221,7 +225,7 @@ public sealed class ObraTests
     {
         // Arrange
         var dataInicial = new DateTime(2025, 6, 1, 0, 0, 0, DateTimeKind.Utc);
-        var obra = new Obra("One Piece", TipoObra.Manga, 1100, dataInicial, 1);
+        var obra = new Obra("One Piece", TipoObra.Manga, 1100, dataInicial, 1, _clock);
         var novaData = new DateTime(2026, 2, 15, 12, 0, 0, DateTimeKind.Utc);
 
         // Act
@@ -237,7 +241,7 @@ public sealed class ObraTests
     {
         // Arrange
         var dataInicial = new DateTime(2025, 6, 1, 0, 0, 0, DateTimeKind.Utc);
-        var obra = new Obra("Obra X", TipoObra.Manga, 10, dataInicial, 0);
+        var obra = new Obra("Obra X", TipoObra.Manga, 10, dataInicial, 0, _clock);
         var antes = DateTime.UtcNow;
 
         // Act
@@ -252,7 +256,7 @@ public sealed class ObraTests
     public void AtualizarPosicao_ComPosicaoNegativa_DeveLancarExcecao()
     {
         // Arrange
-        var obra = new Obra("Obra X", TipoObra.Manga, 10, DateTime.UtcNow, 0);
+        var obra = new Obra("Obra X", TipoObra.Manga, 10, DateTime.UtcNow, 0, _clock);
 
         // Act
         var act = () => obra.AtualizarPosicao(-1, DateTime.UtcNow);
@@ -265,7 +269,7 @@ public sealed class ObraTests
     public void AtualizarPosicao_ComPosicaoZero_DevePermitir()
     {
         // Arrange
-        var obra = new Obra("Obra Reiniciada", TipoObra.Livro, 5, DateTime.UtcNow, 0);
+        var obra = new Obra("Obra Reiniciada", TipoObra.Livro, 5, DateTime.UtcNow, 0, _clock);
 
         // Act
         obra.AtualizarPosicao(0, DateTime.UtcNow);

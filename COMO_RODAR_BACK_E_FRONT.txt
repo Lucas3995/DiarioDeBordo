@@ -1,101 +1,137 @@
 =====================================================================
-COMO RODAR BACKEND + FRONTEND VIA DOCKER COMPOSE
-Projeto: Diário de Bordo
+COMO RODAR — Diário de Bordo
+=====================================================================
+
+Todos os comandos assumem que você está na raiz do repositório.
+
+
+=====================================================================
+1. VIA DOCKER COMPOSE (recomendado)
 =====================================================================
 
 PRÉ-REQUISITOS
---------------
-- Docker e Docker Compose instalados.
-- PostgreSQL instalado e rodando na máquina hospedeira.
-- Banco de dados "diariodebordo" criado (veja Passo 1 abaixo).
-- PostgreSQL configurado para aceitar conexões TCP da rede Docker
-  (listen_addresses = '*' e entrada em pg_hba.conf).
-  Caso ainda não esteja configurado, siga as instruções no bloco
-  "CONFIGURAR POSTGRESQL" abaixo.
-
+  - Docker e Docker Compose
+  - PostgreSQL instalado e acessível na máquina hospedeira
+  - Banco "diariodebordo" criado (ver 1.1)
+  - PostgreSQL aceitando conexões TCP da rede Docker (ver 1.2)
 
 ---------------------------------------------------------------------
-CONFIGURAR POSTGRESQL (apenas na primeira vez)
+1.1 — CRIAR BANCO (apenas na primeira vez)
 ---------------------------------------------------------------------
-Diretório: qualquer lugar
+   PGPASSWORD=<senha-do-postgres> psql -h 127.0.0.1 -U postgres \
+     -c "CREATE DATABASE diariodebordo;"
 
-1. Adicionar listen_addresses no postgresql.conf:
+---------------------------------------------------------------------
+1.2 — CONFIGURAR POSTGRESQL PARA DOCKER (apenas na primeira vez)
+---------------------------------------------------------------------
+1. Habilitar listen_addresses:
    sudo bash -c "echo \"listen_addresses = '*'\" >> /etc/postgresql/16/main/postgresql.conf"
 
-2. Adicionar permissão para a rede Docker em pg_hba.conf:
+2. Permitir rede Docker no pg_hba.conf:
    sudo bash -c "echo \"host    all    postgres    172.0.0.0/8    scram-sha-256\" >> /etc/postgresql/16/main/pg_hba.conf"
-   (172.0.0.0/8 cobre todas as subnets criadas pelo Docker Compose, que variam dinamicamente
-    entre 172.17.x, 172.18.x, 172.19.x etc.)
+   (172.0.0.0/8 cobre as subnets Docker: 172.17.x, 172.18.x, etc.)
 
-3. Reiniciar o PostgreSQL:
+3. Reiniciar:
    sudo systemctl restart postgresql
 
-
 ---------------------------------------------------------------------
-PASSO 1 — CRIAR O BANCO DE DADOS (apenas na primeira vez)
+1.3 — APLICAR MIGRATIONS (primeira vez ou após novas migrations)
 ---------------------------------------------------------------------
-Diretório: qualquer lugar
-
-   PGPASSWORD=<senha-do-postgres> psql -h 127.0.0.1 -U postgres -c "CREATE DATABASE diariodebordo;"
-
-
----------------------------------------------------------------------
-PASSO 2 — APLICAR MIGRATIONS (apenas na primeira vez ou após novas)
----------------------------------------------------------------------
-Diretório: /media/belo/BeloSSD_2/Workspace/DiarioDeBordo/backend
-
+   cd backend
    ConnectionStrings__DefaultConnection="Host=127.0.0.1;Port=5432;Database=diariodebordo;Username=postgres;Password=<senha>;SSL Mode=Disable" \
    Jwt__Key="diariodebordo-dev-key-min-32-characters-ok" \
    dotnet ef database update \
      --project src/DiarioDeBordo.Persistence \
      --startup-project src/DiarioDeBordo.Api
+   cd ..
 
-Nota: em ambiente Development o seed de dados (12 obras de exemplo e
-usuário admin) é aplicado automaticamente na primeira inicialização
-da API quando as tabelas estiverem vazias.
-
-
----------------------------------------------------------------------
-PASSO 3 — SUBIR BACKEND + FRONTEND VIA DOCKER COMPOSE
----------------------------------------------------------------------
-Diretório: /media/belo/BeloSSD_2/Workspace/DiarioDeBordo/docker
-
-   docker compose up --build
-
-Os containers ficam rodando até você pressionar Ctrl+C ou executar:
-   docker compose down
-
-
-URLs após subir:
-  - Backend:  http://localhost:5000
-              health check: http://localhost:5000/health
-              documentação (Scalar): http://localhost:5000/scalar
-  - Frontend: http://localhost:4200
-
+Nota: em Development, o seed (12 obras de exemplo + usuário admin)
+é aplicado automaticamente na primeira inicialização da API.
 
 ---------------------------------------------------------------------
-PASSO 4 — AUTENTICAR E OBTER TOKEN
+1.4 — SUBIR TUDO
 ---------------------------------------------------------------------
-O endpoint GET /api/obras exige autenticação via JWT Bearer.
-O usuário admin é criado automaticamente no seed de Development:
+   docker compose -f docker/docker-compose.yml up --build
+
+Parar: Ctrl+C ou  docker compose -f docker/docker-compose.yml down
+
+
+=====================================================================
+2. DESENVOLVIMENTO LOCAL (sem Docker)
+=====================================================================
+
+PRÉ-REQUISITOS
+  - .NET SDK 10.x
+  - Node.js 22.x + npm
+  - PostgreSQL com banco "diariodebordo" criado (ver 1.1)
+
+---------------------------------------------------------------------
+2.1 — Backend
+---------------------------------------------------------------------
+   cd backend
+   dotnet restore
+   ConnectionStrings__DefaultConnection="Host=127.0.0.1;Port=5432;Database=diariodebordo;Username=postgres;Password=<senha>;SSL Mode=Disable" \
+   Jwt__Key="diariodebordo-dev-key-min-32-characters-ok" \
+   dotnet run --project src/DiarioDeBordo.Api
+
+---------------------------------------------------------------------
+2.2 — Frontend
+---------------------------------------------------------------------
+   cd frontend
+   npm install
+   npx ng serve
+
+
+=====================================================================
+3. URLs
+=====================================================================
+  Backend:       http://localhost:5000
+  Health check:  http://localhost:5000/health
+  Scalar (docs): http://localhost:5000/scalar
+  Frontend:      http://localhost:4200
+
+
+=====================================================================
+4. AUTENTICAÇÃO
+=====================================================================
+Usuário admin criado pelo seed de Development:
   login: admin
   senha: camaradinha@123
 
-Opção A — via formulário de login no frontend:
+Opção A — Frontend:
   1. Abra http://localhost:4200
-  2. Vá em "Configurações".
+  2. Vá em "Configurações"
   3. Informe a URL da API: http://localhost:5000
-  4. Na seção "Autenticação", preencha login/senha e clique "Entrar".
-     O token é salvo automaticamente.
-  5. Acesse "Obras" — a tela exibirá os dados do backend.
+  4. Preencha login/senha e clique "Entrar"
+  5. Acesse "Obras"
 
-Opção B — via curl:
+Opção B — curl:
    curl -X POST http://localhost:5000/api/auth/login \
      -H "Content-Type: application/json" \
      -d '{"login":"admin","senha":"camaradinha@123"}'
 
-  Copie o valor de "token" e cole em:
+  Copie o "token" e cole em:
   Configurações > Token manual > campo "Token JWT (Bearer)".
+
+
+=====================================================================
+5. TESTES
+=====================================================================
+
+---------------------------------------------------------------------
+5.1 — Backend (unitários + integração com cobertura)
+---------------------------------------------------------------------
+   ./scripts/coverage.sh
+
+---------------------------------------------------------------------
+5.2 — Frontend (unitários via Docker — Node 22 + Chromium)
+---------------------------------------------------------------------
+   ./scripts/frontend-test-docker.sh
+
+---------------------------------------------------------------------
+5.3 — Frontend (E2E Playwright via Docker)
+---------------------------------------------------------------------
+   ./scripts/frontend-e2e-docker.sh
 
 
 ---------------------------------------------------------------------

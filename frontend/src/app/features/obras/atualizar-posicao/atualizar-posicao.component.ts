@@ -1,6 +1,5 @@
-import { Component, Optional, Inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { Component, Optional, Inject, ChangeDetectionStrategy, signal } from '@angular/core';
+import { ReactiveFormsModule, FormGroup, FormControl } from '@angular/forms';
 import { Router } from '@angular/router';
 import { take } from 'rxjs';
 import {
@@ -30,29 +29,32 @@ const LIMITE_SUGESTOES = 10;
 @Component({
   selector: 'app-atualizar-posicao',
   standalone: true,
-  imports: [CommonModule, FormsModule, InputAutocompleteComponent],
+  imports: [ReactiveFormsModule, InputAutocompleteComponent],
   templateUrl: './atualizar-posicao.component.html',
   styleUrl: './atualizar-posicao.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AtualizarPosicaoComponent {
-  valorIdentificador = '';
+  readonly valorIdentificador = signal('');
   /** Obra selecionada no autocomplete (id + nome); null quando o usuário digitou texto livre. */
-  obraSelecionada: ObraBuscaItem | null = null;
-  novaPosicao = 0;
-  dataUltimaAtualizacao: string | null = null; // ISO date string ou vazio = hoje
+  readonly obraSelecionada = signal<ObraBuscaItem | null>(null);
+  readonly form = new FormGroup({
+    novaPosicao: new FormControl(0, { nonNullable: true }),
+    dataUltimaAtualizacao: new FormControl<string | null>(null),
+  });
   /** Estado preenchido pelo resultado do prompt "obra nova"; null quando não há criação pendente. */
-  dadosCriacaoPendentes: { nome: string; tipo: TipoObra; ordemPreferencia: number } | null = null;
+  readonly dadosCriacaoPendentes = signal<{ nome: string; tipo: TipoObra; ordemPreferencia: number } | null>(null);
 
-  sugestoes: ObraBuscaItem[] = [];
+  readonly sugestoes = signal<ObraBuscaItem[]>([]);
 
   /** Funções para o componente de autocomplete (tipadas como AutocompleteItem para o binding; uso interno é ObraBuscaItem). */
-  displayWithObra = (item: AutocompleteItem): string => (item as ObraBuscaItem).nome;
-  getItemIdObra = (item: AutocompleteItem): string => (item as ObraBuscaItem).id;
+  readonly displayWithObra = (item: AutocompleteItem): string => (item as ObraBuscaItem).nome;
+  readonly getItemIdObra = (item: AutocompleteItem): string => (item as ObraBuscaItem).id;
 
-  preview: ObraDetalhe | null = null;
-  erro: string | null = null;
-  sucesso: string | null = null;
-  carregando = false;
+  readonly preview = signal<ObraDetalhe | null>(null);
+  readonly erro = signal<string | null>(null);
+  readonly sucesso = signal<string | null>(null);
+  readonly carregando = signal(false);
 
   constructor(
     private readonly atualizarPosicaoService: AtualizarPosicaoService,
@@ -64,53 +66,55 @@ export class AtualizarPosicaoComponent {
   ) {}
 
   get dataParaEnvio(): string | undefined {
-    if (this.dataUltimaAtualizacao) return this.dataUltimaAtualizacao;
+    const data = this.form.controls.dataUltimaAtualizacao.value;
+    if (data) return data;
     return new Date().toISOString().slice(0, 10);
   }
 
   onNomeInput(valor: string): void {
-    this.obraSelecionada = null;
-    this.valorIdentificador = valor;
+    this.obraSelecionada.set(null);
+    this.valorIdentificador.set(valor);
   }
 
   onSearchTerm(termo: string): void {
     if (!this.listaObrasPort) return;
     this.listaObrasPort
       .buscarPorNome(termo, LIMITE_SUGESTOES)
-      .subscribe((items) => (this.sugestoes = items));
+      .subscribe((items) => this.sugestoes.set(items));
   }
 
   selecionarSugestao(item: AutocompleteItem): void {
     const obra = item as ObraBuscaItem;
-    this.obraSelecionada = obra;
-    this.valorIdentificador = obra.nome;
-    this.sugestoes = [];
+    this.obraSelecionada.set(obra);
+    this.valorIdentificador.set(obra.nome);
+    this.sugestoes.set([]);
   }
 
   verPreview(): void {
-    this.erro = null;
-    this.preview = null;
-    this.sucesso = null;
-    const termoIdentificador = this.valorIdentificador.trim();
+    this.erro.set(null);
+    this.preview.set(null);
+    this.sucesso.set(null);
+    const termoIdentificador = this.valorIdentificador().trim();
     if (!termoIdentificador) {
-      this.erro = 'Informe o nome da obra.';
+      this.erro.set('Informe o nome da obra.');
       return;
     }
-    this.carregando = true;
-    const obs = this.obraSelecionada
-      ? this.atualizarPosicaoService.obterPorId(this.obraSelecionada.id)
+    this.carregando.set(true);
+    const obra = this.obraSelecionada();
+    const obs = obra
+      ? this.atualizarPosicaoService.obterPorId(obra.id)
       : this.atualizarPosicaoService.obterPorNome(termoIdentificador);
     obs.subscribe({
-      next: (obra) => {
-        this.preview = obra;
-        this.carregando = false;
+      next: (obraDetalhe) => {
+        this.preview.set(obraDetalhe);
+        this.carregando.set(false);
       },
       error: (err) => {
-        this.carregando = false;
+        this.carregando.set(false);
         if (err?.status === 404) {
           this.abrirPromptObraNovaParaPreview(termoIdentificador);
         } else {
-          this.erro = err?.message ?? 'Erro ao buscar obra.';
+          this.erro.set(err?.message ?? 'Erro ao buscar obra.');
         }
       },
     });
@@ -130,53 +134,53 @@ export class AtualizarPosicaoComponent {
         this.aplicarResultadoPromptObraNova(result);
         onProsseguir(termoIdentificador);
       } else {
-        this.erro = 'Obra não encontrada.';
+        this.erro.set('Obra não encontrada.');
       }
     });
   }
 
   private abrirPromptObraNovaParaPreview(termoIdentificador: string): void {
     this.abrirPromptObraNova(termoIdentificador, (termo) => {
-      this.preview = this.construirPreviaSinteticaObraNova(termo);
+      this.preview.set(this.construirPreviaSinteticaObraNova(termo));
     });
   }
 
   private aplicarResultadoPromptObraNova(result: PromptObraNovaResult): void {
-    this.dadosCriacaoPendentes = {
+    this.dadosCriacaoPendentes.set({
       nome: result.nome,
       tipo: result.tipo,
       ordemPreferencia: result.ordemPreferencia,
-    };
+    });
   }
 
   salvar(): void {
-    this.erro = null;
-    this.sucesso = null;
-    const termoIdentificador = this.valorIdentificador.trim();
+    this.erro.set(null);
+    this.sucesso.set(null);
+    const termoIdentificador = this.valorIdentificador().trim();
     if (!termoIdentificador) {
-      this.erro = 'Informe o nome da obra.';
+      this.erro.set('Informe o nome da obra.');
       return;
     }
-    const temDadosCriacaoPendentes = this.dadosCriacaoPendentes != null;
+    const temDadosCriacaoPendentes = this.dadosCriacaoPendentes() != null;
     const request = this.montarRequest(termoIdentificador, temDadosCriacaoPendentes);
-    this.carregando = true;
+    this.carregando.set(true);
     this.atualizarPosicaoService.atualizarPosicao(request).subscribe({
       next: (res) => this.tratarSucessoSalvamento(res),
       error: (err) => {
-        this.carregando = false;
+        this.carregando.set(false);
         if (err?.status === 404) {
           this.abrirPromptObraNovaParaSalvar(termoIdentificador);
         } else {
-          this.erro = err?.error?.message ?? err?.message ?? 'Erro ao atualizar.';
+          this.erro.set(err?.error?.message ?? err?.message ?? 'Erro ao atualizar.');
         }
       },
     });
   }
 
   private tratarSucessoSalvamento(res: AtualizarPosicaoResponse): void {
-    this.carregando = false;
-    this.sucesso = res.criada ? 'Obra criada e posição registrada.' : 'Posição atualizada.';
-    this.preview = null;
+    this.carregando.set(false);
+    this.sucesso.set(res.criada ? 'Obra criada e posição registrada.' : 'Posição atualizada.');
+    this.preview.set(null);
     if (this.saidaAposSucesso) {
       this.saidaAposSucesso.fecharComSucesso();
     } else if (this.dialogRef) {
@@ -190,16 +194,18 @@ export class AtualizarPosicaoComponent {
 
   private montarRequest(termoIdentificador: string, criarSeNaoExistir: boolean): AtualizarPosicaoRequest {
     const request: AtualizarPosicaoRequest = {
-      novaPosicao: this.novaPosicao,
+      novaPosicao: this.form.controls.novaPosicao.value,
       criarSeNaoExistir,
     };
-    if (this.obraSelecionada) request.idObra = this.obraSelecionada.id;
+    const obra = this.obraSelecionada();
+    if (obra) request.idObra = obra.id;
     else request.nomeObra = termoIdentificador;
     if (this.dataParaEnvio) request.dataUltimaAtualizacao = this.dataParaEnvio;
-    if (criarSeNaoExistir && this.dadosCriacaoPendentes) {
-      request.nomeParaCriar = this.dadosCriacaoPendentes.nome.trim() || termoIdentificador;
-      request.tipoParaCriar = this.dadosCriacaoPendentes.tipo;
-      request.ordemPreferenciaParaCriar = this.dadosCriacaoPendentes.ordemPreferencia;
+    const dados = this.dadosCriacaoPendentes();
+    if (criarSeNaoExistir && dados) {
+      request.nomeParaCriar = dados.nome.trim() || termoIdentificador;
+      request.tipoParaCriar = dados.tipo;
+      request.ordemPreferenciaParaCriar = dados.ordemPreferencia;
     }
     return request;
   }
@@ -212,12 +218,12 @@ export class AtualizarPosicaoComponent {
 
   private executarSalvamentoObraNova(termoIdentificador: string): void {
     const request = this.montarRequest(termoIdentificador, true);
-    this.carregando = true;
+    this.carregando.set(true);
     this.atualizarPosicaoService.atualizarPosicao(request).subscribe({
       next: (res) => this.tratarSucessoSalvamento(res),
       error: (err) => {
-        this.carregando = false;
-        this.erro = err?.error?.message ?? err?.message ?? 'Erro ao atualizar.';
+        this.carregando.set(false);
+        this.erro.set(err?.error?.message ?? err?.message ?? 'Erro ao atualizar.');
       },
     });
   }
@@ -241,7 +247,7 @@ export class AtualizarPosicaoComponent {
 
   /** Constrói prévia sintética para obra que ainda não existe (404 + dados de criação pendentes). */
   private construirPreviaSinteticaObraNova(termoIdentificador: string): ObraDetalhe {
-    const d = this.dadosCriacaoPendentes;
+    const d = this.dadosCriacaoPendentes();
     const dataEnvio = this.dataParaEnvio ?? new Date().toISOString().slice(0, 10);
     return {
       id: '',

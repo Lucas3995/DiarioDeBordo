@@ -1,6 +1,6 @@
 # Estágio 1: build
 # O contexto Docker é a raiz do repositório (docker-compose define context: ..)
-FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
+FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /src
 
 # Copiar apenas arquivos de projeto para restaurar dependências antes de copiar o código-fonte,
@@ -24,12 +24,15 @@ RUN dotnet publish backend/src/DiarioDeBordo.Api/DiarioDeBordo.Api.csproj \
     -o /app/publish
 
 # Estágio 2: runtime (imagem mínima)
-FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS runtime
+FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS runtime
 WORKDIR /app
 
 # Porta padrão do Kestrel em containers ASP.NET Core 9+
 EXPOSE 8080
 
 COPY --from=build /app/publish .
+
+HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
+  CMD wget --no-verbose --tries=1 --spider http://localhost:8080/health || exit 1
 
 ENTRYPOINT ["dotnet", "DiarioDeBordo.Api.dll"]

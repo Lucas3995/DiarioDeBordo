@@ -12,24 +12,24 @@ public sealed class AtualizarPosicaoObraCommandValidator : AbstractValidator<Atu
     {
         RuleFor(x => x)
             .Must(c => c.IdObra.HasValue || !string.IsNullOrWhiteSpace(c.NomeObra))
-            .WithMessage("Informe o Id ou o Nome da obra.");
+            .WithMessage(ObraValidationMessages.IdOuNomeObrigatorio);
 
         RuleFor(x => x.NovaPosicao)
             .GreaterThanOrEqualTo(0)
-            .WithMessage("A posição não pode ser negativa.");
+            .WithMessage(ObraValidationMessages.PosicaoNaoPodeSerNegativa);
 
         When(x => x.CriarSeNaoExistir, () =>
         {
             RuleFor(x => x.NomeParaCriar)
                 .NotEmpty()
-                .WithMessage("Para criar nova obra, o nome é obrigatório.");
+                .WithMessage(ObraValidationMessages.NomeObrigatorioParaCriar);
             RuleFor(x => x.TipoParaCriar)
                 .NotNull()
-                .WithMessage("Para criar nova obra, o tipo é obrigatório.");
+                .WithMessage(ObraValidationMessages.TipoObrigatorioParaCriar);
             RuleFor(x => x.OrdemPreferenciaParaCriar)
                 .NotNull()
                 .GreaterThanOrEqualTo(0)
-                .WithMessage("Para criar nova obra, a ordem de preferência é obrigatória e não pode ser negativa.");
+                .WithMessage(ObraValidationMessages.OrdemObrigatoriaParaCriar);
         });
     }
 }

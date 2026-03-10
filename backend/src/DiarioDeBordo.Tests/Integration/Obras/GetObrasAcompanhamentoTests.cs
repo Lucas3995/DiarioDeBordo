@@ -1,9 +1,11 @@
 using DiarioDeBordo.Application.Obras.Listar;
+using DiarioDeBordo.Domain.Common;
 using DiarioDeBordo.Domain.Obras;
 using DiarioDeBordo.Persistence;
 using DiarioDeBordo.Persistence.Obras;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
+using Moq;
 
 namespace DiarioDeBordo.Tests.Integration.Obras;
 
@@ -15,6 +17,8 @@ namespace DiarioDeBordo.Tests.Integration.Obras;
 /// </summary>
 public sealed class GetObrasAcompanhamentoTests
 {
+    private static readonly IClock _clock = Mock.Of<IClock>(c => c.UtcNow == new DateTime(2025, 1, 1, 0, 0, 0, DateTimeKind.Utc));
+
     private static DiarioDeBordoDbContext CriarContexto()
     {
         var options = new DbContextOptionsBuilder<DiarioDeBordoDbContext>()
@@ -31,7 +35,7 @@ public sealed class GetObrasAcompanhamentoTests
         ProximaInfoTipo? proximaInfoTipo = null,
         int? diasOuQuantidade = null)
     {
-        var obra = new Obra(nome, tipo, posicao, DateTime.UtcNow, ordemPreferencia);
+        var obra = new Obra(nome, tipo, posicao, DateTime.UtcNow, ordemPreferencia, _clock);
         if (proximaInfoTipo == ProximaInfoTipo.DiasAteProxima && diasOuQuantidade.HasValue)
             obra.DefinirDiasAteProxima(diasOuQuantidade.Value);
         else if (proximaInfoTipo == ProximaInfoTipo.PartesJaPublicadas && diasOuQuantidade.HasValue)

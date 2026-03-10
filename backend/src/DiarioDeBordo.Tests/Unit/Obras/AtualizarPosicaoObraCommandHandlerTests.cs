@@ -1,5 +1,5 @@
-using DiarioDeBordo.Application.Obras;
 using DiarioDeBordo.Application.Obras.AtualizarPosicao;
+using DiarioDeBordo.Domain.Common;
 using DiarioDeBordo.Domain.Obras;
 using FluentAssertions;
 using Moq;
@@ -13,19 +13,20 @@ namespace DiarioDeBordo.Tests.Unit.Obras;
 public sealed class AtualizarPosicaoObraCommandHandlerTests
 {
     private readonly Mock<IObraEscritaRepository> _repoMock;
+    private readonly IClock _clock = Mock.Of<IClock>(c => c.UtcNow == new DateTime(2025, 1, 1, 0, 0, 0, DateTimeKind.Utc));
     private readonly AtualizarPosicaoObraCommandHandler _handler;
 
     public AtualizarPosicaoObraCommandHandlerTests()
     {
         _repoMock = new Mock<IObraEscritaRepository>();
-        _handler = new AtualizarPosicaoObraCommandHandler(_repoMock.Object);
+        _handler = new AtualizarPosicaoObraCommandHandler(_repoMock.Object, _clock);
     }
 
     [Fact]
     public async Task Handle_ComIdObraExistente_DeveAtualizarPosicaoEPersistir()
     {
         // Arrange
-        var obra = new Obra("One Piece", TipoObra.Manga, 1100, new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc), 1);
+        var obra = new Obra("One Piece", TipoObra.Manga, 1100, new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc), 1, _clock);
         _repoMock.Setup(r => r.ObterPorIdAsync(obra.Id, It.IsAny<CancellationToken>())).ReturnsAsync(obra);
         var novaData = new DateTime(2026, 2, 15, 0, 0, 0, DateTimeKind.Utc);
         var command = new AtualizarPosicaoObraCommand(IdObra: obra.Id, NomeObra: null, NovaPosicao: 1115, DataUltimaAtualizacao: novaData, CriarSeNaoExistir: false);
@@ -45,7 +46,7 @@ public sealed class AtualizarPosicaoObraCommandHandlerTests
     public async Task Handle_ComNomeObraExistente_DeveAtualizarPosicaoEPersistir()
     {
         // Arrange
-        var obra = new Obra("Solo Leveling", TipoObra.Manhwa, 179, DateTime.UtcNow, 1);
+        var obra = new Obra("Solo Leveling", TipoObra.Manhwa, 179, DateTime.UtcNow, 1, _clock);
         _repoMock.Setup(r => r.ObterPorNomeAsync("Solo Leveling", It.IsAny<CancellationToken>())).ReturnsAsync(obra);
         var command = new AtualizarPosicaoObraCommand(IdObra: null, NomeObra: "Solo Leveling", NovaPosicao: 180, DataUltimaAtualizacao: null, CriarSeNaoExistir: false);
 

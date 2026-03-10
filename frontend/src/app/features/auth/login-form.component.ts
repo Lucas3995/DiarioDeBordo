@@ -1,55 +1,49 @@
-import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { Component, ChangeDetectionStrategy, signal } from '@angular/core';
+import { ReactiveFormsModule, FormGroup, FormControl } from '@angular/forms';
 import { AuthService } from '../../application/auth.service';
 
-/**
- * Formulário de login standalone.
- * Exibe campos de login e senha, botão de envio,
- * e mensagem de sucesso ou erro após a tentativa.
- *
- * Integrado na tela de Configurações para que o usuário
- * possa se autenticar e obter o token automaticamente.
- */
 @Component({
   selector: 'app-login-form',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [ReactiveFormsModule],
   templateUrl: './login-form.component.html',
   styleUrl: './login-form.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class LoginFormComponent {
-  login = '';
-  senha = '';
-  carregando = false;
-  sucesso = false;
-  erro: string | null = null;
+  readonly form = new FormGroup({
+    login: new FormControl('', { nonNullable: true }),
+    senha: new FormControl('', { nonNullable: true }),
+  });
+  readonly carregando = signal(false);
+  readonly sucesso = signal(false);
+  readonly erro = signal<string | null>(null);
 
   constructor(private readonly authService: AuthService) {}
 
   submeter(): void {
-    if (!this.login.trim() || !this.senha.trim()) {
-      return;
-    }
+    const login = this.form.controls.login.value.trim();
+    const senha = this.form.controls.senha.value.trim();
+    if (!login || !senha) return;
 
-    this.carregando = true;
-    this.sucesso = false;
-    this.erro = null;
+    this.carregando.set(true);
+    this.sucesso.set(false);
+    this.erro.set(null);
 
-    this.authService.login({ login: this.login, senha: this.senha }).subscribe({
+    this.authService.login({ login, senha }).subscribe({
       next: (result) => {
-        this.carregando = false;
+        this.carregando.set(false);
         if (result.sucesso) {
-          this.sucesso = true;
+          this.sucesso.set(true);
         } else if (result.requer2FA) {
-          this.erro = 'Segundo fator de autenticação necessário (2FA não implementado ainda).';
+          this.erro.set('Segundo fator de autenticação necessário (2FA não implementado ainda).');
         } else {
-          this.erro = result.erro ?? 'Falha na autenticação.';
+          this.erro.set(result.erro ?? 'Falha na autenticação.');
         }
       },
       error: (err) => {
-        this.carregando = false;
-        this.erro = err?.message ?? 'Erro ao conectar com o servidor.';
+        this.carregando.set(false);
+        this.erro.set(err?.message ?? 'Erro ao conectar com o servidor.');
       },
     });
   }

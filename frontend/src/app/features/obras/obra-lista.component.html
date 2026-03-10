@@ -6,7 +6,7 @@
     </button>
   </p>
 
-  @if (obras.length > 0) {
+  @if (obras().length > 0) {
     <table class="obras-tabela" data-testid="obras-tabela">
       <thead>
         <tr>
@@ -20,7 +20,7 @@
         </tr>
       </thead>
       <tbody>
-        @for (obra of obras; track obra.id) {
+        @for (obra of obras(); track obra.id) {
           <tr class="obra-linha">
             <td>
               <span
@@ -80,7 +80,7 @@
           <select
             class="page-size-select"
             data-testid="page-size-select"
-            [value]="pageSize"
+            [value]="pageSize()"
             (change)="mudarPageSize(+$any($event.target).value)"
           >
             @for (opcao of pageSizeOptions; track opcao) {
@@ -91,14 +91,14 @@
       </div>
 
       <div class="paginacao-info" data-testid="paginacao-total">
-        {{ primeiroItemDaPagina }}–{{ ultimoItemDaPagina }} de {{ totalCount }}
+        {{ primeiroItemDaPagina() }}–{{ ultimoItemDaPagina() }} de {{ totalCount() }}
       </div>
 
       <div class="paginacao-botoes">
         <button
           class="btn-pagina"
           data-testid="btn-anterior"
-          [disabled]="pageIndex === 0"
+          [disabled]="pageIndex() === 0"
           (click)="irParaPaginaAnterior()"
           aria-label="Página anterior"
         >
@@ -107,7 +107,7 @@
         <button
           class="btn-pagina"
           data-testid="btn-proximo"
-          [disabled]="!temProximaPagina"
+          [disabled]="!temProximaPagina()"
           (click)="irParaProximaPagina()"
           aria-label="Próxima página"
         >

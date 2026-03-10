@@ -1,10 +1,8 @@
-using DiarioDeBordo.Domain.Auth;
-
-namespace DiarioDeBordo.Application.Auth;
+namespace DiarioDeBordo.Domain.Auth;
 
 /// <summary>
 /// Contrato de acesso a dados para a entidade Usuario.
-/// Definido na camada Application para que o handler não dependa de EF Core.
+/// Definido na camada Domain para que handlers não dependam de EF Core.
 /// Implementado em Persistence.
 /// </summary>
 public interface IUsuarioRepository

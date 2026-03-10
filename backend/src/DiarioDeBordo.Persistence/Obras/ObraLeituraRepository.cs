@@ -1,4 +1,3 @@
-using DiarioDeBordo.Application.Obras.Listar;
 using DiarioDeBordo.Domain.Obras;
 using Microsoft.EntityFrameworkCore;
 

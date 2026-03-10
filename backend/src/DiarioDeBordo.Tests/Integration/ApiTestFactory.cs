@@ -20,7 +20,8 @@ public sealed class ApiTestFactory : WebApplicationFactory<Program>
             {
                 { "Jwt:Key", "chave-de-teste-com-32-caracteres-ok!" },
                 { "Jwt:Issuer", "diariodebordo-test" },
-                { "Jwt:Audience", "diariodebordo-clients-test" }
+                { "Jwt:Audience", "diariodebordo-clients-test" },
+                { "DataProtection:Key", "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=" }
             });
         });
     }

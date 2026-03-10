@@ -1,7 +1,6 @@
-using DiarioDeBordo.Application.Auth;
-using DiarioDeBordo.Application.Obras;
-using DiarioDeBordo.Application.Obras.Listar;
-using DiarioDeBordo.Domain.Interfaces;
+using DiarioDeBordo.Domain.Auth;
+using DiarioDeBordo.Domain.Common;
+using DiarioDeBordo.Domain.Obras;
 using DiarioDeBordo.Persistence.Auth;
 using DiarioDeBordo.Persistence.Obras;
 using Microsoft.EntityFrameworkCore;

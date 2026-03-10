@@ -88,7 +88,7 @@ gh run list --branch "$BRANCH" --limit 20 --json databaseId,status,name \
 Este fluxo está alinhado com as regras de DevSecOps do projeto (ex.: `.github/instructions/devsecops.instructions.md`):
 
 - Mensagens de commit explícitas e descritivas.
-- PR como gate obrigatório (sem push direto em `Master`/`develop`).
+- PR como gate obrigatório (sem push direto em `main`/`develop`).
 - Build e testes devem estar verdes para considerar a entrega concluída.
 - Segredos não devem ser commitados.
 

@@ -1,96 +1,32 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
-import { Observable, throwError } from 'rxjs';
-import { catchError } from 'rxjs/operators';
-import { ApiConfigService } from '../core/api-config.service';
-import { TipoObra } from '../domain/obra.types';
+import { Observable } from 'rxjs';
+import {
+  IAtualizarPosicaoPort,
+  ObraDetalhe,
+  AtualizarPosicaoRequest,
+  AtualizarPosicaoResponse,
+} from '../domain/atualizar-posicao.port';
+
+export type { ObraDetalhe, AtualizarPosicaoRequest, AtualizarPosicaoResponse } from '../domain/atualizar-posicao.port';
 
 /**
- * Dados atuais da obra retornados pela API (prévia) ou prévia sintética (obra nova).
- * Dois contextos: (1) resposta GET da API — dados reais; (2) prévia sintética quando 404 + criarSeNaoExistir — obraNova: true.
- * Discriminação no template/componente via campo opcional obraNova. União de tipos (ObraDetalheApi | ObraDetalheSintetico) é refatoração futura opcional.
- */
-export interface ObraDetalhe {
-  id: string;
-  nome: string;
-  tipo: TipoObra;
-  posicaoAtual: number;
-  dataUltimaAtualizacaoPosicao: string; // ISO 8601
-  ordemPreferencia: number;
-  /** Indica prévia sintética para obra que ainda não existe (não vem da API). */
-  obraNova?: boolean;
-}
-
-/** Payload para PATCH /api/obras/posicao. */
-export interface AtualizarPosicaoRequest {
-  idObra?: string;
-  nomeObra?: string;
-  novaPosicao: number;
-  dataUltimaAtualizacao?: string; // ISO 8601
-  criarSeNaoExistir: boolean;
-  nomeParaCriar?: string;
-  tipoParaCriar?: TipoObra;
-  ordemPreferenciaParaCriar?: number;
-}
-
-/** Resposta do PATCH /api/obras/posicao. */
-export interface AtualizarPosicaoResponse {
-  id: string;
-  criada: boolean;
-}
-
-/**
- * Serviço para obter prévia de uma obra e atualizar sua posição.
- * Consome GET /api/obras/:id, GET /api/obras/por-nome e PATCH /api/obras/posicao.
+ * Caso de uso: Atualizar posição de obra.
+ *
+ * Delega à porta abstrata, mantendo isolamento da infraestrutura HTTP (CQRS).
  */
 @Injectable()
 export class AtualizarPosicaoService {
-  constructor(
-    private readonly http: HttpClient,
-    private readonly apiConfig: ApiConfigService,
-  ) {}
+  constructor(private readonly porta: IAtualizarPosicaoPort) {}
 
-  /** Obtém os dados atuais da obra por id (para prévia). */
   obterPorId(id: string): Observable<ObraDetalhe> {
-    return this.getObra(`${this.baseUrl()}/api/obras/${encodeURIComponent(id)}`);
+    return this.porta.obterPorId(id);
   }
 
-  /** Obtém os dados atuais da obra por nome (para prévia). */
   obterPorNome(nome: string): Observable<ObraDetalhe> {
-    const params = new HttpParams().set('nome', nome);
-    return this.getObra(`${this.baseUrl()}/api/obras/por-nome`, params);
+    return this.porta.obterPorNome(nome);
   }
 
-  /** Atualiza a posição (ou cria obra se não existir). */
   atualizarPosicao(request: AtualizarPosicaoRequest): Observable<AtualizarPosicaoResponse> {
-    const apiUrl = this.apiConfig.getApiUrl();
-    const token = this.apiConfig.getToken();
-    if (!apiUrl) {
-      return throwError(() => new Error('URL da API não configurada.'));
-    }
-    const url = `${apiUrl.replace(/\/$/, '')}/api/obras/posicao`;
-    const headers = new HttpHeaders({
-      'Content-Type': 'application/json',
-      Authorization: token ? `Bearer ${token}` : '',
-    });
-    return this.http
-      .patch<AtualizarPosicaoResponse>(url, request, { headers })
-      .pipe(catchError((err) => throwError(() => err)));
-  }
-
-  private baseUrl(): string {
-    const url = this.apiConfig.getApiUrl();
-    if (!url) throw new Error('URL da API não configurada.');
-    return url.replace(/\/$/, '');
-  }
-
-  private getObra(url: string, params?: HttpParams): Observable<ObraDetalhe> {
-    const token = this.apiConfig.getToken();
-    const headers = new HttpHeaders({
-      Authorization: token ? `Bearer ${token}` : '',
-    });
-    return this.http
-      .get<ObraDetalhe>(url, { headers, params: params ?? undefined })
-      .pipe(catchError((err) => throwError(() => err)));
+    return this.porta.atualizarPosicao(request);
   }
 }

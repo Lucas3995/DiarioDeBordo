@@ -1,4 +1,4 @@
-namespace DiarioDeBordo.Domain.Interfaces;
+namespace DiarioDeBordo.Domain.Common;
 
 /// <summary>
 /// Contrato para criptografia de dados sensíveis em nível de campo.
