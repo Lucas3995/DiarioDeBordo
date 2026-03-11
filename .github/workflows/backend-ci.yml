@@ -17,6 +17,9 @@ jobs:
   build-and-test:
     name: Build e Testes (.NET)
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
 
     steps:
       - name: Checkout
