@@ -17,6 +17,7 @@ import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
  * exibir via displayWith e identificar via getItemId (ex.: ObraBuscaItem).
  * Interface vazia para não impor assinatura de índice e permitir tipos concretos.
  */
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface AutocompleteItem {}
 
 /**

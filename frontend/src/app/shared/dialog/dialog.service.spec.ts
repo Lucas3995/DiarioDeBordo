@@ -127,7 +127,7 @@ describe('DialogService sem container', () => {
   it('fechar por clique no backdrop e ESC no fallback', () => {
     // clique no vento
     service.open(TestDialogContentComponent);
-    let overlay = document.body.querySelector('[data-testid="dialog-overlay"]') as HTMLElement;
+    const overlay = document.body.querySelector('[data-testid="dialog-overlay"]') as HTMLElement;
     expect(overlay).toBeTruthy();
     overlay.click();
     expect(document.body.querySelector('[data-testid="dialog-overlay"]')).toBeFalsy();
