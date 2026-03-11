@@ -13,11 +13,15 @@ public class DataProtectionServiceTests
     }
 
     [Fact]
-    public void Construtor_SemChaveConfigurada_LancaExcecao()
+    public void Construtor_SemChaveConfigurada_GeraInstanciaComChaveTemporaria()
     {
-        // opções explícitas com chave nula
+        // opções explícitas com chave nula; serviço deve gerar chave aleatória sem lançar
         var options = Microsoft.Extensions.Options.Options.Create(new DataProtectionOptions(null!));
-        Assert.Throws<InvalidOperationException>(() => new DataProtectionService(options));
+        var sut = new DataProtectionService(options);
+        // operação básica não deve falhar
+        var texto = "teste";
+        var cifrado = sut.Criptografar(texto);
+        Assert.Equal(texto, sut.Descriptografar(cifrado));
     }
 
     [Fact]

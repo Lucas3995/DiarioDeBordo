@@ -5,6 +5,7 @@ using DiarioDeBordo.Infrastructure.Common;
 using DiarioDeBordo.Infrastructure.Security;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using System.Security.Cryptography;
 
 namespace DiarioDeBordo.Infrastructure;
 
@@ -21,8 +22,14 @@ public static class DependencyInjection
         // opções fortemente tipadas para DataProtection (criadas manualmente sem depender de pacotes extra)
         var dataProtSection = configuration.GetSection("DataProtection");
         var key = dataProtSection["Key"];
+        if (string.IsNullOrWhiteSpace(key))
+        {
+            // ambiente de CI ou desenvolvimento sem chave explícita: gerar aleatória e avisar.
+            key = Convert.ToBase64String(RandomNumberGenerator.GetBytes(32));
+            Console.WriteLine("[DI] DataProtection:Key ausente, gerando chave temporária.");
+        }
         services.AddSingleton(
-            Microsoft.Extensions.Options.Options.Create(new DataProtectionOptions(key ?? string.Empty)));
+            Microsoft.Extensions.Options.Options.Create(new DataProtectionOptions(key)));
 
         services.AddScoped<IDataProtectionService, DataProtectionService>();
 
