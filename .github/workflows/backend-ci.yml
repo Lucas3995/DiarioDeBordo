@@ -22,7 +22,6 @@ jobs:
 
     steps:
       - name: Checkout
-on:
         uses: actions/checkout@v6
 
       - name: Setup .NET
