@@ -12,8 +12,6 @@ on:
       - 'backend/**'
       - '.github/workflows/backend-ci.yml'
 
-  run:
-    working-directory: backend
 
 jobs:
   build-and-test:
