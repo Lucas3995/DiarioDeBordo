@@ -7,6 +7,7 @@ using DiarioDeBordo.Application.Obras.ObterPorIdOuNome;
 using FluentValidation;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
+using DiarioDeBordo.Application.Auth;
 
 namespace DiarioDeBordo.Application;
 
@@ -22,6 +23,9 @@ public static class DependencyInjection
             cfg.RegisterServicesFromAssembly(typeof(DependencyInjection).Assembly));
 
         services.AddValidatorsFromAssembly(typeof(DependencyInjection).Assembly);
+
+        // autenticação extraída: reduz responsabilidade do handler
+        services.AddTransient<IAuthenticationService, AuthenticationService>();
 
         services.AddTransient<IRequestValidator<EchoCommand>, FluentValidationRequestValidatorAdapter<EchoCommand>>();
         services.AddTransient<IRequestValidator<LoginCommand>, FluentValidationRequestValidatorAdapter<LoginCommand>>();

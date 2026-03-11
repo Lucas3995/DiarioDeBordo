@@ -31,18 +31,26 @@ jobs:
       - name: Install Chrome for unit tests
         run: |
           sudo apt-get update
+          # some Ubuntu variants name the package chromium-browser, others chromium
           sudo apt-get install -y chromium-browser || sudo apt-get install -y chromium
-          echo "CHROME_BIN=/usr/bin/chromium-browser" >> $GITHUB_ENV || echo "CHROME_BIN=/usr/bin/chromium" >> $GITHUB_ENV
+          # set CHROME_BIN only after confirming the executable exists to avoid Karma errors
+          if [ -x /usr/bin/chromium-browser ]; then
+            echo "CHROME_BIN=/usr/bin/chromium-browser" >> $GITHUB_ENV
+          elif [ -x /usr/bin/chromium ]; then
+            echo "CHROME_BIN=/usr/bin/chromium" >> $GITHUB_ENV
+          else
+            echo "CHROME_BIN not found" >&2
+          fi
 
       - name: Lint
         run: npm run lint
         continue-on-error: true
 
       - name: Unit tests
-        run: ng test --no-watch --browsers=ChromeHeadlessCI
+        run: npm run test
 
       - name: Coverage (summary)
-        run: ng test --no-watch --browsers=ChromeHeadlessCI --configuration=coverage
+        run: npm run test:coverage
         continue-on-error: true
 
       - name: Build

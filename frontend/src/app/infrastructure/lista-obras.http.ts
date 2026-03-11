@@ -48,19 +48,15 @@ export class ListaObrasHttp extends IListaObrasPort {
   }
 
   listarPagina(params: ListaObrasParams): Observable<ListaObrasResult> {
-    const apiUrl = this.apiConfig.getApiUrl();
-    const token = this.apiConfig.getToken();
-
-    if (!apiUrl) {
-      return throwError(() => new Error('URL da API não configurada. Acesse Configurações e informe a URL do backend.'));
+    let apiUrl: string;
+    try {
+      apiUrl = this.obterApiUrl();
+    } catch (err) {
+      return throwError(() => err as Error);
     }
 
-    const url = `${apiUrl.replace(/\/$/, '')}/api/obras`;
-
-    const headers = new HttpHeaders({
-      Authorization: token ? `Bearer ${token}` : '',
-    });
-
+    const headers = this.obterHeaders();
+    const url = `${apiUrl}/api/obras`;
     const queryParams = new HttpParams()
       .set('pageIndex', params.pageIndex.toString())
       .set('pageSize', params.pageSize.toString());
@@ -77,17 +73,15 @@ export class ListaObrasHttp extends IListaObrasPort {
   }
 
   buscarPorNome(termo: string, limit = 10): Observable<ObraBuscaItem[]> {
-    const apiUrl = this.apiConfig.getApiUrl();
-    const token = this.apiConfig.getToken();
-
-    if (!apiUrl) {
-      return throwError(() => new Error('URL da API não configurada. Acesse Configurações e informe a URL do backend.'));
+    let apiUrl: string;
+    try {
+      apiUrl = this.obterApiUrl();
+    } catch (err) {
+      return throwError(() => err as Error);
     }
 
-    const url = `${apiUrl.replace(/\/$/, '')}/api/obras/buscar`;
-    const headers = new HttpHeaders({
-      Authorization: token ? `Bearer ${token}` : '',
-    });
+    const headers = this.obterHeaders();
+    const url = `${apiUrl}/api/obras/buscar`;
     const params = new HttpParams()
       .set('q', termo.trim())
       .set('limit', Math.min(Math.max(1, limit), 50).toString());
@@ -95,6 +89,19 @@ export class ListaObrasHttp extends IListaObrasPort {
     return this.http
       .get<ObraBuscaItem[]>(url, { headers, params })
       .pipe(catchError((err) => throwError(() => err)));
+  }
+
+  private obterApiUrl(): string {
+    const apiUrl = this.apiConfig.getApiUrl();
+    if (!apiUrl) {
+      throw new Error('URL da API não configurada. Acesse Configurações e informe a URL do backend.');
+    }
+    return apiUrl.replace(/\/$/, '');
+  }
+
+  private obterHeaders(): HttpHeaders {
+    const token = this.apiConfig.getToken();
+    return new HttpHeaders({ Authorization: token ? `Bearer ${token}` : '' });
   }
 
   private mapearItem(dto: ObraListItemApiDto): ObraListItem {
