@@ -28,7 +28,8 @@ on:
       - name: Setup .NET
         uses: actions/setup-dotnet@v5
         with:
-          dotnet-version: '9.x'
+          # tests target net10, so ensure SDK 10 is available for build and execution
+          dotnet-version: '10.0.x'
 
       - name: Restore dependencies
         run: dotnet restore
@@ -46,7 +47,6 @@ on:
           --no-build
           --configuration Release
           --collect:"XPlat Code Coverage"
-          dotnet-version: '10.0.x'
         env:
           DOTNET_ENVIRONMENT: Testing
           Jwt__Key: ${{ secrets.JWT_KEY_TESTS || 'chave-de-ci-com-tamanho-minimo-32x!' }}
