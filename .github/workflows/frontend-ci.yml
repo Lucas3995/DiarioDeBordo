@@ -47,10 +47,10 @@ jobs:
         continue-on-error: true
 
       - name: Unit tests
-        run: ng test --no-watch --browsers=ChromeHeadlessCI
+        run: npm run test
 
       - name: Coverage (summary)
-        run: ng test --no-watch --browsers=ChromeHeadlessCI --configuration=coverage
+        run: npm run test:coverage
         continue-on-error: true
 
       - name: Build
