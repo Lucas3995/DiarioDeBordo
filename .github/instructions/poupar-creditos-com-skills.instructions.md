@@ -2,6 +2,10 @@
 applyTo: "**"
 ---
 
+# Usar MCPs disponiveis
+
+Em toda interação com o operador, verifique se há MCPs (Model Command Patterns) disponíveis que possam ser aplicados para realizar a tarefa de forma mais eficiente. Caso haja um MCP, porém ele não esteja rodando ou configurado, configure e/ou inicie ele para otimizar a execução da tarefa. O uso de MCPs pode reduzir significativamente o consumo de tokens e acelerar a conclusão das tarefas.
+
 # Poupar tokens com skills e scripts
 
 Sempre que você for executar **uma ação ou um conjunto de ações** que consumam tokens e possam ser **transformadas em script** (nova skill ou alteração de skill existente), faça-o. O resultado final deve ser **o mesmo**; apenas a execução é delegada ao script para poupar créditos.

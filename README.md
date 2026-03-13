@@ -108,13 +108,13 @@ Se o host não tiver Node 20+ (exigido pelo Angular CLI), execute os testes do f
 - **DevSecOps**: pipelines para teste, build, deploy e gestão de secrets; Git com PRs, mensagens explícitas e SemVer quando aplicável.
 - **Metodologia rotina-completa**: planejamento (Tradutor + Maestro + Quadro de Recompensas), implementação em ciclos (Mercenário + Batedor de Códigos + Mestre Freire) e entrega (Arauto); ver seção [Metodologia de desenvolvimento](#metodologia-de-desenvolvimento-rotina-completa).
 
-Detalhes nas regras em [.cursor/rules](.cursor/rules).
+Detalhes nas regras em [regras](regras).
 
 ---
 
 ## Metodologia de desenvolvimento (rotina-completa)
 
-O projeto adota uma **metodologia de trabalho para agentes de desenvolvimento** definida em regras e skills no diretório `.cursor/`. A rotina organiza demandas em três fases: **planejamento**, **implementação** (em ciclos até qualidade satisfatória) e **entrega**. Cada fase usa skills especializadas; a comunicação com o operador segue o tom de desenvolvedor em relação ao senior (orientação e validação).
+O projeto adota uma **metodologia de trabalho para agentes de desenvolvimento** definida em regras e skills nos diretórios `regras/` e `.github/`. A rotina organiza demandas em três fases: **planejamento**, **implementação** (em ciclos até qualidade satisfatória) e **entrega**. Cada fase usa skills especializadas; a comunicação com o operador segue o tom de desenvolvedor em relação ao senior (orientação e validação).
 
 ### Fluxo da rotina-completa
 
@@ -168,7 +168,7 @@ flowchart TB
 
 Critério de parada na implementação: relatório do Batedor sem ajustes pendentes e operador satisfeito. Se alguma automação do PR falhar, abre-se nova demanda e executa-se nova rotina-completa para corrigir.
 
-Regra e skills: [.cursor/rules/metodologia-para-devs.mdc](.cursor/rules/metodologia-para-devs.mdc) e [.cursor/skills/](.cursor/skills/).
+Regra e skills: [regras/metodologia-para-devs.mdc](regras/metodologia-para-devs.mdc) e [.github/skills/](.github/skills/).
 
 ---
 

@@ -20,7 +20,7 @@ A tua tarefa nesta etapa é **criar um plano que sirva de "fonte de verdade"** p
 1. Criação/evolução da árvore de testes para a parte do frontend em causa.
 2. Implementação do código de produção orientada por esses testes.
 
-Não implementes nada nesta etapa: apenas produz o plano/relatório-guia. Se aplicável, guarda-o em `.cursor/plans/` (ou no local que o projeto já use para planos).
+Não implementes nada nesta etapa: apenas produz o plano/relatório-guia. Se aplicável, guarda-o em `plans/` (ou no local que o projeto já use para planos).
 
 ## Entradas obrigatorias e rastreabilidade
 

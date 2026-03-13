@@ -11,7 +11,7 @@ Fluxo em 5 etapas. Executar em sequência; não pular etapas. Entrega só está 
 
 ## Execução via script (recomendada)
 
-Para reduzir uso de créditos do Cursor, executar o fluxo através do script: o agente faz **uma** chamada ao script e lê o retorno; só volta a agir se as automações do PR falharem (para reportar e sugerir correções). O script faz tudo: imprime contexto (status e diffs) no início, `git add -A` (respeitando .gitignore), commit, push, PR, **monitoração obrigatória dos workflows do PR** (watch) e, em sucesso, checkout para `Master`, fetch e pull.
+Para reduzir uso de créditos do Cursor, Github Copilot ou qualquer outro serviço sendo usado no projeto, executar o fluxo através do script: o agente faz **uma** chamada ao script e lê o retorno; só volta a agir se as automações do PR falharem (para reportar e sugerir correções). O script faz tudo: imprime contexto (status e diffs) no início, `git add -A` (respeitando .gitignore), commit, push, PR, **monitoração obrigatória dos workflows do PR** (watch) e, em sucesso, checkout para `Master`, fetch e pull.
 
 **Monitorar o PR é obrigatório:** o agente **nunca** deve dar a entrega como concluída sem ter **efectivamente monitorado** os workflows do PR (via script com watch ou, se o script não fizer watch, manualmente com `gh run list --branch BRANCH` e `gh run watch <run-id>` no run mais recente). Só informar «Entrega concluída» / «Workflows verdes» depois de ter assistido à conclusão dos runs. Não pular esta etapa.
 

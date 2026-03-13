@@ -10,7 +10,7 @@ Garantir que qualquer fonte de verdade/plano seja facil de localizar, ordenar e 
 
 ## Padrao de nomenclatura
 
-Todo novo plano em `.cursor/plans/` deve seguir:
+Todo novo plano em `plans/` deve seguir:
 
 `YYYYMMDD__<TIPO>__<identificador>.plan.md`
 

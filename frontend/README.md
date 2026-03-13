@@ -2,7 +2,7 @@
 
 Aplicação Angular 21 que segue **Clean Architecture**, **DDD** e **modularização** (feature modules, core, shared). Execução **on-premise** na máquina do usuário; consome a API do backend (URL configurável em tela pelo admin).
 
-> **Convenções de código**: componentes Angular usam **`templateUrl` + `styleUrl`** com arquivos `.html` e `.scss` dedicados por padrão. A arquitetura de camadas (`domain/`, `application/`, `infrastructure/`) é introduzida de forma progressiva quando o conteúdo real justificar — não como estrutura de pastas vazia. Detalhes em [.cursor/rules/angular-frontend.mdc](../.cursor/rules/angular-frontend.mdc).
+> **Convenções de código**: componentes Angular usam **`templateUrl` + `styleUrl`** com arquivos `.html` e `.scss` dedicados por padrão. A arquitetura de camadas (`domain/`, `application/`, `infrastructure/`) é introduzida de forma progressiva quando o conteúdo real justificar — não como estrutura de pastas vazia. Detalhes em [regras/angular-frontend.mdc](../regras/angular-frontend.mdc).
 
 ---
 
@@ -53,7 +53,7 @@ flowchart TB
 | Shared        | `app/shared/`      | Componentes, pipes e diretivas reutilizáveis. |
 | Features      | `app/features/`    | Um subdiretório por feature (home, config, …) com componente, rotas e testes. |
 
-> **Camadas futuras**: `app/domain/`, `app/application/` e `app/infrastructure/` serão introduzidas quando existirem modelos de domínio (Obra, Parte, Situação) e chamadas à API no frontend. Nesse momento, serviços de page devem migrar para essas camadas conforme [.cursor/rules/angular-frontend.mdc](../.cursor/rules/angular-frontend.mdc). Enquanto não existirem, essas pastas não são criadas (evitar estruturas vazias).
+> **Camadas futuras**: `app/domain/`, `app/application/` e `app/infrastructure/` serão introduzidas quando existirem modelos de domínio (Obra, Parte, Situação) e chamadas à API no frontend. Nesse momento, serviços de page devem migrar para essas camadas conforme [regras/angular-frontend.mdc](../regras/angular-frontend.mdc). Enquanto não existirem, essas pastas não são criadas (evitar estruturas vazias).
 
 ---
 

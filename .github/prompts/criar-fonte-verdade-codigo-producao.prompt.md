@@ -35,7 +35,7 @@ Ao salvar o output, seguir `.github/instructions/nomenclatura-planos.instruction
 
 ## Conteúdo a incluir no documento gerado
 
-O documento (ex.: `.cursor/plans/<identificador>.plan.md`) deve conter:
+O documento (ex.: `plans/<identificador>.plan.md`) deve conter:
 
 1. **Local/escopo:** `[[local com o problema]]` ou área/funcionalidade a que se aplica.
 2. **Resumo das alterações** a fazer (com base no plano do criar-fonte-de-verdade e na árvore de testes).

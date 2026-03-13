@@ -20,7 +20,7 @@ Trabalhamos em metodologia **spec-driven development** para desenvolvimento assi
 ## Pré-condição
 
 - O **plano global** (resultado do comando **criar-fonte-de-verdade**) já existe e é contexto obrigatório.
-- Se o utilizador não indicar o ficheiro do plano global, **pergunte** qual é o ficheiro da fonte de verdade global (ex.: em `.cursor/plans/` ou caminho que ele fornecer).
+- Se o utilizador não indicar o ficheiro do plano global, **pergunte** qual é o ficheiro da fonte de verdade global (ex.: em `plans/` ou caminho que ele fornecer).
 - Parâmetros opcionais após o comando: caminho do plano global; local do problema (ex.: "listagem das solicitações do creator logado") para afinar o âmbito.
 
 ## Entradas obrigatorias e rastreabilidade
@@ -41,13 +41,13 @@ Ao salvar o output, seguir `.github/instructions/nomenclatura-planos.instruction
 - **Apenas produzir plano — sem editar código.** Use a ferramenta CreatePlan (ou documento markdown equivalente) para gerar o output.
 - Ao produzir o plano, use os critérios da skill **quadro-de-recompensas** (formato relatório de tarefas para a secção de alterações) e da skill **mestre-freire-angular** (estrutura de camadas e convenções do frontend Angular; regra `.github/instructions/angular-frontend.instructions.md`) para que o output seja utilizável na etapa "criação de TESTES".
 - Consulte as skills **quadro-de-recompensas** e **mestre-freire-angular** quando for definir a estrutura da árvore de testes.
-- Sugestão de nome do ficheiro de output: `plano-arvore-testes_<identificador>.plan.md` em `.cursor/plans/`.
+- Sugestão de nome do ficheiro de output: `plano-arvore-testes_<identificador>.plan.md` em `plans/`.
 
 ---
 
 ## Conteúdo do plano a gerar
 
-O plano deve incluir, alinhado aos exemplos em `.cursor/plans/` e `docs/frontend-rf1-minhas-solicitacoes-arvore-testes.md`:
+O plano deve incluir, alinhado aos exemplos em `plans/` e `docs/frontend-rf1-minhas-solicitacoes-arvore-testes.md`:
 
 1. **Referência ao plano global** — Nome/ficheiro e resumo do problema ou demanda.
 2. **Âmbito do frontend** — Páginas, componentes, fachadas, serviços, respeitando a estrutura e convenções da skill mestre-freire-angular (camadas, áreas, módulos; regra angular-frontend).
