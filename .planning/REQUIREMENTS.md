@@ -88,7 +88,7 @@ Requirements for initial release. Each maps to roadmap phases.
 - [ ] **SEG-04**: Todos os cenários do Apêndice A da Definição de Domínio v3 executáveis e testados de ponta a ponta
 - [ ] **SEG-05**: Pentest full scope por milestone (superfícies locais, de rede, integrações externas, dados persistidos)
 - [ ] **SEG-06**: Conformidade WCAG 2.2 AAA em toda a interface
-- [ ] **SEG-07**: ADRs documentados em docs/adr/ para cada decisão arquitetural relevante
+- [x] **SEG-07**: ADRs documentados em docs/adr/ para cada decisão arquitetural relevante
 
 ## v2 Requirements
 
@@ -169,7 +169,7 @@ Explicitly excluded. Documented to prevent scope creep.
 | SEG-04 | Phase 4 | Pending |
 | SEG-05 | Phase 11 | Pending |
 | SEG-06 | Phase 9 | Pending |
-| SEG-07 | Phase 1 | Pending |
+| SEG-07 | Phase 1 | Complete |
 
 **Coverage:**
 - v1 requirements: 47 total
