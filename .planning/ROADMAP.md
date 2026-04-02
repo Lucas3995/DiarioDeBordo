@@ -12,7 +12,7 @@ Aplicação desktop nativa (C#/.NET 9 + Avalonia UI + PostgreSQL), offline-first
 
 Decimal phases appear between their surrounding integers in numeric order.
 
-- [ ] **Phase 1: Modelagem Tática DDD** - Traduzir design estratégico em modelo tático de domínio antes de qualquer código
+- [x] **Phase 1: Modelagem Tática DDD** - Traduzir design estratégico em modelo tático de domínio antes de qualquer código (completed 2026-04-02)
 - [ ] **Phase 2: Walking Skeleton** - Provar a arquitetura intencional de ponta a ponta com a fatia mínima de funcionalidade real
 - [ ] **Phase 3: Acervo Básico** - Gestão de conteúdo utilizável no dia-a-dia, substituindo o bloco de notas
 - [ ] **Phase 4: Curadoria — Coletâneas e Fontes** - Completar o Pilar 1 com coletâneas, fontes, imagens e deduplicação
@@ -39,11 +39,11 @@ Decimal phases appear between their surrounding integers in numeric order.
 **Plans**: 5 plans
 
 Plans:
-- [ ] 01-01-PLAN.md — Estrutura docs/ e 5 ADRs (UI, banco, arquitetura, stack, segurança)
+- [x] 01-01-PLAN.md — Estrutura docs/ e 5 ADRs (UI, banco, arquitetura, stack, segurança)
 - [x] 01-02-PLAN.md — BC Acervo: modelo tático completo (agregados, invariantes, repositórios, Cenários 1–5)
 - [x] 01-03-PLAN.md — BC Agregação: visões efêmeras, contratos, Cenários 6–7
-- [ ] 01-04-PLAN.md — Esboço dos 6 BCs de suporte + contratos de integração transversais
-- [ ] 01-05-PLAN.md — Threat model STRIDE: DFD nível 0+1, tabela com 15 ameaças e mitigações
+- [x] 01-04-PLAN.md — Esboço dos 6 BCs de suporte + contratos de integração transversais
+- [x] 01-05-PLAN.md — Threat model STRIDE: DFD nível 0+1, tabela com 15 ameaças e mitigações
 
 ### Phase 2: Walking Skeleton
 **Goal**: A arquitetura intencional está provada em código: uma funcionalidade real (criar conteúdo com título) atravessa todas as camadas de ponta a ponta, com separação verificável entre domínio, persistência e apresentação
@@ -179,7 +179,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Modelagem Tática DDD | 2/5 | In Progress|  |
+| 1. Modelagem Tática DDD | 5/5 | Complete   | 2026-04-02 |
 | 2. Walking Skeleton | 0/0 | Not started | - |
 | 3. Acervo Básico | 0/0 | Not started | - |
 | 4. Curadoria — Coletâneas e Fontes | 0/0 | Not started | - |

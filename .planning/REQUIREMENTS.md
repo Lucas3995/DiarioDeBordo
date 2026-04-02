@@ -82,7 +82,7 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Segurança e Qualidade
 
-- [ ] **SEG-01**: Threat model criado antes da implementação das camadas de rede e persistência
+- [x] **SEG-01**: Threat model criado antes da implementação das camadas de rede e persistência
 - [ ] **SEG-02**: Cobertura de testes automatizados ≥ 95% (unitário + integração + e2e), mantida continuamente
 - [ ] **SEG-03**: 100% dos invariantes de domínio cobertos por testes automatizados
 - [ ] **SEG-04**: Todos os cenários do Apêndice A da Definição de Domínio v3 executáveis e testados de ponta a ponta
@@ -163,7 +163,7 @@ Explicitly excluded. Documented to prevent scope creep.
 | POR-02 | Phase 10 | Pending |
 | POR-03 | Phase 10 | Pending |
 | POR-04 | Phase 10 | Pending |
-| SEG-01 | Phase 1 | Pending |
+| SEG-01 | Phase 1 | Complete |
 | SEG-02 | Phase 2 | Pending |
 | SEG-03 | Phase 2 | Pending |
 | SEG-04 | Phase 4 | Pending |
