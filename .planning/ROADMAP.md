@@ -40,8 +40,8 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 Plans:
 - [ ] 01-01-PLAN.md — Estrutura docs/ e 5 ADRs (UI, banco, arquitetura, stack, segurança)
-- [ ] 01-02-PLAN.md — BC Acervo: modelo tático completo (agregados, invariantes, repositórios, Cenários 1–5)
-- [ ] 01-03-PLAN.md — BC Agregação: visões efêmeras, contratos, Cenários 6–7
+- [x] 01-02-PLAN.md — BC Acervo: modelo tático completo (agregados, invariantes, repositórios, Cenários 1–5)
+- [x] 01-03-PLAN.md — BC Agregação: visões efêmeras, contratos, Cenários 6–7
 - [ ] 01-04-PLAN.md — Esboço dos 6 BCs de suporte + contratos de integração transversais
 - [ ] 01-05-PLAN.md — Threat model STRIDE: DFD nível 0+1, tabela com 15 ameaças e mitigações
 
@@ -179,7 +179,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Modelagem Tática DDD | 0/5 | Not started | - |
+| 1. Modelagem Tática DDD | 2/5 | In Progress|  |
 | 2. Walking Skeleton | 0/0 | Not started | - |
 | 3. Acervo Básico | 0/0 | Not started | - |
 | 4. Curadoria — Coletâneas e Fontes | 0/0 | Not started | - |
