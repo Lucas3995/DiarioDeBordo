@@ -1,0 +1,178 @@
+# ============================================================
+# DiarioDeBordo — .gitignore
+# Stack: C#/.NET 9 + Avalonia UI + PostgreSQL + Velopack
+# Plataformas: Linux + Windows
+# ============================================================
+
+# ----------------------------------------------------------
+# .NET / MSBuild
+# ----------------------------------------------------------
+bin/
+obj/
+out/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+*.userprefs
+.vs/
+.vscode/settings.json
+.vscode/tasks.json
+.vscode/launch.json
+.vscode/.ropeproject
+
+# Publish output
+publish/
+dist/
+
+# ----------------------------------------------------------
+# NuGet
+# ----------------------------------------------------------
+*.nupkg
+*.snupkg
+**/[Pp]ackages/
+!**/[Pp]ackages/build/
+*.lock.json
+!packages.lock.json
+nuget.config.local
+.nuget/
+
+# ----------------------------------------------------------
+# Velopack / Installer
+# ----------------------------------------------------------
+installer/output/
+installer/build/
+installer/*.exe
+installer/*.AppImage
+installer/*.deb
+installer/*.rpm
+installer/*.msi
+installer/*.pkg
+Releases/
+
+# ----------------------------------------------------------
+# PostgreSQL bundled (porta 15432)
+# ----------------------------------------------------------
+**/pgdata/
+**/postgres-data/
+**/pgsql/data/
+**/*.pid
+**/pg_log/
+**/pg_wal/
+
+# ----------------------------------------------------------
+# Credenciais e segredos — nunca committar
+# ----------------------------------------------------------
+*.pfx
+*.p12
+*.pem
+*.key
+*.cer
+appsettings.Local.json
+appsettings.Production.json
+appsettings.Secrets.json
+secrets.json
+.env
+.env.*
+!.env.example
+**/*secret*
+**/*credential*
+**/*password*
+
+# ----------------------------------------------------------
+# Cobertura de testes e relatórios
+# ----------------------------------------------------------
+TestResults/
+coverage/
+*.coverage
+*.coveragexml
+*.trx
+BenchmarkDotNet.Artifacts/
+*.opencover.xml
+lcov.info
+
+# ----------------------------------------------------------
+# Logs e diagnóstico
+# ----------------------------------------------------------
+logs/
+*.log
+*.log.*
+*.trace
+Serilog/
+
+# ----------------------------------------------------------
+# Rider
+# ----------------------------------------------------------
+.idea/
+*.sln.iml
+_ReSharper*/
+*.DotSettings.user
+
+# ----------------------------------------------------------
+# Visual Studio
+# ----------------------------------------------------------
+*.aps
+*.ncb
+*.opensdf
+*.sdf
+*.cachefile
+*.VC.db
+*.VC.VC.opendb
+ipch/
+[Aa]uto[Ss]ave/
+[Bb]ackup*/
+UpgradeLog*.XML
+UpgradeLog*.htm
+ServiceFabricBackup/
+
+# ----------------------------------------------------------
+# OS — Linux
+# ----------------------------------------------------------
+*~
+.fuse_hidden*
+.directory
+.Trash-*
+.nfs*
+
+# ----------------------------------------------------------
+# OS — Windows
+# ----------------------------------------------------------
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+Desktop.ini
+$RECYCLE.BIN/
+*.lnk
+
+# ----------------------------------------------------------
+# macOS (contribuidores futuros)
+# ----------------------------------------------------------
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# ----------------------------------------------------------
+# Avalonia / UI
+# ----------------------------------------------------------
+# Arquivos gerados pelo designer Avalonia Previewer
+**/*.g.cs
+**/*.g.i.cs
+
+# ----------------------------------------------------------
+# EF Core Migrations geradas localmente (manter apenas via PR)
+# Descomente se preferir não versionar migrations locais:
+# ----------------------------------------------------------
+# **/Migrations/
+
+# ----------------------------------------------------------
+# Arquivos temporários e editores
+# ----------------------------------------------------------
+*.tmp
+*.temp
+*.bak
+*.swp
+*.orig
+*#
+\#*#
