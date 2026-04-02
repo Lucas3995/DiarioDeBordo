@@ -1,1 +1,0 @@
-Serena project configuration now includes languages: csharp, typescript, markdown (added 2026-03-12 per user request to support frontend Angular and markdown specs).

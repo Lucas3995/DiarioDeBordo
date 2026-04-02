@@ -1,9 +1,0 @@
-- C# 12 com **Clean Architecture**: camadas separadas, dependências só para dentro.
-- Nomes em português no domínio (Obra, Parte, Situação);
-- CQRS: comandos e queries claros, nenhum query altera estado.
-- DDD: entidades, value objects, repositórios orientados a domínio.
-- TDD com xUnit, Moq, FluentAssertions; AAA e FIRST.
-- Angular 21 com domain/application/infrastructure/core/shared/features; templateUrl/styleUrl; Signals/RxJS; typed forms; padrão Command para backend.
-- LGPD e segurança: criptografia em trânsito/repouso, 2FA, sem concatenação SQL.
-- Mensagens de commit descritivas, PRs, SemVer.
-- Regras de estilo definidas em `.github` e nas skills.
