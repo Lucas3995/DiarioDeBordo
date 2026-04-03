@@ -36,8 +36,7 @@ Declared values (multiples of 4, consistent with existing codebase):
 | Token | Value | Usage |
 |-------|-------|-------|
 | xs | 4px | Label-to-field gap, inline icon padding, chip internal padding vertical |
-| sm | 8px | Between buttons in a row, compact element spacing, card vertical gap |
-| md | 12px | Form field group spacing (label + field + next label) |
+| sm | 8px | Between buttons in a row, compact element spacing, card vertical gap, form field group spacing (label + field + next label) |
 | lg | 16px | Card internal padding, section content padding |
 | xl | 24px | Page-level horizontal margin, section separator spacing |
 | 2xl | 32px | Modal internal padding (horizontal) |
@@ -47,7 +46,7 @@ Exceptions:
 - Touch target minimum: 44×44px for all interactive elements (WCAG 2.5.8 AAA target size)
 - Modal vertical padding: 24px top, 16px bottom (asymmetric — header needs breathing room)
 - Chip height: 28px (compact enough for inline flow, large enough for touch)
-- Nav sidebar item padding: 12px horizontal, 8px vertical (established in MainWindow.axaml)
+- Nav sidebar item padding: 12px horizontal, 8px vertical (technical debt — value inherited from Phase 2 `MainWindow.axaml`; alinhamento com a escala padrão está planejado para Phase 9)
 
 ---
 
@@ -57,9 +56,9 @@ Exceptions:
 |------|------|--------|-------------|-------|
 | Caption | 12px | Regular (400) | 1.4 | Status bar, metadata badges (formato), timestamps, chip labels |
 | Body | 14px | Regular (400) | 1.5 | Card body text, form field values, modal body text, descriptions |
-| Label | 14px | Medium (500) | 1.4 | Form field labels, section headers in forms, button text |
+| Label | 14px | Regular (400) | 1.4 | Form field labels, section headers in forms, button text — distinguished from Body by layout position and context, not weight |
 | Subheading | 20px | SemiBold (600) | 1.3 | Empty state heading, modal title, section titles |
-| Heading | 24px | Bold (700) | 1.2 | Page title ("Acervo") — only used once per view |
+| Heading | 24px | SemiBold (600) | 1.2 | Page title ("Acervo") — only used once per view; size (not weight) creates hierarchy vs. Subheading |
 
 **Normalization note:** Existing card title uses 15px; new components MUST use 14px for body role. The 15px→14px alignment will be applied to AcervoView card titles during this phase for consistency.
 
@@ -80,7 +79,7 @@ All colors use FluentTheme `DynamicResource` semantic tokens. No hardcoded hex v
 
 **Accent reserved for (exhaustive list):**
 1. "Salvar" button in modal
-2. "Adicionar" button in list header
+2. "Adicionar conteúdo" button in list header
 3. "Adicionar primeiro conteúdo" button in empty state
 4. Active/selected navigation item highlight
 5. Classificação "Gostei" icon (filled state)
@@ -92,6 +91,21 @@ All colors use FluentTheme `DynamicResource` semantic tokens. No hardcoded hex v
 - Gostei (thumbs up): Accent color when active, `Opacity="0.4"` when inactive
 - Não gostei (thumbs down): Destructive color when active, `Opacity="0.4"` when inactive
 - Nulo: both thumbs at `Opacity="0.4"` (neither active)
+
+---
+
+## Visual Hierarchy — Focal Points
+
+Each view has exactly one primary visual anchor that guides the eye on first glance.
+
+| View | Focal Point | Mechanism |
+|------|-------------|-----------|
+| AcervoView | **"Adicionar conteúdo" button** (top-right of list header) | Accent fill + largest interactive element in the header bar; draws eye before the list grid |
+| ConteudoDetalheModal | **Título field** in expanded "Identificação" section | First visible editable field, full-width, auto-focused on open |
+| RelacaoPickerPanel | **Search input** for target content | Auto-focused; single interactive element at entry |
+| SessaoMiniForm | **Título field** of the child session | Auto-focused; compact form with single primary action |
+
+**Design rule:** Only one element per view should use `SystemAccentColor` as background (the focal point CTA). All other accent usages are icon fills or borders, never backgrounds — ensuring the focal point is unambiguous.
 
 ---
 
@@ -276,7 +290,7 @@ The modal layout is grounded in peer-reviewed literature on complex form organiz
 └──────────────────────────────────────────────┘
 ```
 
-- Relation type label: 14px, Medium weight
+- Relation type label: 14px, Regular weight
 - Arrow "→" separator: Opacity="0.6"
 - Target content title: 14px, Regular weight, clickable (opens that content's modal)
 - Remove button: icon button, 24×24px, `AutomationProperties.Name="Remover relação {tipo} com {titulo}"`
@@ -288,7 +302,7 @@ The modal layout is grounded in peer-reviewed literature on complex form organiz
 4. Type selector: ComboBox/AutoCompleteBox with predefined + custom types (D-12)
 5. When type not found: "Criar tipo '{nome}'" option appears
 6. Creating new type: prompts for inverse name ("Nome inverso:") in a secondary field
-7. Confirm button: "Vincular" — creates the relation
+7. Confirm button: "Vincular conteúdos" — creates the relation
 
 **AutomationProperties:**
 - List: `AutomationProperties.Name="Lista de relações do conteúdo"`
@@ -339,7 +353,7 @@ The modal layout is grounded in peer-reviewed literature on complex form organiz
 ┌──────────────────────────────────────────────┐
 │ Título/Posição: [_______________]            │  ← required
 │ Data: [DatePicker — defaults to hoje]        │  ← required, auto-filled
-│                         [Cancelar] [Registrar]│
+│                         [Cancelar] [Registrar sessão]│
 └──────────────────────────────────────────────┘
 ```
 
@@ -387,14 +401,14 @@ All strings MUST be added to `Strings.pt-BR.resx`. No hardcoded strings in AXAML
 
 | Element | Key (resx) | Copy |
 |---------|------------|------|
-| Primary CTA (list) | `Acervo_BotaoAdicionar` | `+ Adicionar` |
+| Primary CTA (list) | `Acervo_BotaoAdicionar` | `Adicionar conteúdo` |
 | Primary CTA (modal) | `Modal_BotaoSalvar` | `Salvar` |
 | Cancel (modal) | `Modal_BotaoCancelar` | `Cancelar` |
 | Delete (modal) | `Modal_BotaoExcluir` | `Excluir` |
 | Add relation | `Relacao_BotaoAdicionar` | `Adicionar relação` |
-| Link relation | `Relacao_BotaoVincular` | `Vincular` |
+| Link relation | `Relacao_BotaoVincular` | `Vincular conteúdos` |
 | Register session | `Sessao_BotaoRegistrar` | `Registrar sessão` |
-| Confirm session | `Sessao_BotaoConfirmar` | `Registrar` |
+| Confirm session | `Sessao_BotaoConfirmar` | `Registrar sessão` |
 | Toggle details | `Formulario_MaisDetalhes` | `Mais detalhes` |
 | Toggle details (hide) | `Formulario_MenosDetalhes` | `Menos detalhes` |
 | View detail (card) | `Card_VerDetalhe` | `Ver detalhe` |
@@ -510,7 +524,7 @@ All strings MUST be added to `Strings.pt-BR.resx`. No hardcoded strings in AXAML
 4. User selects target → target title displayed as confirmation
 5. User selects or creates relation type
 6. If creating new type: secondary field for inverse name appears
-7. User clicks "Vincular" → `CriarRelacaoCommand` → creates both A→B and B→A
+7. User clicks "Vincular conteúdos" → `CriarRelacaoCommand` → creates both A→B and B→A
 8. New relation appears in list immediately
 9. Inline form stays open for adding more relations
 
@@ -520,7 +534,7 @@ All strings MUST be added to `Strings.pt-BR.resx`. No hardcoded strings in AXAML
 2. Inline miniform expands with Título/Posição + Data (today default)
 3. User fills required fields
 4. Optional: clicks "Mais detalhes" to reveal Anotações, Nota, Classificação
-5. Clicks "Registrar" → `RegistrarSessaoCommand` → new child Conteudo created with "Contém"/"Parte de" relation
+5. Clicks "Registrar sessão" → `RegistrarSessaoCommand` → new child Conteudo created with "Contém"/"Parte de" relation
 6. Session appears in timeline above
 7. Form clears but stays open for next entry
 8. Progress recalculated automatically
