@@ -10,7 +10,7 @@ Requirements for initial release. Each maps to roadmap phases.
 ### Arquitetura e Design
 
 - [x] **ARQ-01**: Modelagem tática DDD completa para os contextos Acervo e Agregação (agregados, entidades, value objects, eventos de domínio, repositórios)
-- [ ] **ARQ-02**: Walking skeleton end-to-end: criar conteúdo com título, persistir, recuperar, exibir atravessando todas as camadas da arquitetura
+- [x] **ARQ-02**: Walking skeleton end-to-end: criar conteúdo com título, persistir, recuperar, exibir atravessando todas as camadas da arquitetura
 
 ### Acervo — Conteúdo
 
@@ -121,7 +121,7 @@ Explicitly excluded. Documented to prevent scope creep.
 | Requirement | Phase | Status |
 |-------------|-------|--------|
 | ARQ-01 | Phase 1 | Complete |
-| ARQ-02 | Phase 2 | Pending |
+| ARQ-02 | Phase 2 | Complete |
 | ACE-01 | Phase 2 | Pending |
 | ACE-02 | Phase 3 | Pending |
 | ACE-03 | Phase 3 | Pending |
