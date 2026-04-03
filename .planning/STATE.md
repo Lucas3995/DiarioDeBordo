@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 02-03-PLAN.md — Module.Shared PaginatedList<T> with 14 unit tests
-last_updated: "2026-04-03T03:55:26.832Z"
+stopped_at: Completed 02-01-PLAN.md — Solution skeleton, 20 projects, BannedSymbols
+last_updated: "2026-04-03T04:12:03.509Z"
 last_activity: 2026-04-03 -- Phase null execution started
 progress:
   total_phases: 11
   completed_phases: 1
   total_plans: 15
-  completed_plans: 8
+  completed_plans: 9
   percent: 0
 ---
 
@@ -86,6 +86,7 @@ Recent decisions affecting current work:
 - [Phase 02]: Conteudo.Criar() factory enforces I-01/I-02 via DomainException for aggregate consistency; Resultado<T> for service-layer errors
 - [Phase 02]: PaginacaoParams canonical location is DiarioDeBordo.Core.Primitivos — not duplicated in Module.Shared
 - [Phase 02]: TargetFramework changed to net10.0 — only .NET 10 runtime available on build machine
+- [Phase 02]: SDK 10.0 used (SDK 9 not available); TargetFramework net10.0 kept; Testcontainers 4.11.0, Newtonsoft.Json 13.0.4 override
 
 ### Pending Todos
 
@@ -97,6 +98,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-03T03:55:26.830Z
-Stopped at: Completed 02-03-PLAN.md — Module.Shared PaginatedList<T> with 14 unit tests
+Last session: 2026-04-03T04:11:56.911Z
+Stopped at: Completed 02-01-PLAN.md — Solution skeleton, 20 projects, BannedSymbols
 Resume file: None
