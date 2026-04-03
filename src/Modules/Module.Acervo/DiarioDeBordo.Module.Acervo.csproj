@@ -11,6 +11,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <InternalsVisibleTo Include="Tests.Domain" />
+  </ItemGroup>
+
+  <ItemGroup>
     <EmbeddedResource Update="Resources/Strings.pt-BR.resx">
       <LogicalName>DiarioDeBordo.Module.Acervo.Resources.Strings.pt-BR.resources</LogicalName>
     </EmbeddedResource>

@@ -2,7 +2,8 @@
   <PropertyGroup>
     <IsTestProject>true</IsTestProject>
     <!-- CA1515: test classes must be public for xunit discovery -->
-    <NoWarn>$(NoWarn);CA1515</NoWarn>
+    <!-- CA1707: test methods use underscores (Given_When_Then convention) -->
+    <NoWarn>$(NoWarn);CA1515;CA1707</NoWarn>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="../../src/DiarioDeBordo.Core/DiarioDeBordo.Core.csproj" />
