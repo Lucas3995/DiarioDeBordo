@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:element name="root" msdata:IsDataSet="true" />
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+
+  <!-- Acervo — Criar conteúdo -->
+  <data name="CriarConteudo_Titulo" xml:space="preserve">
+    <value>Adicionar conteúdo ao acervo</value>
+  </data>
+  <data name="CriarConteudo_CampoTitulo_Label" xml:space="preserve">
+    <value>Título</value>
+  </data>
+  <data name="CriarConteudo_CampoTitulo_Placeholder" xml:space="preserve">
+    <value>Ex: Duna, A Origem, Cálculo Vol. 1...</value>
+  </data>
+  <data name="CriarConteudo_BotaoCriar" xml:space="preserve">
+    <value>Adicionar</value>
+  </data>
+  <data name="CriarConteudo_BotaoMaisDetalhes" xml:space="preserve">
+    <value>Adicionar detalhes</value>
+  </data>
+  <data name="CriarConteudo_Sucesso" xml:space="preserve">
+    <value>Conteúdo adicionado ao acervo.</value>
+  </data>
+
+  <!-- Acervo — Listagem -->
+  <data name="Acervo_Titulo" xml:space="preserve">
+    <value>Acervo</value>
+  </data>
+  <data name="Acervo_EstadoVazio_Titulo" xml:space="preserve">
+    <value>Seu acervo está vazio</value>
+  </data>
+  <data name="Acervo_EstadoVazio_Descricao" xml:space="preserve">
+    <value>Comece adicionando um conteúdo — livro, filme, série, jogo, artigo ou qualquer coisa sobre a qual você queira guardar informações.</value>
+  </data>
+
+  <!-- Erros de validação -->
+  <data name="Erro_TituloObrigatorio" xml:space="preserve">
+    <value>O título é obrigatório.</value>
+  </data>
+  <data name="Erro_ConteudoNaoEncontrado" xml:space="preserve">
+    <value>Conteúdo não encontrado.</value>
+  </data>
+
+  <!-- Labels genéricos -->
+  <data name="Label_NovoConteudo" xml:space="preserve">
+    <value>Novo Conteúdo</value>
+  </data>
+  <data name="Label_Titulo" xml:space="preserve">
+    <value>Título</value>
+  </data>
+  <data name="Label_Adicionar" xml:space="preserve">
+    <value>Adicionar</value>
+  </data>
+  <data name="Label_Cancelar" xml:space="preserve">
+    <value>Cancelar</value>
+  </data>
+</root>
