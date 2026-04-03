@@ -1,0 +1,9 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <AssemblyName>DiarioDeBordo.Module.Portabilidade</AssemblyName>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../../DiarioDeBordo.Core/DiarioDeBordo.Core.csproj" />
+    <ProjectReference Include="../Module.Shared/DiarioDeBordo.Module.Shared.csproj" />
+  </ItemGroup>
+</Project>

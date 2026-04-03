@@ -1,0 +1,9 @@
+T:System.Security.Cryptography.MD5;MD5 is cryptographically broken. Use SHA256 or Argon2id. (NIST SP 800-131A rev2)
+T:System.Security.Cryptography.SHA1;SHA1 is cryptographically broken. Use SHA256. (NIST SP 800-131A rev2)
+T:System.Security.Cryptography.HMACMD5;HMACMD5 is cryptographically broken.
+T:System.Security.Cryptography.HMACSHA1;HMACSHA1 use SHA1 which is broken.
+T:System.Security.Cryptography.DES;DES key length insufficient. (NIST SP 800-131A rev2)
+T:System.Security.Cryptography.TripleDES;3DES deprecated. (NIST SP 800-131A rev2)
+T:System.Security.Cryptography.RC2;RC2 deprecated.
+T:System.Random;Use RandomNumberGenerator for cryptographic purposes.
+M:Microsoft.EntityFrameworkCore.RelationalQueryableExtensions.FromSqlRaw``1(Microsoft.EntityFrameworkCore.DbSet{``0},System.String,System.Object[]);Use FromSqlInterpolated or LINQ — SQL injection risk.

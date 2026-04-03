@@ -1,0 +1,10 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <AssemblyName>DiarioDeBordo.Module.Acervo</AssemblyName>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../../DiarioDeBordo.Core/DiarioDeBordo.Core.csproj" />
+    <ProjectReference Include="../Module.Shared/DiarioDeBordo.Module.Shared.csproj" />
+    <PackageReference Include="MediatR" Version="12.4.1" />
+  </ItemGroup>
+</Project>

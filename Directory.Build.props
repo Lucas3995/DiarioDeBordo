@@ -29,4 +29,9 @@
     </PackageReference>
     <AdditionalFiles Include="$(MSBuildThisFileDirectory)BannedSymbols.txt" />
   </ItemGroup>
+
+  <!-- Override vulnerable transitive Newtonsoft.Json 12.0.3 brought in by SukiUI/Avalonia -->
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
+  </ItemGroup>
 </Project>
