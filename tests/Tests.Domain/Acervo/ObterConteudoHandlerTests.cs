@@ -19,6 +19,11 @@ public class ObterConteudoHandlerTests
         _handler = new ObterConteudoHandler(_queryService);
     }
 
+    private static ConteudoDetalheData MakeDetalhe(Guid id, string titulo, string? descricao = null, string? anotacoes = null, decimal? nota = null, FormatoMidia formato = FormatoMidia.Texto)
+        => new(id, titulo, descricao, anotacoes, nota, formato, PapelConteudo.Item, DateTimeOffset.UtcNow,
+            null, false, null, null, EstadoProgresso.NaoIniciado, null,
+            [], [], [], 0);
+
     [Fact]
     public async Task Handle_ConteudoNaoEncontrado_RetornaFalha()
     {
@@ -39,8 +44,7 @@ public class ObterConteudoHandlerTests
     {
         var id = Guid.NewGuid();
         var usuarioId = Guid.NewGuid();
-        var data = new ConteudoDetalheData(
-            id, "Duna", "Descricao", "Anotação", 9.0m, FormatoMidia.Texto, PapelConteudo.Item, DateTimeOffset.UtcNow);
+        var data = MakeDetalhe(id, "Duna", "Descricao", "Anotação", 9.0m);
 
         _queryService
             .ObterAsync(id, usuarioId, Arg.Any<CancellationToken>())
@@ -65,8 +69,7 @@ public class ObterConteudoHandlerTests
     {
         var id = Guid.NewGuid();
         var usuarioId = Guid.NewGuid();
-        var data = new ConteudoDetalheData(
-            id, "Sem Descrição", null, null, null, FormatoMidia.Video, PapelConteudo.Item, DateTimeOffset.UtcNow);
+        var data = MakeDetalhe(id, "Sem Descrição", formato: FormatoMidia.Video);
 
         _queryService
             .ObterAsync(id, usuarioId, Arg.Any<CancellationToken>())

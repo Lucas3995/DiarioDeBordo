@@ -23,15 +23,15 @@ internal sealed class ConteudoQueryService : IConteudoQueryService
         Guid usuarioId, PaginacaoParams paginacao, CancellationToken ct)
     {
         var total = await _context.Conteudos
-            .CountAsync(c => c.UsuarioId == usuarioId, ct)
+            .CountAsync(c => c.UsuarioId == usuarioId && !c.IsFilho, ct)
             .ConfigureAwait(false);
 
         var items = await _context.Conteudos
-            .Where(c => c.UsuarioId == usuarioId) // SEG-02: usuarioId mandatory
+            .Where(c => c.UsuarioId == usuarioId && !c.IsFilho) // SEG-02 + D-19: filhos ocultos
             .OrderByDescending(c => c.CriadoEm)
             .Skip(paginacao.Offset)
             .Take(paginacao.ItensPorPagina)
-            .Select(c => new ConteudoResumoData(c.Id, c.Titulo, c.Formato, c.Papel, c.CriadoEm))
+            .Select(c => new ConteudoResumoData(c.Id, c.Titulo, c.Formato, c.Papel, c.CriadoEm, c.Classificacao, c.Subtipo))
             .ToListAsync(ct)
             .ConfigureAwait(false);
 
@@ -51,7 +51,17 @@ internal sealed class ConteudoQueryService : IConteudoQueryService
                 c.Nota,
                 c.Formato,
                 c.Papel,
-                c.CriadoEm))
+                c.CriadoEm,
+                c.Classificacao,
+                c.IsFilho,
+                c.TotalEsperadoSessoes,
+                c.Subtipo,
+                c.Progresso.Estado,
+                c.Progresso.PosicaoAtual,
+                new List<CategoriaData>(),
+                new List<RelacaoData>(),
+                new List<SessaoData>(),
+                0))
             .FirstOrDefaultAsync(ct)
             .ConfigureAwait(false);
     }

@@ -24,6 +24,13 @@ public static class Erros
     // Acervo — Categoria
     public static readonly Erro NomeCategoriaObrigatorio = new("NOME_CATEGORIA_OBRIGATORIO", "Nome de categoria é obrigatório.");
 
+    // Acervo — Relações
+    public static readonly Erro AutoReferenciaProibida = new("AUTO_REFERENCIA_PROIBIDA", "Um conteúdo não pode se relacionar consigo mesmo.");
+    public static readonly Erro RelacaoDuplicada = new("RELACAO_DUPLICADA", "Essa relação já existe entre os dois conteúdos.");
+    public static readonly Erro NomeTipoRelacaoObrigatorio = new("NOME_TIPO_RELACAO_OBRIGATORIO", "Nome do tipo de relação é obrigatório.");
+    public static readonly Erro NomeInversoObrigatorio = new("NOME_INVERSO_OBRIGATORIO", "Nome inverso do tipo de relação é obrigatório.");
+    public static readonly Erro TotalEsperadoInvalido = new("TOTAL_ESPERADO_INVALIDO", "Total esperado de sessões deve ser maior que zero.");
+
     // Genéricos
     public static readonly Erro NaoAutorizado = new("NAO_AUTORIZADO", "Operação não autorizada.");
     public static readonly Erro NaoEncontrado = new("NAO_ENCONTRADO", "Recurso não encontrado.");

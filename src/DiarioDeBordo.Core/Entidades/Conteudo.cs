@@ -19,6 +19,15 @@ public sealed class Conteudo
     public DateTimeOffset CriadoEm { get; init; }
     public DateTimeOffset AtualizadoEm { get; set; }
 
+    /// <summary>Reação imediata do usuário (D-06/D-08). Null = não classificado.</summary>
+    public Classificacao? Classificacao { get; private set; }
+
+    /// <summary>Indica se este conteúdo é filho de outro (sessão/episódio). Oculto na lista principal (D-19).</summary>
+    public bool IsFilho { get; init; }
+
+    /// <summary>Total esperado de sessões filhas para cálculo de progresso percentual (D-21). Null = mostra contagem absoluta.</summary>
+    public int? TotalEsperadoSessoes { get; private set; }
+
     // Child collections (owned by aggregate)
     private readonly List<Fonte> _fontes = [];
     private readonly List<ImagemConteudo> _imagens = [];
@@ -62,6 +71,32 @@ public sealed class Conteudo
             Formato = formato,
             CriadoEm = now,
             AtualizadoEm = now,
+            IsFilho = false,
+        };
+    }
+
+    /// <summary>
+    /// Cria um Conteudo filho (sessão/episódio). IsFilho=true, oculto da lista principal.
+    /// </summary>
+    public static Conteudo CriarComoFilho(
+        Guid usuarioId,
+        string titulo,
+        FormatoMidia formato = FormatoMidia.Nenhum)
+    {
+        if (string.IsNullOrWhiteSpace(titulo))
+            throw new DomainException("TITULO_OBRIGATORIO", "O título é obrigatório."); // I-01
+
+        var now = DateTimeOffset.UtcNow;
+        return new Conteudo
+        {
+            Id = Guid.NewGuid(),
+            UsuarioId = usuarioId,
+            Titulo = titulo.Trim(),
+            Papel = PapelConteudo.Item,
+            Formato = formato,
+            CriadoEm = now,
+            AtualizadoEm = now,
+            IsFilho = true,
         };
     }
 
@@ -73,6 +108,29 @@ public sealed class Conteudo
         if (nota < 0 || nota > 10)
             throw new DomainException("NOTA_FORA_DA_FAIXA", "Nota deve estar entre 0 e 10.");
         Nota = nota;
+        AtualizadoEm = DateTimeOffset.UtcNow;
+    }
+
+    /// <summary>Limpa a nota (set to null). D-06: independente de Classificacao.</summary>
+    public void LimparNota()
+    {
+        Nota = null;
+        AtualizadoEm = DateTimeOffset.UtcNow;
+    }
+
+    /// <summary>Define a classificação imediata. D-06/D-07: independente de Nota. Null = não classificado.</summary>
+    public void DefinirClassificacao(Classificacao? classificacao)
+    {
+        Classificacao = classificacao;
+        AtualizadoEm = DateTimeOffset.UtcNow;
+    }
+
+    /// <summary>Define o total esperado de sessões filhas (D-21). Null = sem total definido.</summary>
+    public void DefinirTotalEsperadoSessoes(int? total)
+    {
+        if (total.HasValue && total.Value <= 0)
+            throw new DomainException("TOTAL_ESPERADO_INVALIDO", "Total esperado de sessões deve ser maior que zero.");
+        TotalEsperadoSessoes = total;
         AtualizadoEm = DateTimeOffset.UtcNow;
     }
 
