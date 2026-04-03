@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: phase_complete
-stopped_at: Phase 01 verified — all 5/5 success criteria satisfied, ready for Phase 02
-last_updated: "2026-04-02T22:30:00Z"
-last_activity: 2026-04-02
+status: executing
+stopped_at: Completed 02-04-PLAN.md — CI pipeline, coverage gate, dotnet-tools.json
+last_updated: "2026-04-03T03:26:45.027Z"
+last_activity: 2026-04-03 -- Phase null execution started
 progress:
   total_phases: 11
   completed_phases: 1
-  total_plans: 5
-  completed_plans: 5
+  total_plans: 15
+  completed_plans: 6
   percent: 0
 ---
 
@@ -21,14 +21,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-02)
 
 **Core value:** O usuário decide o quê, como e quanto consome — em um sistema projetado para não sabotar seu bem-estar.
-**Current focus:** Phase 02 — walking-skeleton (Phase 01 complete)
+**Current focus:** Phase null
 
 ## Current Position
 
-Phase: 01 (modelagem-t-tica-ddd) — COMPLETE
-Plan: 5 of 5
-Status: VERIFIED — 5/5 success criteria satisfied
-Last activity: 2026-04-02
+Phase: null — EXECUTING
+Plan: 1 of ?
+Status: Executing Phase null
+Last activity: 2026-04-03 -- Phase null execution started
 
 Progress: [░░░░░░░░░░] 0%
 
@@ -57,6 +57,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 01 P05 | 10 | 2 tasks | 3 files |
 | Phase 01 P04 | 40 | 2 tasks | 6 files |
 | Phase 01 P01 | 41 | 2 tasks | 9 files |
+| Phase 02 P04 | 8 | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -78,6 +79,7 @@ Recent decisions affecting current work:
 - [Phase 01]: Result<T> e PaginacaoParams definidos em DiarioDeBordo.Core como contratos transversais de todos os módulos
 - [Phase 01]: docs/ como localização de toda documentação de design e arquitetura (ADRs em docs/adr/, threat model em docs/threat-model/, modelos táticos em docs/domain/)
 - [Phase 01]: Cinco ADRs (001-005) com status Aceito formalizando decisões: Avalonia+SukiUI, PostgreSQL bundled 15432, monolito modular, C#/.NET 9+MediatR+Velopack, Argon2id+DPAPI/libsecret+BannedSymbols
+- [Phase 02]: CI pipeline: matrix ubuntu×windows, integration/E2E Linux-only (Docker), coverage gate via xmllint(Linux)/pwsh(Windows), reportgenerator 5.4.4
 
 ### Pending Todos
 
@@ -89,6 +91,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-02T22:01:07.717Z
-Stopped at: Completed 01-01-PLAN.md — docs/ structure and 5 ADRs created
+Last session: 2026-04-03T03:26:45.025Z
+Stopped at: Completed 02-04-PLAN.md — CI pipeline, coverage gate, dotnet-tools.json
 Resume file: None
