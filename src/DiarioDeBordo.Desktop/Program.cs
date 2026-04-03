@@ -1,10 +1,13 @@
-// DiarioDeBordo.Desktop — Phase 2 placeholder entry point. Full implementation in future phases.
+using Avalonia;
+using Avalonia.Controls;
+
 namespace DiarioDeBordo.Desktop;
 
 internal static class Program
 {
-    internal static void Main(string[] args)
-    {
-        // Entry point — wired to Avalonia host in future phases.
-    }
+    [System.STAThread]
+    public static int Main(string[] args) =>
+        App.BuildAvaloniaApp()
+            .StartWithClassicDesktopLifetime(args);
 }
+

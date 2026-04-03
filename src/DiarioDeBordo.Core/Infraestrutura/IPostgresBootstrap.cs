@@ -18,4 +18,10 @@ public interface IPostgresBootstrap
 
     /// <summary>Verifica se o processo pg está aceitando conexões na porta 15432.</summary>
     Task<bool> IsRunningAsync();
+
+    /// <summary>
+    /// Constrói a connection string usando a senha armazenada em secure storage.
+    /// Deve ser chamado após EnsureRunningAsync para garantir que a senha existe.
+    /// </summary>
+    Task<string> BuildConnectionStringAsync(CancellationToken ct);
 }
