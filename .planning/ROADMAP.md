@@ -13,7 +13,7 @@ Aplicação desktop nativa (C#/.NET 9 + Avalonia UI + PostgreSQL), offline-first
 Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: Modelagem Tática DDD** - Traduzir design estratégico em modelo tático de domínio antes de qualquer código (completed 2026-04-02)
-- [ ] **Phase 2: Walking Skeleton** - Provar a arquitetura intencional de ponta a ponta com a fatia mínima de funcionalidade real
+- [x] **Phase 2: Walking Skeleton** - Provar a arquitetura intencional de ponta a ponta com a fatia mínima de funcionalidade real (completed 2026-04-03)
 - [ ] **Phase 3: Acervo Básico** - Gestão de conteúdo utilizável no dia-a-dia, substituindo o bloco de notas
 - [ ] **Phase 4: Curadoria — Coletâneas e Fontes** - Completar o Pilar 1 com coletâneas, fontes, imagens e deduplicação
 - [ ] **Phase 5: Integração Externa** - Construir os adaptadores que conectam o sistema às plataformas de conteúdo externas
@@ -180,7 +180,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Modelagem Tática DDD | 5/5 | Complete   | 2026-04-02 |
-| 2. Walking Skeleton | 9/10 | In Progress|  |
+| 2. Walking Skeleton | 10/10 | Complete   | 2026-04-03 |
 | 3. Acervo Básico | 0/0 | Not started | - |
 | 4. Curadoria — Coletâneas e Fontes | 0/0 | Not started | - |
 | 5. Integração Externa | 0/0 | Not started | - |

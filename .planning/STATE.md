@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 02-10-PLAN.md — Integration tests (Testcontainers), migration verification, E2E walking skeleton (SC1+SC2 proved)
-last_updated: "2026-04-03T05:37:23.941Z"
+stopped_at: Completed 02-08-PLAN.md — UI navigation shell, Acervo view, create form
+last_updated: "2026-04-03T05:59:23.289Z"
 last_activity: 2026-04-03 -- Phase null execution started
 progress:
   total_phases: 11
-  completed_phases: 1
+  completed_phases: 2
   total_plans: 15
-  completed_plans: 14
+  completed_plans: 15
   percent: 0
 ---
 
@@ -65,6 +65,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 02 P05 | 30 | 2 tasks | 13 files |
 | Phase 02 P09 | 3 | 3 tasks | 8 files |
 | Phase 02 P10 | 6 | 4 tasks | 8 files |
+| Phase 02 P08 | 45 | 3 tasks | 15 files |
 
 ## Accumulated Context
 
@@ -101,6 +102,9 @@ Recent decisions affecting current work:
 - [Phase 02]: CA1707 suppressed in Tests.Domain — Given_When_Then xunit convention uses underscores (intentional deviation from global NoWarn)
 - [Phase 02]: InternalsVisibleTo added to Infrastructure.csproj for Tests.Integration and Tests.E2E to access internal repositories
 - [Phase 02]: CA1707/CA2007/CS0618 suppressed in test projects: xunit naming convention allows underscores; Testcontainers API in transition
+- [Phase 02]: SukiUI 2.1.0 is theme-only for Avalonia 0.10.12 — no SukiWindow exists; FluentTheme used instead
+- [Phase 02]: BuildConnectionStringAsync added to IPostgresBootstrap interface — required for two-phase DI startup in App.axaml.cs
+- [Phase 02]: Func<T> factory pattern in DI for ViewModel creation — avoids service locator anti-pattern
 
 ### Pending Todos
 
@@ -112,6 +116,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-03T05:37:23.939Z
-Stopped at: Completed 02-10-PLAN.md — Integration tests (Testcontainers), migration verification, E2E walking skeleton (SC1+SC2 proved)
+Last session: 2026-04-03T05:59:23.287Z
+Stopped at: Completed 02-08-PLAN.md — UI navigation shell, Acervo view, create form
 Resume file: None
