@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 02-07-PLAN.md — PostgresBootstrap + secure storage adapters
-last_updated: "2026-04-03T04:59:19.497Z"
+stopped_at: Completed 02-05-PLAN.md — Infrastructure DbContext, EF Core config, repositories, InitialCreate migration
+last_updated: "2026-04-03T05:10:01.411Z"
 last_activity: 2026-04-03 -- Phase null execution started
 progress:
   total_phases: 11
   completed_phases: 1
   total_plans: 15
-  completed_plans: 11
+  completed_plans: 12
   percent: 0
 ---
 
@@ -62,6 +62,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 02 P03 | 41 | 2 tasks | 7 files |
 | Phase 02 P06 | 15 | 2 tasks | 11 files |
 | Phase 02 P07 | 21 | 1 tasks | 6 files |
+| Phase 02 P05 | 30 | 2 tasks | 13 files |
 
 ## Accumulated Context
 
@@ -93,6 +94,8 @@ Recent decisions affecting current work:
 - [Phase 02]: AcervoServiceCollectionExtensions naming convention for DI extension classes (CA1724 — avoids namespace collision)
 - [Phase 02]: BuildConnectionStringAsync is internal helper not part of IPostgresBootstrap interface
 - [Phase 02]: System.Security.Cryptography.ProtectedData added unconditionally — cross-platform package, DPAPI only called on Windows branch
+- [Phase 02]: DependencyInjection renamed to InfrastructureServiceCollectionExtensions — CA1724 namespace conflict
+- [Phase 02]: SEG-02 enforced in all repository methods: .Where(c => c.UsuarioId == usuarioId) mandatory
 
 ### Pending Todos
 
@@ -104,6 +107,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-03T04:59:19.495Z
-Stopped at: Completed 02-07-PLAN.md — PostgresBootstrap + secure storage adapters
+Last session: 2026-04-03T05:10:01.409Z
+Stopped at: Completed 02-05-PLAN.md — Infrastructure DbContext, EF Core config, repositories, InitialCreate migration
 Resume file: None
