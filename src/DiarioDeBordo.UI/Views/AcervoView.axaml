@@ -1,0 +1,113 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:DiarioDeBordo.UI.ViewModels"
+             xmlns:dto="using:DiarioDeBordo.Module.Acervo.DTOs"
+             x:Class="DiarioDeBordo.UI.Views.AcervoView"
+             x:DataType="vm:AcervoViewModel"
+             AutomationProperties.Name="Acervo — lista de conteúdos">
+
+    <Grid RowDefinitions="Auto,*,Auto">
+
+        <!-- Header row -->
+        <Grid Grid.Row="0" Margin="24,20,24,8" ColumnDefinitions="*,Auto">
+            <TextBlock Grid.Column="0"
+                       Text="Acervo"
+                       FontSize="24"
+                       FontWeight="Bold"
+                       VerticalAlignment="Center" />
+
+            <Button Grid.Column="1"
+                    Content="+ Adicionar"
+                    Command="{Binding AbrirFormularioCriarCommand}"
+                    AutomationProperties.Name="Abrir formulário para adicionar conteúdo"
+                    IsVisible="{Binding !MostrarFormularioCriar}" />
+        </Grid>
+
+        <!-- Create form (progressive disclosure — shown on demand) -->
+        <Border Grid.Row="0"
+                IsVisible="{Binding MostrarFormularioCriar}"
+                Margin="24,56,24,8"
+                Padding="16"
+                BorderThickness="1"
+                BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}"
+                CornerRadius="6"
+                AutomationProperties.Name="Formulário para adicionar conteúdo">
+            <ContentControl Content="{Binding CriarConteudoViewModel}" />
+        </Border>
+
+        <!-- Content list / empty state / loading -->
+        <Panel Grid.Row="1">
+
+            <!-- Loading indicator -->
+            <ProgressBar IsIndeterminate="True"
+                         IsVisible="{Binding IsLoading}"
+                         HorizontalAlignment="Center"
+                         VerticalAlignment="Center"
+                         Width="200"
+                         AutomationProperties.Name="Carregando conteúdos" />
+
+            <!-- Empty state (narrative — Norman 2013) -->
+            <StackPanel IsVisible="{Binding IsEmpty}"
+                        VerticalAlignment="Center"
+                        HorizontalAlignment="Center"
+                        Spacing="8"
+                        AutomationProperties.Name="Estado vazio do acervo">
+                <TextBlock Text="Seu acervo está vazio"
+                           FontSize="20"
+                           FontWeight="SemiBold"
+                           HorizontalAlignment="Center" />
+                <TextBlock Text="Comece adicionando um conteúdo — livro, filme, série, jogo ou artigo."
+                           TextWrapping="Wrap"
+                           MaxWidth="400"
+                           HorizontalAlignment="Center"
+                           TextAlignment="Center"
+                           Opacity="0.6" />
+                <Button Content="Adicionar primeiro conteúdo"
+                        HorizontalAlignment="Center"
+                        Margin="0,8,0,0"
+                        Command="{Binding AbrirFormularioCriarCommand}"
+                        AutomationProperties.Name="Adicionar primeiro conteúdo ao acervo" />
+            </StackPanel>
+
+            <!-- Content list -->
+            <ScrollViewer IsVisible="{Binding !IsEmpty}">
+                <ItemsControl ItemsSource="{Binding Conteudos}"
+                              Margin="24,8,24,24"
+                              AutomationProperties.Name="Lista de conteúdos do acervo">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate x:DataType="dto:ConteudoResumoDto">
+                            <Border Margin="0,0,0,8"
+                                    Padding="16"
+                                    BorderThickness="1"
+                                    BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}"
+                                    CornerRadius="4"
+                                    AutomationProperties.Name="{Binding Titulo}">
+                                <Grid ColumnDefinitions="*,Auto">
+                                    <TextBlock Grid.Column="0"
+                                               Text="{Binding Titulo}"
+                                               FontSize="15"
+                                               VerticalAlignment="Center" />
+                                    <TextBlock Grid.Column="1"
+                                               Text="{Binding Formato}"
+                                               FontSize="12"
+                                               Opacity="0.6"
+                                               VerticalAlignment="Center"
+                                               Margin="8,0,0,0" />
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </ScrollViewer>
+
+        </Panel>
+
+        <!-- Status bar -->
+        <TextBlock Grid.Row="2"
+                   Margin="24,4"
+                   Text="{Binding Conteudos.Count, StringFormat='{}{0} conteúdo(s)'}"
+                   FontSize="12"
+                   Opacity="0.5" />
+
+    </Grid>
+</UserControl>

@@ -5,10 +5,12 @@
   <ItemGroup>
     <ProjectReference Include="../DiarioDeBordo.Core/DiarioDeBordo.Core.csproj" />
     <ProjectReference Include="../Modules/Module.Shared/DiarioDeBordo.Module.Shared.csproj" />
+    <ProjectReference Include="../Modules/Module.Acervo/DiarioDeBordo.Module.Acervo.csproj" />
     <PackageReference Include="Avalonia" Version="11.2.4" />
     <PackageReference Include="Avalonia.Themes.Fluent" Version="11.2.4" />
     <PackageReference Include="Avalonia.Desktop" Version="11.2.4" />
     <PackageReference Include="SukiUI" Version="2.1.0" />
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
+    <PackageReference Include="MediatR" Version="12.4.1" />
   </ItemGroup>
 </Project>

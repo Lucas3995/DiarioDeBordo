@@ -1,0 +1,54 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:DiarioDeBordo.UI.ViewModels"
+        x:Class="DiarioDeBordo.UI.Views.MainWindow"
+        x:DataType="vm:MainViewModel"
+        Title="Diário de Bordo"
+        Width="1024"
+        Height="768"
+        MinWidth="800"
+        MinHeight="600"
+        AutomationProperties.Name="Janela principal do Diário de Bordo">
+
+    <Grid ColumnDefinitions="220,*">
+
+        <!-- Navigation sidebar (D-03: always visible, WCAG 2.4.3 focus order) -->
+        <Border Grid.Column="0"
+                BorderThickness="0,0,1,0"
+                BorderBrush="{DynamicResource SystemControlForegroundBaseMediumLowBrush}"
+                AutomationProperties.Name="Menu lateral de navegação">
+
+            <StackPanel Margin="0,8">
+
+                <TextBlock Text="Diário de Bordo"
+                           Margin="16,8,16,20"
+                           FontWeight="Bold"
+                           FontSize="16" />
+
+                <!-- Navigation items — keyboard-navigable via Tab + Enter -->
+                <ItemsControl ItemsSource="{Binding NavigationItems}"
+                              AutomationProperties.Name="Itens de navegação">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate x:DataType="vm:NavigationItem">
+                            <Button Command="{Binding NavegarCommand}"
+                                    HorizontalContentAlignment="Left"
+                                    HorizontalAlignment="Stretch"
+                                    Margin="8,2"
+                                    Padding="12,8"
+                                    AutomationProperties.Name="{Binding Titulo}">
+                                <TextBlock Text="{Binding Titulo}" />
+                            </Button>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+
+            </StackPanel>
+        </Border>
+
+        <!-- Content area — ViewModel → View resolved via DataTemplates in App.axaml -->
+        <ContentControl Grid.Column="1"
+                        Content="{Binding ActiveViewModel}"
+                        AutomationProperties.Name="Área de conteúdo principal" />
+
+    </Grid>
+</Window>
