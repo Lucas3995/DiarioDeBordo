@@ -38,7 +38,10 @@ public sealed class PaginatedList<T>
     /// Cria uma PaginatedList executando COUNT + SELECT paginado via EF Core.
     /// O IQueryable ainda não deve ter sido executado (sem ToList/ToArray/etc).
     /// </summary>
+    /// <remarks>Fase 2: não chamado diretamente — queries usam ConteudoQueryService internamente.
+    /// Será usado a partir da Fase 6 (busca full-text com IQueryable composto).</remarks>
 #pragma warning disable CA1000 // Factory methods on generic types are intentional design (query pagination)
+    [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage(Justification = "Phase 6+: requires EF Core IQueryable pipeline — not wired in Phase 2. Tested when first used.")]
     public static async Task<PaginatedList<T>> CriarAsync(
         IQueryable<T> source,
         PaginacaoParams paginacao,

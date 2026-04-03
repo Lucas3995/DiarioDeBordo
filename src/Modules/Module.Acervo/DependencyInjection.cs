@@ -6,6 +6,7 @@ namespace DiarioDeBordo.Module.Acervo;
 /// Extensões de registro de serviços do Module.Acervo.
 /// MediatR handlers são auto-registrados via AddMediatR com escaneamento de assembly.
 /// </summary>
+[System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage(Justification = "DI wiring — exercised by E2E bootstrap, not unit coverage.")]
 public static class AcervoServiceCollectionExtensions
 {
     /// <summary>

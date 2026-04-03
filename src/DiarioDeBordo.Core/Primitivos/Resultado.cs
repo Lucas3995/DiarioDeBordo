@@ -32,4 +32,5 @@ public sealed record Resultado<T>
 
 public sealed record Erro(string Codigo, string Mensagem);
 
+[System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage(Justification = "Phase 10: uso saudável — alertas de consumo não implementados até a fase final.")]
 public sealed record AlertaUsoSaudavel(string Mensagem);

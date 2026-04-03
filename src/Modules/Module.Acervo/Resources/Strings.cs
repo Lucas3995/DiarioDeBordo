@@ -4,6 +4,7 @@ using System.Resources;
 namespace DiarioDeBordo.Module.Acervo.Resources;
 
 /// <summary>Acesso fortemente tipado às strings do Módulo Acervo (pt-BR).</summary>
+[System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage(Justification = "Generated resource accessor — strings validated via UI/E2E tests, not unit coverage.")]
 internal static class Strings
 {
 #pragma warning disable CA1810 // Initialization of _rm is straightforward and not performance-critical here

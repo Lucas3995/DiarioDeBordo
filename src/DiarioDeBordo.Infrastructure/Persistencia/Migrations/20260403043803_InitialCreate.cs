@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace DiarioDeBordo.Persistencia.Migrations
 {
     /// <inheritdoc />
+    [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage(Justification = "EF Core generated migration — Up() is covered by integration tests (MigrationTests); Down() rollback not called in CI.")]
     public partial class InitialCreate : Migration
     {
         /// <inheritdoc />

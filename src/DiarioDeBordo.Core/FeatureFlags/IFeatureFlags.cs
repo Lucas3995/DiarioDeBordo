@@ -10,6 +10,7 @@ public interface IFeatureFlags
 }
 
 /// <summary>Placeholder: all flags off by default until Phase 3 implements feature flag storage.</summary>
+[System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage(Justification = "Phase 3 placeholder — feature flag storage not yet implemented.")]
 public sealed class FeatureFlagsPlaceholder : IFeatureFlags
 {
     public bool IsEnabled(string flagName) => false;
