@@ -83,7 +83,7 @@ All colors use FluentTheme `DynamicResource` semantic tokens. No hardcoded hex v
 3. "Adicionar primeiro conteúdo" button in empty state
 4. Active/selected navigation item highlight
 5. Classificação "Gostei" icon (filled state)
-6. Category chip with `Origem.Automatica` background tint
+6. Category chip with `Origem.Automatica` background tint — implemented as `SystemAccentColor` at `Opacity="0.15"` (secondary tint, not full accent background; does not compete with the focal point CTA's full-intensity accent fill)
 7. Progress bar fill
 8. Focused input field border (FluentTheme default behavior)
 
@@ -408,7 +408,6 @@ All strings MUST be added to `Strings.pt-BR.resx`. No hardcoded strings in AXAML
 | Add relation | `Relacao_BotaoAdicionar` | `Adicionar relação` |
 | Link relation | `Relacao_BotaoVincular` | `Vincular conteúdos` |
 | Register session | `Sessao_BotaoRegistrar` | `Registrar sessão` |
-| Confirm session | `Sessao_BotaoConfirmar` | `Registrar sessão` |
 | Toggle details | `Formulario_MaisDetalhes` | `Mais detalhes` |
 | Toggle details (hide) | `Formulario_MenosDetalhes` | `Menos detalhes` |
 | View detail (card) | `Card_VerDetalhe` | `Ver detalhe` |
