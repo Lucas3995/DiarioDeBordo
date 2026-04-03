@@ -1,6 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <AssemblyName>DiarioDeBordo.Infrastructure</AssemblyName>
+    <!-- CA1812: internal classes instantiated only via DI/EF Core (not directly in code).
+         CA1308: ToLowerInvariant is intentional for category name normalization. -->
+    <NoWarn>CA1812;CA1308</NoWarn>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="../DiarioDeBordo.Core/DiarioDeBordo.Core.csproj" />
@@ -9,5 +12,10 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.4" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="9.0.4" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.4" />
+    <!-- Windows DPAPI: package available cross-platform but DPAPI methods only work on Windows at runtime -->
+    <PackageReference Include="System.Security.Cryptography.ProtectedData" Version="9.0.0" />
   </ItemGroup>
 </Project>
