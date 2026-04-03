@@ -5,6 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace DiarioDeBordo.Infrastructure;
 
+[System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage(Justification = "Pre-DI bootstrap wiring — executes only during app startup, validated by E2E smoke test.")]
 public static class DependencyInjectionBootstrap
 {
     /// <summary>

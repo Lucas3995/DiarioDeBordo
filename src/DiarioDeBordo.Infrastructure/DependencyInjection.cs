@@ -8,6 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace DiarioDeBordo.Infrastructure;
 
+[System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage(Justification = "DI wiring — validated end-to-end by integration and E2E tests, not by unit coverage.")]
 public static class InfrastructureServiceCollectionExtensions
 {
     public static IServiceCollection AddInfrastructure(

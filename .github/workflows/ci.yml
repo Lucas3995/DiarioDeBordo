@@ -80,13 +80,17 @@ jobs:
           --results-directory ./coverage/e2e
           --logger "trx;LogFileName=e2e-results.trx"
 
-      # Merge coverage reports from all test runs
+      # Merge coverage reports from all test runs.
+      # Exclude Desktop (entry-point bootstrapper) and UI (view layer) assemblies:
+      # these are tested via E2E smoke test and manual validation, not unit coverage.
+      # Business logic coverage gate applies to: Core, Infrastructure, Module.Acervo, Module.Shared.
       - name: Generate coverage report
         run: >
           dotnet tool run reportgenerator
           -reports:"./coverage/**/coverage.cobertura.xml"
           -targetdir:"./coverage/report"
           -reporttypes:"HtmlInline;Cobertura;Badges"
+          "-assemblyfilters:-DiarioDeBordo.Desktop;-DiarioDeBordo.UI"
 
       # Coverage gate: fail if line coverage < 95%
       # Linux: all test suites run (Unit + Domain + Integration + E2E) — full coverage gate applies

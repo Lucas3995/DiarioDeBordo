@@ -274,3 +274,30 @@ Este projeto usa o framework **GSD** (Get Shit Done) via comandos `/gsd:*` no Cl
 - `.planning/config.json` — configuração do GSD (modo, granularidade, estratégia de branches)
 - `.planning/phases/<N>/` — PLAN.md, CONTEXT.md, VERIFICATION.md de cada fase
 - Após cada fase: `.planning/PROJECT.md` deve ser atualizado (requisitos validados/invalidados, novas decisões)
+
+---
+
+## Regra de Auto-Correção: CI e Validações Externas
+
+**Sempre que fizer uma alteração que afete a CI (workflows, configuração de cobertura, build, dependências), execute o seguinte loop até a CI passar:**
+
+1. **Faça a alteração** e commite/push.
+2. **Aguarde a CI completar** — use `github-mcp-server-actions_list` com `status: "completed"` para detectar o novo run no branch correto.
+3. **Verifique o resultado** — se `conclusion == "success"`, done. Se `conclusion == "failure"`:
+   a. Use `github-mcp-server-get_job_logs` com `failed_only: true` no run_id para ler os logs de erro reais.
+   b. Identifique a causa raiz (não assuma — leia os logs).
+   c. Aplique a correção.
+   d. Commite/push e volte ao passo 2.
+4. **Só declare sucesso quando `conclusion == "success"`** — nunca assuma que a correção funcionou sem confirmar o resultado real da CI.
+
+**Esta regra se aplica também a:**
+- Qualquer alteração em `Directory.Build.props`, `.editorconfig`, `global.json`
+- Qualquer adição/remoção de pacote NuGet
+- Qualquer alteração em arquivos de teste que possam afetar cobertura
+- Correções de warnings ou erros de compilação que não foram testados localmente
+
+**Ferramentas disponíveis:**
+```
+github-mcp-server-actions_list   → listar runs recentes por branch
+github-mcp-server-get_job_logs   → ler logs do job falho
+```

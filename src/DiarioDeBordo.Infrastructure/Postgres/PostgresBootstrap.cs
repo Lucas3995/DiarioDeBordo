@@ -5,8 +5,11 @@ using System.Globalization;
 using System.Security.Cryptography;
 using System.Text;
 
+using System.Diagnostics.CodeAnalysis;
+
 namespace DiarioDeBordo.Infrastructure.Postgres;
 
+[ExcludeFromCodeCoverage(Justification = "OS-level integration: manages pg_ctl process lifecycle — not testable without a real PostgreSQL installation. Integration tests use Testcontainers instead.")]
 internal sealed partial class PostgresBootstrap : IPostgresBootstrap
 {
     private readonly IArmazenamentoSeguro _secureStorage;

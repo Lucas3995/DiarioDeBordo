@@ -1,10 +1,12 @@
 using DiarioDeBordo.Core.Infraestrutura;
+using System.Diagnostics.CodeAnalysis;
 using System.Security.Cryptography;
 using System.Text;
 
 namespace DiarioDeBordo.Infrastructure.Seguranca;
 
 [System.Runtime.Versioning.SupportedOSPlatform("linux")]
+[ExcludeFromCodeCoverage(Justification = "OS-level integration: requires secret-tool (libsecret) or filesystem — not testable in CI containers.")]
 internal sealed class ArmazenamentoSeguroLinux : IArmazenamentoSeguro
 {
     private const string AppName = "DiarioDeBordo";

@@ -8,6 +8,7 @@ namespace DiarioDeBordo.Infrastructure.Persistencia;
 /// Não é usado em runtime — a conexão real vem do DI container.
 /// Set DIARIODEBORDO_EF_DEV_PG_PASSWORD before running migrations.
 /// </summary>
+[System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage(Justification = "EF Core design-time tooling only — never called at runtime or in tests.")]
 internal sealed class DesignTimeDbContextFactory : IDesignTimeDbContextFactory<DiarioDeBordoDbContext>
 {
     public DiarioDeBordoDbContext CreateDbContext(string[] args)

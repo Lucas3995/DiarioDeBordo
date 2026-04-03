@@ -1,10 +1,12 @@
 using DiarioDeBordo.Core.Infraestrutura;
+using System.Diagnostics.CodeAnalysis;
 using System.Security.Cryptography;
 using System.Text;
 
 namespace DiarioDeBordo.Infrastructure.Seguranca;
 
 [System.Runtime.Versioning.SupportedOSPlatform("windows")]
+[ExcludeFromCodeCoverage(Justification = "OS-level integration: requires Windows DPAPI — not testable in Linux CI runners.")]
 internal sealed class ArmazenamentoSeguroWindows : IArmazenamentoSeguro
 {
     private static readonly byte[] Entropy = Encoding.UTF8.GetBytes("DiarioDeBordo-v1");
