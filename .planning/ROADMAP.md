@@ -67,8 +67,15 @@ Plans:
   3. O usuário cria relações bidirecionais entre conteúdos com tipo de relação; ao editar um lado, o outro é atualizado automaticamente
   4. Todas as listagens usam paginação — scroll infinito é impossível por design
   5. O formulário usa disclosure progressivo: apenas o campo obrigatório (título) aparece por padrão
-**Plans**: TBD
-**UI hint**: yes
+**Plans**: 6 plans
+
+Plans:
+- [ ] 03-01-PLAN.md — Domain model enrichment: entities (TipoRelacao, Relacao, ConteudoCategoria), Classificacao enum, Conteudo updates (IsFilho, TotalEsperadoSessoes), repo interfaces, domain tests
+- [ ] 03-02-PLAN.md — Persistence layer: EF configurations, migration, seed data (9 TipoRelacao), repository implementations, ConteudoQueryService IsFilho filter, integration tests
+- [ ] 03-03-PLAN.md — Application layer: AtualizarConteudo, ExcluirConteudo, CriarRelacao, RemoverRelacao, RegistrarSessao commands + enriched DTOs + Strings.resx + handler tests
+- [ ] 03-04-PLAN.md — UI modal infrastructure: ConteudoDetalheWindow (4 Expander sections), ConfirmacaoDialog, IDialogService, ConteudoDetalheViewModel (dirty tracking), enhanced ConteudoCard + pagination
+- [ ] 03-05-PLAN.md — UI interactive components: Avaliação (Nota + Classificação), Category chips with autocomplete, Relations section with inline add form
+- [ ] 03-06-PLAN.md — UI session timeline + miniform + progress display + visual verification checkpoint
 
 ### Phase 4: Curadoria — Coletâneas e Fontes
 **Goal**: O Pilar 1 está completo: o usuário organiza seu acervo em coletâneas (guiada e miscelânea), registra fontes com fallback, e o sistema detecta duplicações
@@ -181,7 +188,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 |-------|----------------|--------|-----------|
 | 1. Modelagem Tática DDD | 5/5 | Complete   | 2026-04-02 |
 | 2. Walking Skeleton | 10/10 | Complete   | 2026-04-03 |
-| 3. Acervo Básico | 0/0 | Not started | - |
+| 3. Acervo Básico | 0/6 | Planned | - |
 | 4. Curadoria — Coletâneas e Fontes | 0/0 | Not started | - |
 | 5. Integração Externa | 0/0 | Not started | - |
 | 6. Agregação | 0/0 | Not started | - |
