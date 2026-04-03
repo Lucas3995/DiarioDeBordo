@@ -4,8 +4,9 @@
 
 **Gestão pessoal de acervo e agregação de fontes externas — sem dark patterns.**
 
+[![CI](https://github.com/Lucas3995/DiarioDeBordo/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/Lucas3995/DiarioDeBordo/actions/workflows/ci.yml)
 [![Status](https://img.shields.io/badge/status-em%20desenvolvimento-orange?style=flat-square)](https://github.com)
-[![Fase atual](https://img.shields.io/badge/fase-1%20Modelagem%20Tática%20DDD-blue?style=flat-square)](#roadmap)
+[![Fase atual](https://img.shields.io/badge/fase-2%20Walking%20Skeleton-blue?style=flat-square)](#roadmap)
 [![Plataforma](https://img.shields.io/badge/plataforma-Windows%20%7C%20Linux-informational?style=flat-square)](#stack)
 [![.NET](https://img.shields.io/badge/.NET-9%20LTS-512BD4?style=flat-square&logo=dotnet)](https://dotnet.microsoft.com)
 [![Licença](https://img.shields.io/badge/licen%C3%A7a-a%20definir-lightgrey?style=flat-square)](#)
