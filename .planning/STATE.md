@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 02-09-PLAN.md — domain invariant tests I-01 through I-12
-last_updated: "2026-04-03T05:35:07.639Z"
+stopped_at: Completed 02-10-PLAN.md — Integration tests (Testcontainers), migration verification, E2E walking skeleton (SC1+SC2 proved)
+last_updated: "2026-04-03T05:37:23.941Z"
 last_activity: 2026-04-03 -- Phase null execution started
 progress:
   total_phases: 11
   completed_phases: 1
   total_plans: 15
-  completed_plans: 13
+  completed_plans: 14
   percent: 0
 ---
 
@@ -64,6 +64,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 02 P07 | 21 | 1 tasks | 6 files |
 | Phase 02 P05 | 30 | 2 tasks | 13 files |
 | Phase 02 P09 | 3 | 3 tasks | 8 files |
+| Phase 02 P10 | 6 | 4 tasks | 8 files |
 
 ## Accumulated Context
 
@@ -98,6 +99,8 @@ Recent decisions affecting current work:
 - [Phase 02]: DependencyInjection renamed to InfrastructureServiceCollectionExtensions — CA1724 namespace conflict
 - [Phase 02]: SEG-02 enforced in all repository methods: .Where(c => c.UsuarioId == usuarioId) mandatory
 - [Phase 02]: CA1707 suppressed in Tests.Domain — Given_When_Then xunit convention uses underscores (intentional deviation from global NoWarn)
+- [Phase 02]: InternalsVisibleTo added to Infrastructure.csproj for Tests.Integration and Tests.E2E to access internal repositories
+- [Phase 02]: CA1707/CA2007/CS0618 suppressed in test projects: xunit naming convention allows underscores; Testcontainers API in transition
 
 ### Pending Todos
 
@@ -109,6 +112,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-03T05:35:07.637Z
-Stopped at: Completed 02-09-PLAN.md — domain invariant tests I-01 through I-12
+Last session: 2026-04-03T05:37:23.939Z
+Stopped at: Completed 02-10-PLAN.md — Integration tests (Testcontainers), migration verification, E2E walking skeleton (SC1+SC2 proved)
 Resume file: None

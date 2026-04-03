@@ -180,7 +180,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 →
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Modelagem Tática DDD | 5/5 | Complete   | 2026-04-02 |
-| 2. Walking Skeleton | 8/10 | In Progress|  |
+| 2. Walking Skeleton | 9/10 | In Progress|  |
 | 3. Acervo Básico | 0/0 | Not started | - |
 | 4. Curadoria — Coletâneas e Fontes | 0/0 | Not started | - |
 | 5. Integração Externa | 0/0 | Not started | - |
