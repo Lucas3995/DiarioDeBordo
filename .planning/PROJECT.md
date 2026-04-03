@@ -2,7 +2,7 @@
 
 ## What This Is
 
-Aplicação desktop nativa (C#/.NET 9 + Avalonia UI + PostgreSQL), offline-first, que devolve ao usuário a agência sobre seu consumo de conteúdo. Dois pilares independentes: (1) gestão pessoal de acervo — registrar, anotar, organizar e acompanhar qualquer tipo de conteúdo sem internet; (2) agregação de fontes externas sem dark patterns — substituir o feed das redes sociais por um ambiente controlado pelo usuário, sem algoritmo de ranqueamento, scroll infinito ou métricas sociais. Não é uma rede social, não é um serviço web. É um programa local, análogo ao Calibre.
+Aplicação desktop nativa (C#/.NET 10 + Avalonia UI + PostgreSQL), offline-first, que devolve ao usuário a agência sobre seu consumo de conteúdo. Dois pilares independentes: (1) gestão pessoal de acervo — registrar, anotar, organizar e acompanhar qualquer tipo de conteúdo sem internet; (2) agregação de fontes externas sem dark patterns — substituir o feed das redes sociais por um ambiente controlado pelo usuário, sem algoritmo de ranqueamento, scroll infinito ou métricas sociais. Não é uma rede social, não é um serviço web. É um programa local, análogo ao Calibre.
 
 ## Core Value
 
@@ -12,7 +12,16 @@ O usuário decide o quê, como e quanto consome — em um sistema projetado para
 
 ### Validated
 
-(None yet — ship to validate)
+**Phase 1 (Modelagem Tática DDD):**
+- [x] ARQ-01 — DDD tactical modeling complete (Acervo + Agregação contexts: aggregates, entities, VOs, domain events, repositories)
+- [x] SEG-07 — ADRs documented in `docs/adr/`
+
+**Phase 2 (Walking Skeleton) — Validated 2026-04-03:**
+- [x] ARQ-02 — Walking skeleton E2E proven: `CriarConteudoCommand → PostgreSQL → ListarConteudosQuery` returns item (WalkingSkeletonTests, real PostgreSQL via Testcontainers)
+- [x] ACE-09 — Pagination mandatory in all listings (`PaginacaoParams` enforced in `ListarConteudosQuery`; unit tests pass)
+- [x] ACE-03 (partial) — Categories: case-insensitive deduplication, user isolation, prefix autocomplete verified via `CategoriaRepositoryTests`
+- [x] SEG-02 (gate configured) — ≥95% coverage gate active in `.github/workflows/ci.yml` (fail if `line-rate < 0.95`)
+- [x] SEG-03 (active invariants) — 44/44 active domain invariants (I-01 through I-12 except I08/I09 which are Phase 3 stubs) covered by `Tests.Domain`
 
 ### Active
 
@@ -121,7 +130,7 @@ O projeto possui design estratégico DDD completo em `especificacoes/`:
 
 ## Constraints
 
-- **Tech Stack**: C#/.NET 9 LTS, Avalonia UI + SukiUI, CommunityToolkit.Mvvm, MediatR — definido em Padrões Técnicos v4
+- **Tech Stack**: C#/.NET 10, Avalonia UI + FluentTheme (SukiUI dropped — incompatible with Avalonia 11 theming API), CommunityToolkit.Mvvm, MediatR — SukiUI replaced by Window + Avalonia built-in FluentTheme in Phase 2
 - **Plataforma**: Linux e Windows (cross-platform obrigatório desde a Etapa 1)
 - **Segurança**: Pentest full scope por milestone; threat model antes das camadas de rede e persistência
 - **Acessibilidade**: WCAG 2.2 AAA — verificado em cada fase com componente de UI
@@ -134,12 +143,14 @@ O projeto possui design estratégico DDD completo em `especificacoes/`:
 
 | Decision | Rationale | Outcome |
 |----------|-----------|---------|
-| Avalonia UI + SukiUI | Único framework .NET com suporte nativo real a Linux e Windows via Skia, licença MIT, adotado pelo JetBrains | — Pending |
-| Monolito modular com bounded contexts | Evita complexidade de microserviços para aplicação desktop single-user; bounded contexts garantem coesão sem acoplamento | — Pending |
-| Walking skeleton como Etapa 1 | Prova a arquitetura intencional antes de construir funcionalidade; erros de design custam mais se descobertos tarde | — Pending |
-| Etapas 0-5 com ordem fixa | Dependências reais: modelagem tática antes de código, Pilar 1 antes do Pilar 2, adaptadores antes da agregação | — Pending |
+| Avalonia UI + SukiUI | Único framework .NET com suporte nativo real a Linux e Windows via Skia, licença MIT, adotado pelo JetBrains | SukiUI **dropped** — incompatível com Avalonia 11 theming API; substituído por Window + FluentTheme built-in |
+| Monolito modular com bounded contexts | Evita complexidade de microserviços para aplicação desktop single-user; bounded contexts garantem coesão sem acoplamento | **Confirmed** — Module.Acervo has zero Infrastructure dependency (enforced by csproj) |
+| Walking skeleton como Etapa 1 | Prova a arquitetura intencional antes de construir funcionalidade; erros de design custam mais se descobertos tarde | **Proven** — E2E test traverses all layers on real PostgreSQL |
+| Etapas 0-5 com ordem fixa | Dependências reais: modelagem tática antes de código, Pilar 1 antes do Pilar 2, adaptadores antes da agregação | **On track** |
 | Feed como visão efêmera | Respeita Uso Saudável: sem persistência passiva de conteúdo que o usuário não escolheu explicitamente salvar | — Pending |
 | Threat model criado antes da implementação | Pentest full scope por milestone exige que ameaças sejam modeladas antes de superfícies de ataque serem implementadas | — Pending |
+| .NET 10 (deviation from plan) | Plan written for .NET 9; .NET 10 available and used; `global.json` updated, CI updated to `10.0.x` | **Adopted** — all tests pass on .NET 10 |
+| InternalsVisibleTo for test projects | `ConteudoRepository`, `CategoriaRepository`, `ConteudoQueryService` are `internal sealed`; test projects need access | **Applied** — `InternalsVisibleTo` in `DiarioDeBordo.Infrastructure.csproj` for `Tests.Integration` and `Tests.E2E` |
 
 ## Evolution
 
@@ -159,4 +170,4 @@ Este documento evolui a cada transição de fase e marco de milestone.
 4. Atualizar Context com estado atual
 
 ---
-*Last updated: 2026-04-02 after initialization*
+*Last updated: 2026-04-03 after Phase 2 (Walking Skeleton) verification — PHASE COMPLETE*
