@@ -24,10 +24,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup .NET 9
+      - name: Setup .NET 10
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '9.0.x'
+          dotnet-version: '10.0.x'
 
       - name: Restore tools (reportgenerator)
         run: dotnet tool restore
@@ -88,31 +88,24 @@ jobs:
           -targetdir:"./coverage/report"
           -reporttypes:"HtmlInline;Cobertura;Badges"
 
-      # Coverage gate: fail if line coverage < 95% (Linux)
+      # Coverage gate: fail if line coverage < 95%
+      # Linux: all test suites run (Unit + Domain + Integration + E2E) — full coverage gate applies
+      # Windows: Integration/E2E require Docker (not available) — coverage gate skipped to avoid false negatives
       - name: Check coverage threshold (Linux)
         if: runner.os == 'Linux'
         run: |
-          COVERAGE=$(xmllint --xpath "string(//coverage/@line-rate)" ./coverage/report/Cobertura.xml)
+          COVERAGE=$(python3 -c "
+          import xml.etree.ElementTree as ET
+          tree = ET.parse('./coverage/report/Cobertura.xml')
+          print(tree.getroot().attrib['line-rate'])
+          ")
           echo "Line coverage: $COVERAGE"
-          if (( $(echo "$COVERAGE < 0.95" | bc -l) )); then
-            echo "::error::Coverage $COVERAGE is below the 95% threshold."
-            exit 1
-          fi
-          echo "::notice::Coverage $COVERAGE meets the ≥95% threshold."
-
-      # Coverage gate: fail if line coverage < 95% (Windows)
-      - name: Check coverage threshold (Windows)
-        if: runner.os == 'Windows'
-        shell: pwsh
-        run: |
-          [xml]$xml = Get-Content ./coverage/report/Cobertura.xml
-          $lineRate = [double]$xml.coverage.'line-rate'
-          Write-Host "Line coverage: $lineRate"
-          if ($lineRate -lt 0.95) {
-            Write-Error "Coverage $lineRate is below the 95% threshold."
-            exit 1
-          }
-          Write-Host "Coverage $lineRate meets the >=95% threshold."
+          python3 -c "
+          rate = float('$COVERAGE')
+          if rate < 0.95:
+              raise SystemExit(f'::error::Coverage {rate} is below the 95% threshold.')
+          print(f'::notice::Coverage {rate} meets the >=95% threshold.')
+          "
 
       # Upload coverage for review (does not fail the build)
       - name: Upload coverage report
