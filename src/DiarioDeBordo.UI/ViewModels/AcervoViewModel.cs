@@ -6,6 +6,8 @@ using DiarioDeBordo.Core.Primitivos;
 using DiarioDeBordo.Module.Acervo.Commands;
 using DiarioDeBordo.Module.Acervo.DTOs;
 using DiarioDeBordo.Module.Acervo.Queries;
+using DiarioDeBordo.Module.Acervo.Resources;
+using DiarioDeBordo.UI.Services;
 using MediatR;
 using System.Collections.ObjectModel;
 
@@ -15,9 +17,15 @@ public sealed partial class AcervoViewModel : ObservableObject
 {
     private readonly IMediator _mediator;
     private readonly Func<CriarConteudoViewModel> _criarVmFactory;
+    private readonly IDialogService _dialogService;
 
     // Walking skeleton: hard-coded usuarioId until authentication is implemented (Phase 8)
     private static readonly Guid _usuarioIdTemporario = Guid.Parse("00000000-0000-0000-0000-000000000001");
+
+    // Pagination state
+    private int _totalConteudos;
+    private int _paginaAtual = 1;
+    private const int ItensPorPagina = 20;
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(IsEmpty))]
@@ -33,12 +41,22 @@ public sealed partial class AcervoViewModel : ObservableObject
 
     public bool IsEmpty => !IsLoading && Conteudos.Count == 0;
 
-    public AcervoViewModel(IMediator mediator, Func<CriarConteudoViewModel> criarVmFactory)
+    public bool TemPaginaAnterior => _paginaAtual > 1;
+
+    public bool TemProximaPagina => _paginaAtual * ItensPorPagina < _totalConteudos;
+
+    public string StatusText => IsLoading
+        ? "Carregando…"
+        : $"{_totalConteudos} conteúdo(s) — Página {_paginaAtual}";
+
+    public AcervoViewModel(IMediator mediator, Func<CriarConteudoViewModel> criarVmFactory, IDialogService dialogService)
     {
         ArgumentNullException.ThrowIfNull(mediator);
         ArgumentNullException.ThrowIfNull(criarVmFactory);
+        ArgumentNullException.ThrowIfNull(dialogService);
         _mediator = mediator;
         _criarVmFactory = criarVmFactory;
+        _dialogService = dialogService;
     }
 
     [RelayCommand]
@@ -47,12 +65,14 @@ public sealed partial class AcervoViewModel : ObservableObject
         IsLoading = true;
         try
         {
+            var paginacao = new PaginacaoParams(_paginaAtual, ItensPorPagina);
             var resultado = await _mediator.Send(
-                new ListarConteudosQuery(_usuarioIdTemporario, PaginacaoParams.Padrao));
+                new ListarConteudosQuery(_usuarioIdTemporario, paginacao));
 
             Conteudos.Clear();
             if (resultado.IsSuccess)
             {
+                _totalConteudos = resultado.Value!.TotalItems;
                 foreach (var item in resultado.Value!.Items)
                     Conteudos.Add(item);
             }
@@ -61,6 +81,62 @@ public sealed partial class AcervoViewModel : ObservableObject
         {
             IsLoading = false;
             OnPropertyChanged(nameof(IsEmpty));
+            OnPropertyChanged(nameof(TemPaginaAnterior));
+            OnPropertyChanged(nameof(TemProximaPagina));
+            OnPropertyChanged(nameof(StatusText));
+        }
+    }
+
+    [RelayCommand]
+    private async Task PaginaAnteriorAsync()
+    {
+        if (_paginaAtual > 1)
+        {
+            _paginaAtual--;
+            await CarregarAsync();
+        }
+    }
+
+    [RelayCommand]
+    private async Task ProximaPaginaAsync()
+    {
+        if (TemProximaPagina)
+        {
+            _paginaAtual++;
+            await CarregarAsync();
+        }
+    }
+
+    [RelayCommand]
+    private async Task AbrirDetalheAsync(Guid conteudoId)
+    {
+        var resultado = await _dialogService.MostrarConteudoDetalheAsync(conteudoId);
+        if (resultado is true || resultado is null) // modified or deleted
+            await CarregarAsync();
+    }
+
+    [RelayCommand]
+    private async Task ExcluirConteudoAsync(Guid conteudoId)
+    {
+        // Find title for confirmation message
+        var conteudo = Conteudos.FirstOrDefault(c => c.Id == conteudoId);
+        var titulo = conteudo?.Titulo ?? "este conteúdo";
+
+        var confirmado = await _dialogService.MostrarConfirmacaoAsync(
+            Strings.Dialog_ExcluirConteudo_Titulo,
+            $"{Strings.Dialog_ExcluirConteudo_Mensagem} ({titulo})",
+            Strings.Modal_BotaoExcluir,
+            Strings.Label_Cancelar,
+            isPrimarioDestructivo: true);
+
+        if (!confirmado)
+            return;
+
+        var result = await _mediator.Send(new ExcluirConteudoCommand(conteudoId, _usuarioIdTemporario));
+        if (result.IsSuccess)
+        {
+            _paginaAtual = 1; // Reset to first page after delete
+            await CarregarAsync();
         }
     }
 

@@ -1,0 +1,234 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:DiarioDeBordo.UI.ViewModels"
+        x:Class="DiarioDeBordo.UI.Views.ConteudoDetalheWindow"
+        x:DataType="vm:ConteudoDetalheViewModel"
+        Width="720"
+        Height="640"
+        MinWidth="600"
+        MinHeight="500"
+        WindowStartupLocation="CenterOwner"
+        ShowInTaskbar="False"
+        CanResize="True"
+        Title="{Binding TituloJanela}"
+        AutomationProperties.Name="Janela de detalhe e edição de conteúdo">
+
+    <Grid RowDefinitions="*,Auto">
+
+        <!-- Row 0: Scrollable content with 4 Expander sections -->
+        <ScrollViewer Grid.Row="0"
+                      Padding="32,24,32,16"
+                      AutomationProperties.Name="Área de conteúdo do detalhe">
+
+            <StackPanel Spacing="12">
+
+                <!-- Error message -->
+                <TextBlock Text="{Binding MensagemErro}"
+                           IsVisible="{Binding MensagemErro, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
+                           Foreground="Red"
+                           FontSize="13"
+                           AutomationProperties.Name="Mensagem de erro" />
+
+                <!-- 1. Identificação (expanded by default — primary editing section) -->
+                <Expander IsExpanded="True"
+                          AutomationProperties.Name="Seção Identificação: título, descrição, anotações, formato">
+
+                    <Expander.Header>
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <TextBlock Text="Identificação"
+                                       FontSize="15"
+                                       FontWeight="SemiBold"
+                                       VerticalAlignment="Center" />
+                            <TextBlock Text="{Binding ResumoIdentificacao}"
+                                       FontSize="12"
+                                       Opacity="0.6"
+                                       VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Expander.Header>
+
+                    <StackPanel Spacing="12" Margin="0,12,0,0">
+
+                        <!-- Título (obrigatório) -->
+                        <StackPanel Spacing="4">
+                            <TextBlock Text="Título"
+                                       FontWeight="Medium" />
+                            <TextBox Text="{Binding Titulo, Mode=TwoWay}"
+                                     Watermark="Ex: Duna, A Origem, Cálculo Vol. 1…"
+                                     AutomationProperties.Name="Campo título do conteúdo"
+                                     AutomationProperties.HelpText="Obrigatório. Digite o título do conteúdo." />
+                        </StackPanel>
+
+                        <!-- Descrição -->
+                        <StackPanel Spacing="4">
+                            <TextBlock Text="Descrição"
+                                       FontWeight="Medium" />
+                            <TextBox Text="{Binding Descricao, Mode=TwoWay}"
+                                     AcceptsReturn="True"
+                                     Height="80"
+                                     Watermark="Descrição breve do conteúdo…"
+                                     AutomationProperties.Name="Campo descrição do conteúdo" />
+                        </StackPanel>
+
+                        <!-- Anotações -->
+                        <StackPanel Spacing="4">
+                            <TextBlock Text="Anotações"
+                                       FontWeight="Medium" />
+                            <TextBox Text="{Binding Anotacoes, Mode=TwoWay}"
+                                     AcceptsReturn="True"
+                                     Height="80"
+                                     Watermark="Notas pessoais, resumos, destaques…"
+                                     AutomationProperties.Name="Campo anotações do conteúdo" />
+                        </StackPanel>
+
+                        <!-- Formato -->
+                        <StackPanel Spacing="4">
+                            <TextBlock Text="Formato"
+                                       FontWeight="Medium" />
+                            <ComboBox SelectedItem="{Binding Formato, Mode=TwoWay}"
+                                      ItemsSource="{x:Static vm:ConteudoDetalheViewModel.FormatosMidia}"
+                                      HorizontalAlignment="Left"
+                                      MinWidth="200"
+                                      AutomationProperties.Name="Seleção de formato do conteúdo"
+                                      AutomationProperties.HelpText="Selecione o tipo de mídia (livro, filme, série, etc.)" />
+                        </StackPanel>
+
+                        <!-- Subtipo -->
+                        <StackPanel Spacing="4">
+                            <TextBlock Text="Subtipo"
+                                       FontWeight="Medium" />
+                            <TextBox Text="{Binding Subtipo, Mode=TwoWay}"
+                                     Watermark="Ex: Romance, Ficção científica, Drama…"
+                                     AutomationProperties.Name="Campo subtipo do conteúdo" />
+                        </StackPanel>
+
+                    </StackPanel>
+
+                </Expander>
+
+                <!-- 2. Avaliação (collapsed — filled in Plan 05) -->
+                <Expander IsExpanded="False"
+                          AutomationProperties.Name="Seção Avaliação: nota e classificação">
+
+                    <Expander.Header>
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <TextBlock Text="Avaliação"
+                                       FontSize="15"
+                                       FontWeight="SemiBold"
+                                       VerticalAlignment="Center" />
+                            <TextBlock Text="{Binding ResumoAvaliacao}"
+                                       FontSize="12"
+                                       Opacity="0.6"
+                                       VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Expander.Header>
+
+                    <!-- Placeholder: Nota e classificação serão implementados no Plan 05 -->
+                    <StackPanel Margin="0,12,0,0">
+                        <TextBlock Text="Nota e classificação serão implementados no Plan 05."
+                                   Opacity="0.5"
+                                   FontSize="13" />
+                    </StackPanel>
+
+                </Expander>
+
+                <!-- 3. Organização (collapsed — filled in Plan 05) -->
+                <Expander IsExpanded="False"
+                          AutomationProperties.Name="Seção Organização: categorias e relações">
+
+                    <Expander.Header>
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <TextBlock Text="Organização"
+                                       FontSize="15"
+                                       FontWeight="SemiBold"
+                                       VerticalAlignment="Center" />
+                            <TextBlock Text="{Binding ResumoOrganizacao}"
+                                       FontSize="12"
+                                       Opacity="0.6"
+                                       VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Expander.Header>
+
+                    <!-- Placeholder: Categorias e relações serão implementados no Plan 05 -->
+                    <StackPanel Margin="0,12,0,0">
+                        <TextBlock Text="Categorias e relações serão implementados no Plan 05."
+                                   Opacity="0.5"
+                                   FontSize="13" />
+                    </StackPanel>
+
+                </Expander>
+
+                <!-- 4. Histórico de Consumo (collapsed — hidden for child content) -->
+                <Expander IsExpanded="False"
+                          IsVisible="{Binding !IsFilho}"
+                          AutomationProperties.Name="Seção Histórico de Consumo: sessões e progresso">
+
+                    <Expander.Header>
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <TextBlock Text="Histórico de Consumo"
+                                       FontSize="15"
+                                       FontWeight="SemiBold"
+                                       VerticalAlignment="Center" />
+                            <TextBlock Text="{Binding ResumoHistorico}"
+                                       FontSize="12"
+                                       Opacity="0.6"
+                                       VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Expander.Header>
+
+                    <!-- Placeholder: Timeline e sessões serão implementados no Plan 06 -->
+                    <StackPanel Margin="0,12,0,0">
+                        <TextBlock Text="Timeline e sessões serão implementados no Plan 06."
+                                   Opacity="0.5"
+                                   FontSize="13" />
+                    </StackPanel>
+
+                </Expander>
+
+            </StackPanel>
+
+        </ScrollViewer>
+
+        <!-- Row 1: Fixed footer with action buttons -->
+        <Border Grid.Row="1"
+                BorderThickness="0,1,0,0"
+                BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}"
+                Padding="24,8"
+                AutomationProperties.Name="Rodapé de ações do modal">
+
+            <DockPanel>
+
+                <!-- Excluir (left, destructive) -->
+                <Button DockPanel.Dock="Left"
+                        Content="Excluir"
+                        Command="{Binding ExcluirCommand}"
+                        IsEnabled="{Binding !IsSalvando}"
+                        Foreground="Red"
+                        AutomationProperties.Name="Excluir conteúdo"
+                        AutomationProperties.HelpText="Remove permanentemente este conteúdo e todas as sessões." />
+
+                <!-- Cancelar + Salvar (right) -->
+                <StackPanel Orientation="Horizontal"
+                            Spacing="8"
+                            HorizontalAlignment="Right">
+
+                    <Button Content="Cancelar"
+                            Command="{Binding CancelarCommand}"
+                            IsEnabled="{Binding !IsSalvando}"
+                            AutomationProperties.Name="Cancelar edição"
+                            AutomationProperties.HelpText="Descarta as alterações e fecha o modal." />
+
+                    <Button Content="Salvar"
+                            Command="{Binding SalvarCommand}"
+                            IsEnabled="{Binding !IsSalvando}"
+                            AutomationProperties.Name="Salvar alterações"
+                            AutomationProperties.HelpText="Salva todas as alterações feitas no conteúdo." />
+
+                </StackPanel>
+
+            </DockPanel>
+
+        </Border>
+
+    </Grid>
+
+</Window>

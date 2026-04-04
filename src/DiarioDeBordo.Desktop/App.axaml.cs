@@ -5,6 +5,7 @@ using DiarioDeBordo.Core.FeatureFlags;
 using DiarioDeBordo.Core.Infraestrutura;
 using DiarioDeBordo.Infrastructure;
 using DiarioDeBordo.Module.Acervo.Commands;
+using DiarioDeBordo.UI.Services;
 using DiarioDeBordo.UI.ViewModels;
 using DiarioDeBordo.UI.Views;
 using MediatR;
@@ -87,12 +88,23 @@ internal sealed partial class App : Application
         services.AddTransient<MainViewModel>();
         services.AddTransient<AcervoViewModel>();
         services.AddTransient<CriarConteudoViewModel>();
+        services.AddTransient<ConteudoDetalheViewModel>();
+
+        // Dialog service (singleton — manages reference to main window)
+        services.AddSingleton<IDialogService, DiarioDeBordo.UI.Services.DialogService>();
 
         // ViewModel factories — allow DI-resolved instances on demand
         services.AddTransient<Func<AcervoViewModel>>(
             sp => () => sp.GetRequiredService<AcervoViewModel>());
         services.AddTransient<Func<CriarConteudoViewModel>>(
             sp => () => sp.GetRequiredService<CriarConteudoViewModel>());
+
+        // ConteudoDetalheViewModel factory (keyed by conteudoId)
+        services.AddTransient<Func<Guid, ConteudoDetalheViewModel>>(sp =>
+            conteudoId => new ConteudoDetalheViewModel(
+                sp.GetRequiredService<IMediator>(),
+                conteudoId,
+                sp.GetRequiredService<IDialogService>()));
     }
 }
 

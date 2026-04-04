@@ -3,6 +3,9 @@
     <AssemblyName>DiarioDeBordo.UI</AssemblyName>
   </PropertyGroup>
   <ItemGroup>
+    <InternalsVisibleTo Include="DiarioDeBordo" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="../DiarioDeBordo.Core/DiarioDeBordo.Core.csproj" />
     <ProjectReference Include="../Modules/Module.Shared/DiarioDeBordo.Module.Shared.csproj" />
     <ProjectReference Include="../Modules/Module.Acervo/DiarioDeBordo.Module.Acervo.csproj" />

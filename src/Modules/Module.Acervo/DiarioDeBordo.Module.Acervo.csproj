@@ -12,6 +12,7 @@
 
   <ItemGroup>
     <InternalsVisibleTo Include="Tests.Domain" />
+    <InternalsVisibleTo Include="DiarioDeBordo.UI" />
   </ItemGroup>
 
   <ItemGroup>
