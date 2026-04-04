@@ -2,7 +2,6 @@ using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
 using DiarioDeBordo.Core.FeatureFlags;
-using DiarioDeBordo.Core.Infraestrutura;
 using DiarioDeBordo.Infrastructure;
 using DiarioDeBordo.Module.Acervo.Commands;
 using DiarioDeBordo.UI.Services;
@@ -14,51 +13,30 @@ using Microsoft.Extensions.Logging;
 
 namespace DiarioDeBordo.Desktop;
 
-#pragma warning disable CA2007  // UI startup: no ConfigureAwait — window creation requires UI thread
-#pragma warning disable CA1031  // Startup bootstrap: any exception is fatal and must be caught broadly
 #pragma warning disable CA1848  // Logger perf: startup critical path, non-hot code
 
 internal sealed partial class App : Application
 {
-    private IServiceProvider? _services;
+    private readonly IServiceProvider _services;
 
-    public static AppBuilder BuildAvaloniaApp()
-        => AppBuilder.Configure<App>()
+    public App(IServiceProvider services)
+    {
+        _services = services;
+    }
+
+    // Parameterless constructor required by Avalonia's XAML loader
+    public App() => throw new InvalidOperationException(
+        "App must be constructed via BuildAvaloniaApp(IServiceProvider).");
+
+    public static AppBuilder BuildAvaloniaApp(IServiceProvider services)
+        => AppBuilder.Configure(() => new App(services))
             .UsePlatformDetect()
             .LogToTrace();
 
     public override void Initialize() => AvaloniaXamlLoader.Load(this);
 
-    public override async void OnFrameworkInitializationCompleted()
+    public override void OnFrameworkInitializationCompleted()
     {
-        // Phase 1: minimal pre-DI container — only secure storage + PostgresBootstrap
-        var preServices = new ServiceCollection();
-        preServices.AddLogging(b => b.AddConsole().SetMinimumLevel(LogLevel.Information));
-        preServices.AddInfrastructureBootstrap();
-        var preContainer = preServices.BuildServiceProvider();
-
-        // Phase 2: run bootstrap to obtain the real connection string
-        var bootstrap = preContainer.GetRequiredService<IPostgresBootstrap>();
-        string connectionString;
-        try
-        {
-            await bootstrap.EnsureRunningAsync(CancellationToken.None);
-            connectionString = await bootstrap.BuildConnectionStringAsync(CancellationToken.None);
-        }
-        catch (Exception ex)
-        {
-            var logger = preContainer.GetRequiredService<ILogger<App>>();
-            logger.LogCritical(ex, "Falha crítica ao inicializar PostgreSQL — aplicação encerrada.");
-            if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime dl)
-                dl.Shutdown(1);
-            return;
-        }
-
-        // Phase 3: full DI container with the real connection string
-        var services = new ServiceCollection();
-        ConfigureServices(services, connectionString);
-        _services = services.BuildServiceProvider();
-
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
             desktop.MainWindow = new MainWindow
@@ -70,7 +48,7 @@ internal sealed partial class App : Application
         base.OnFrameworkInitializationCompleted();
     }
 
-    private static void ConfigureServices(IServiceCollection services, string connectionString)
+    public static void ConfigureServices(IServiceCollection services, string connectionString)
     {
         services.AddLogging(b => b.AddConsole().SetMinimumLevel(LogLevel.Information));
 
@@ -109,5 +87,3 @@ internal sealed partial class App : Application
 }
 
 #pragma warning restore CA1848
-#pragma warning restore CA1031
-#pragma warning restore CA2007
