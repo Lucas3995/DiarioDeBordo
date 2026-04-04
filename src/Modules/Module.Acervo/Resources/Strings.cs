@@ -10,7 +10,7 @@ internal static class Strings
 #pragma warning disable CA1810 // Initialization of _rm is straightforward and not performance-critical here
     private static readonly ResourceManager ResourceManager =
         new(
-            "DiarioDeBordo.Module.Acervo.Resources.Strings.pt-BR",
+            "DiarioDeBordo.Module.Acervo.Resources.Strings",
             typeof(Strings).Assembly);
 #pragma warning restore CA1810
 

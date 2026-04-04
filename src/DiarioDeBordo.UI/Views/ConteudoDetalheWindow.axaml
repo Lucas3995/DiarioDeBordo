@@ -255,7 +255,7 @@
                                              Watermark="Adicionar categoria…"
                                              FilterMode="None"
                                              MinimumPrefixLength="1"
-                                             MinimumPopulateDelay="200"
+                                             MinimumPopulateDelay="0:0:0.200"
                                              AutomationProperties.Name="Campo de busca e criação de categorias"
                                              MinWidth="200" />
 
@@ -343,7 +343,7 @@
                                                          Watermark="Buscar conteúdo para vincular…"
                                                          FilterMode="None"
                                                          MinimumPrefixLength="1"
-                                                         MinimumPopulateDelay="300"
+                                                         MinimumPopulateDelay="0:0:0.300"
                                                          AutomationProperties.Name="Buscar conteúdo para relacionar" />
                                     </StackPanel>
 
@@ -354,7 +354,7 @@
                                                          Watermark="Selecionar tipo…"
                                                          FilterMode="None"
                                                          MinimumPrefixLength="0"
-                                                         MinimumPopulateDelay="200"
+                                                         MinimumPopulateDelay="0:0:0.200"
                                                          AutomationProperties.Name="Selecionar tipo de relação" />
                                         <!-- Inverse name field (shown when creating new type) -->
                                         <StackPanel IsVisible="{Binding CriandoNovoTipo}" Spacing="4">
