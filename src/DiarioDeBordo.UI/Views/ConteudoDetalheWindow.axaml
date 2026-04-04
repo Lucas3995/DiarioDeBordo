@@ -340,11 +340,28 @@
                                     <StackPanel Spacing="4">
                                         <TextBlock Text="Conteúdo alvo" FontSize="12" />
                                         <AutoCompleteBox Name="ConteudoAlvoAutoComplete"
+                                                         IsVisible="{Binding ConteudoAlvoSelecionado, Converter={x:Static ObjectConverters.IsNull}}"
                                                          Watermark="Buscar conteúdo para vincular…"
                                                          FilterMode="None"
                                                          MinimumPrefixLength="1"
                                                          MinimumPopulateDelay="0:0:0.300"
                                                          AutomationProperties.Name="Buscar conteúdo para relacionar" />
+                                        <!-- Shows after selection — click X to clear -->
+                                        <Border IsVisible="{Binding ConteudoAlvoSelecionado, Converter={x:Static ObjectConverters.IsNotNull}}"
+                                                Background="{DynamicResource SystemAccentColor}"
+                                                CornerRadius="4"
+                                                Padding="8,4">
+                                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                                <TextBlock Text="{Binding ConteudoAlvoSelecionado.Titulo}"
+                                                           Foreground="White"
+                                                           VerticalAlignment="Center" />
+                                                <Button Content="✕"
+                                                        Padding="4,2"
+                                                        FontSize="11"
+                                                        Command="{Binding LimparConteudoAlvoCommand}"
+                                                        AutomationProperties.Name="Limpar conteúdo alvo selecionado" />
+                                            </StackPanel>
+                                        </Border>
                                     </StackPanel>
 
                                     <!-- Step 2: Select relation type -->

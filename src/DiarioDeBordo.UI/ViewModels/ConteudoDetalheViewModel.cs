@@ -126,12 +126,15 @@ public sealed partial class ConteudoDetalheViewModel : ObservableObject
     private bool _mostrandoFormularioRelacao;
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(PodeVincular))]
     private ConteudoResumoDto? _conteudoAlvoSelecionado;
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(PodeVincular))]
     private TipoRelacaoDto? _tipoRelacaoSelecionado;
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(PodeVincular))]
     private string? _nomeInversoNovoTipo;
 
     [ObservableProperty]
@@ -500,6 +503,12 @@ public sealed partial class ConteudoDetalheViewModel : ObservableObject
     }
 
     [RelayCommand]
+    private void LimparConteudoAlvo()
+    {
+        ConteudoAlvoSelecionado = null;
+    }
+
+    [RelayCommand]
     private void CancelarFormularioRelacao()
     {
         MostrandoFormularioRelacao = false;
@@ -507,6 +516,7 @@ public sealed partial class ConteudoDetalheViewModel : ObservableObject
         TipoRelacaoSelecionado = null;
         NomeInversoNovoTipo = null;
         CriandoNovoTipo = false;
+        _novoNomeTipo = null;
         MensagemErroRelacao = null;
     }
 
@@ -605,7 +615,7 @@ public sealed partial class ConteudoDetalheViewModel : ObservableObject
         catch (OperationCanceledException) { }
     }
 
-    /// <summary>Called by code-behind Populating event for relation type AutoCompleteBox.</summary>
+    /// <summary>Called by code-behind AsyncPopulator for relation type AutoCompleteBox — only populates suggestions.</summary>
     public async Task PopularSugestoesTipoRelacaoAsync(string prefixo)
     {
         try
@@ -614,23 +624,37 @@ public sealed partial class ConteudoDetalheViewModel : ObservableObject
             _sugestoesTipoRelacaoBacking.Clear();
             _sugestoesTipoRelacaoBacking.AddRange(resultado);
             OnPropertyChanged(nameof(SugestoesTipoRelacao));
-
-            // Check if typed name matches existing type
-            var exato = resultado.FirstOrDefault(t => string.Equals(t.Nome, prefixo, StringComparison.OrdinalIgnoreCase));
-            if (exato is not null)
-            {
-                TipoRelacaoSelecionado = exato;
-                CriandoNovoTipo = false;
-            }
-            else if (!string.IsNullOrWhiteSpace(prefixo))
-            {
-                TipoRelacaoSelecionado = null;
-                CriandoNovoTipo = true;
-                _novoNomeTipo = prefixo;
-            }
-            OnPropertyChanged(nameof(PodeVincular));
         }
         catch (OperationCanceledException) { }
+    }
+
+    /// <summary>
+    /// Called when user selects an existing type from dropdown OR presses Enter to confirm a new type name.
+    /// - If name matches an existing type: selects it, clears CriandoNovoTipo.
+    /// - If name is new: sets CriandoNovoTipo = true so the inverse-name field appears.
+    /// </summary>
+    public void SelecionarOuCriarTipoRelacao(string nome)
+    {
+        if (string.IsNullOrWhiteSpace(nome))
+            return;
+
+        var exato = _sugestoesTipoRelacaoBacking
+            .FirstOrDefault(t => string.Equals(t.Nome, nome, StringComparison.OrdinalIgnoreCase));
+
+        if (exato is not null)
+        {
+            TipoRelacaoSelecionado = exato;
+            CriandoNovoTipo = false;
+            _novoNomeTipo = null;
+        }
+        else
+        {
+            TipoRelacaoSelecionado = null;
+            _novoNomeTipo = nome;
+            CriandoNovoTipo = true;
+        }
+        // PodeVincular is notified by TipoRelacaoSelecionado setter
+        OnPropertyChanged(nameof(PodeVincular));
     }
 
     private string? _novoNomeTipo;

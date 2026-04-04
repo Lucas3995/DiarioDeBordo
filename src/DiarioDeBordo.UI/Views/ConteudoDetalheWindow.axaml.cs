@@ -96,8 +96,11 @@ public partial class ConteudoDetalheWindow : Window
                 conteudoAc.SelectionChanged += (_, args) =>
                 {
                     if (args.AddedItems.Count > 0 && args.AddedItems[0] is string titulo)
+                    {
                         vm.ConteudoAlvoSelecionado = vm.SugestoesConteudo
                             .FirstOrDefault(c => c.Titulo == titulo);
+                        // Clear text — the selected content title is shown via chip/label, not the input
+                    }
                 };
             }
 
@@ -109,11 +112,22 @@ public partial class ConteudoDetalheWindow : Window
                     return vm.SugestoesTipoRelacao.Select(t => t.Nome).Cast<object>();
                 };
 
+                // User selected an existing type from dropdown
                 tipoAc.SelectionChanged += (_, args) =>
                 {
                     if (args.AddedItems.Count > 0 && args.AddedItems[0] is string nome)
-                        vm.TipoRelacaoSelecionado = vm.SugestoesTipoRelacao
-                            .FirstOrDefault(t => t.Nome == nome);
+                        vm.SelecionarOuCriarTipoRelacao(nome);
+                };
+
+                // User pressed Enter to confirm a new or existing type name
+                tipoAc.KeyDown += (_, args) =>
+                {
+                    if (args.Key == Avalonia.Input.Key.Return && !string.IsNullOrWhiteSpace(tipoAc.Text))
+                    {
+                        var text = tipoAc.Text!;
+                        args.Handled = true;
+                        vm.SelecionarOuCriarTipoRelacao(text);
+                    }
                 };
             }
         }
