@@ -35,7 +35,7 @@ internal sealed class RegistrarSessaoHandler : IRequestHandler<RegistrarSessaoCo
         Conteudo filho;
         try
         {
-            filho = Conteudo.CriarComoFilho(cmd.UsuarioId, cmd.Titulo, cmd.Formato, cmd.DataConsumo);
+            filho = Conteudo.CriarComoFilho(cmd.UsuarioId, cmd.Titulo, cmd.Formato, cmd.DataConsumo?.ToUniversalTime());
         }
         catch (DomainException ex)
         {

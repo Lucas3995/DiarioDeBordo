@@ -10,6 +10,7 @@ using DiarioDeBordo.Module.Acervo.Resources;
 using DiarioDeBordo.UI.Services;
 using MediatR;
 using System.Collections.ObjectModel;
+using System.Windows.Input;
 
 namespace DiarioDeBordo.UI.ViewModels;
 
@@ -37,6 +38,9 @@ public sealed partial class AcervoViewModel : ObservableObject
     [ObservableProperty]
     private CriarConteudoViewModel? _criarConteudoViewModel;
 
+    [ObservableProperty]
+    private IReadOnlyList<PaginaBotao> _paginasVisiveis = [];
+
     public ObservableCollection<ConteudoCardViewModel> Conteudos { get; } = [];
 
     public bool IsEmpty => !IsLoading && Conteudos.Count == 0;
@@ -45,9 +49,11 @@ public sealed partial class AcervoViewModel : ObservableObject
 
     public bool TemProximaPagina => _paginaAtual * ItensPorPagina < _totalConteudos;
 
+    private int TotalPaginas => (_totalConteudos + ItensPorPagina - 1) / ItensPorPagina;
+
     public string StatusText => IsLoading
         ? "Carregando…"
-        : $"{_totalConteudos} conteúdo(s) — Página {_paginaAtual}";
+        : $"{_totalConteudos} conteúdo(s) — Página {_paginaAtual} de {TotalPaginas}";
 
     public AcervoViewModel(IMediator mediator, Func<CriarConteudoViewModel> criarVmFactory, IDialogService dialogService)
     {
@@ -84,11 +90,38 @@ public sealed partial class AcervoViewModel : ObservableObject
         finally
         {
             IsLoading = false;
+            RecalcularPaginas();
             OnPropertyChanged(nameof(IsEmpty));
             OnPropertyChanged(nameof(TemPaginaAnterior));
             OnPropertyChanged(nameof(TemProximaPagina));
             OnPropertyChanged(nameof(StatusText));
         }
+    }
+
+    private void RecalcularPaginas()
+    {
+        var total = TotalPaginas;
+        var atual = _paginaAtual;
+        var nums = CalcularNumerosPagina(atual, total);
+        PaginasVisiveis = nums
+            .Select(n => new PaginaBotao(n, n == atual, new AsyncRelayCommand(async () =>
+            {
+                _paginaAtual = n;
+                await CarregarAsync();
+            })))
+            .ToList();
+    }
+
+    private static List<int> CalcularNumerosPagina(int paginaAtual, int totalPaginas)
+    {
+        const int maxBotoes = 9;
+        if (totalPaginas <= maxBotoes)
+            return Enumerable.Range(1, totalPaginas).ToList();
+
+        var start = Math.Max(1, paginaAtual - maxBotoes / 2);
+        var end = Math.Min(totalPaginas, start + maxBotoes - 1);
+        start = Math.Max(1, end - maxBotoes + 1);
+        return Enumerable.Range(start, end - start + 1).ToList();
     }
 
     [RelayCommand]
@@ -179,6 +212,20 @@ public sealed partial class AcervoViewModel : ObservableObject
     }
 
     private void OnFormularioCancelado(object? sender, EventArgs e) => FecharFormularioCriar();
+}
+
+public sealed class PaginaBotao
+{
+    public int Numero { get; }
+    public bool IsAtual { get; }
+    public ICommand Comando { get; }
+
+    public PaginaBotao(int numero, bool isAtual, ICommand comando)
+    {
+        Numero = numero;
+        IsAtual = isAtual;
+        Comando = comando;
+    }
 }
 
 #pragma warning restore CA2007
