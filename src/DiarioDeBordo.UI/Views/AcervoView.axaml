@@ -6,9 +6,9 @@
              x:DataType="vm:AcervoViewModel"
              AutomationProperties.Name="Acervo — lista de conteúdos">
 
-    <Grid RowDefinitions="Auto,*,Auto">
+    <Grid RowDefinitions="Auto,Auto,*,Auto">
 
-        <!-- Header row -->
+        <!-- Header row — always visible -->
         <Grid Grid.Row="0" Margin="24,20,24,8" ColumnDefinitions="*,Auto">
             <TextBlock Grid.Column="0"
                        Text="Acervo"
@@ -23,10 +23,10 @@
                     IsVisible="{Binding !MostrarFormularioCriar}" />
         </Grid>
 
-        <!-- Create form (progressive disclosure — shown on demand) -->
-        <Border Grid.Row="0"
+        <!-- Create form (progressive disclosure — shown on demand, own row so header stays visible) -->
+        <Border Grid.Row="1"
                 IsVisible="{Binding MostrarFormularioCriar}"
-                Margin="24,56,24,8"
+                Margin="24,0,24,8"
                 Padding="16"
                 BorderThickness="1"
                 BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}"
@@ -36,7 +36,7 @@
         </Border>
 
         <!-- Content list / empty state / loading -->
-        <Panel Grid.Row="1">
+        <Panel Grid.Row="2">
 
             <!-- Loading indicator -->
             <ProgressBar IsIndeterminate="True"
@@ -142,7 +142,7 @@
         </Panel>
 
         <!-- Status bar with pagination (ACE-09) -->
-        <Grid Grid.Row="2" Margin="24,4" ColumnDefinitions="*,Auto">
+        <Grid Grid.Row="3" Margin="24,4" ColumnDefinitions="*,Auto">
             <TextBlock Grid.Column="0"
                        Text="{Binding StatusText}"
                        FontSize="12"

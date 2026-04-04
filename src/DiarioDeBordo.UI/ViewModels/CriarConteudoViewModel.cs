@@ -16,6 +16,7 @@ public sealed partial class CriarConteudoViewModel : ObservableObject
     public event EventHandler? Cancelado;
 
     [ObservableProperty]
+    [NotifyCanExecuteChangedFor(nameof(SalvarCommand))]
     [NotifyPropertyChangedFor(nameof(PodeSalvar))]
     [NotifyPropertyChangedFor(nameof(TextoBotaoSalvar))]
     private string _titulo = string.Empty;
@@ -34,6 +35,7 @@ public sealed partial class CriarConteudoViewModel : ObservableObject
     private string? _mensagemErro;
 
     [ObservableProperty]
+    [NotifyCanExecuteChangedFor(nameof(SalvarCommand))]
     [NotifyPropertyChangedFor(nameof(PodeSalvar))]
     [NotifyPropertyChangedFor(nameof(TextoBotaoSalvar))]
     private bool _isSalvando;
