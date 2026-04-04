@@ -18,6 +18,12 @@ public partial class ConteudoDetalheWindow : Window
     // This prevents Salvar/Cancelar/Excluir from re-triggering the discard dialog.
     private bool _permitirFechamento;
 
+    /// <summary>
+    /// Result set by FecharJanela() and read by DialogService after window.Closed fires.
+    /// Needed because Show() (non-modal) doesn't propagate Close(result) like ShowDialog does.
+    /// </summary>
+    public bool? WindowResult { get; private set; }
+
     public ConteudoDetalheWindow()
     {
         InitializeComponent();
@@ -30,6 +36,7 @@ public partial class ConteudoDetalheWindow : Window
     public void FecharJanela(bool? result)
     {
         _permitirFechamento = true;
+        WindowResult = result;
         Close(result);
     }
 

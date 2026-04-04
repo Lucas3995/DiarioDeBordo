@@ -31,11 +31,11 @@ internal sealed class DialogService : IDialogService
         return null;
     }
 
-    public async Task<bool?> MostrarConteudoDetalheAsync(Guid conteudoId)
+    public Task<bool?> MostrarConteudoDetalheAsync(Guid conteudoId)
     {
         var mainWindow = GetMainWindow();
         if (mainWindow is null)
-            return false;
+            return Task.FromResult<bool?>(false);
 
         // Resolve ViewModel via factory (to get DI-injected dependencies)
         var vmFactory = _serviceProvider.GetRequiredService<Func<Guid, ConteudoDetalheViewModel>>();
@@ -46,7 +46,12 @@ internal sealed class DialogService : IDialogService
             DataContext = vm,
         };
 
-        return await window.ShowDialog<bool?>(mainWindow);
+        // Use Show() (non-modal) so the main window stays interactive.
+        // TaskCompletionSource lets the caller still await the result.
+        var tcs = new TaskCompletionSource<bool?>();
+        window.Closed += (_, _) => tcs.TrySetResult(window.WindowResult);
+        window.Show(mainWindow);
+        return tcs.Task;
     }
 
     public async Task<bool> MostrarConfirmacaoAsync(

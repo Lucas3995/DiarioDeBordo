@@ -474,20 +474,13 @@ public sealed partial class ConteudoDetalheViewModel : ObservableObject
         }
         else
         {
-            // Create new category via query service (ObterOuCriarAsync pattern)
-            var resultado = await _mediator.Send(new BuscarCategoriasQuery(_usuarioIdTemporario, nomeCategoria));
-            var existente = resultado.FirstOrDefault(c => string.Equals(c.Nome, nomeCategoria, StringComparison.OrdinalIgnoreCase));
-            if (existente is not null)
+            // Category doesn't exist yet — create it now via ObterOuCriarAsync (D-10: inline creation)
+            var resultado = await _mediator.Send(
+                new ObterOuCriarCategoriaCommand(_usuarioIdTemporario, nomeCategoria));
+            if (resultado.IsSuccess)
             {
-                CategoriasAssociadas.Add(new CategoriaChipViewModel(existente.Id, existente.Nome, existente.IsAutomatica, RemoverCategoriaInternal));
-            }
-            else
-            {
-                // Will be created on save via AtualizarConteudoCommand using ICategoriaRepository.ObterOuCriarAsync
-                // For now, add a placeholder with empty Guid (to be resolved on save)
-                // Better: create it now via a dedicated command
-                // For Plan 05: just add it with a marker that it needs creation
-                // TODO: create inline via CriarCategoriaCommand in Phase 3 completion
+                var nova = resultado.Value!;
+                CategoriasAssociadas.Add(new CategoriaChipViewModel(nova.Id, nova.Nome, nova.IsAutomatica, RemoverCategoriaInternal));
             }
         }
 
