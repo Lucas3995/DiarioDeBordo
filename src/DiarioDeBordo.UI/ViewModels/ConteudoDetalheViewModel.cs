@@ -294,9 +294,16 @@ public sealed partial class ConteudoDetalheViewModel : ObservableObject
         foreach (var r in dto.Relacoes)
             Relacoes.Add(new RelacaoItemViewModel(r.Id, r.NomeTipo, r.TituloDestino, r.IsInversa));
 
+        // Populate sessions timeline (ordered most recent first per D-18)
+        Sessoes.Clear();
+        foreach (var s in dto.Sessoes.OrderByDescending(s => s.CriadoEm))
+            Sessoes.Add(new SessaoItemViewModel(s.Id, s.Titulo, s.CriadoEm, s.Classificacao, s.Nota, s.Anotacoes));
+
         OnPropertyChanged(nameof(ResumoAvaliacao));
         OnPropertyChanged(nameof(ResumoOrganizacao));
         OnPropertyChanged(nameof(ResumoHistorico));
+        OnPropertyChanged(nameof(ProgressoTexto));
+        OnPropertyChanged(nameof(ProgressoPorcentagem));
     }
 
     private void SnapshotOriginals()
@@ -623,6 +630,179 @@ public sealed partial class ConteudoDetalheViewModel : ObservableObject
     }
 
     private string? _novoNomeTipo;
+
+    // === SESSION MANAGEMENT (Plan 06) ===
+
+    public System.Collections.ObjectModel.ObservableCollection<SessaoItemViewModel> Sessoes { get; } = [];
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(ProgressoTexto))]
+    [NotifyPropertyChangedFor(nameof(ProgressoPorcentagem))]
+    [NotifyPropertyChangedFor(nameof(ResumoHistorico))]
+    [NotifyPropertyChangedFor(nameof(IsDirty))]
+    [NotifyPropertyChangedFor(nameof(TituloJanela))]
+    private int? _totalEsperadoSessoesEditavel;
+
+    [ObservableProperty]
+    private bool _mostrandoFormularioSessao;
+
+    [ObservableProperty]
+    private bool _mostrandoDetalhesSessao;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(PodeRegistrarSessao))]
+    private string _sessaoTitulo = string.Empty;
+
+    [ObservableProperty]
+    private DateTimeOffset? _sessaoData = DateTimeOffset.Now;
+
+    [ObservableProperty]
+    private string? _sessaoAnotacoes;
+
+    [ObservableProperty]
+    private decimal? _sessaoNota;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(SessaoIsGostei))]
+    [NotifyPropertyChangedFor(nameof(SessaoIsNaoGostei))]
+    private Classificacao? _sessaoClassificacao;
+
+    [ObservableProperty]
+    private string? _mensagemErroSessao;
+
+    public bool SessaoIsGostei
+    {
+        get => SessaoClassificacao == Core.Enums.Classificacao.Gostei;
+        set => SessaoClassificacao = value ? Core.Enums.Classificacao.Gostei : null;
+    }
+
+    public bool SessaoIsNaoGostei
+    {
+        get => SessaoClassificacao == Core.Enums.Classificacao.NaoGostei;
+        set => SessaoClassificacao = value ? Core.Enums.Classificacao.NaoGostei : null;
+    }
+
+    public bool PodeRegistrarSessao => !string.IsNullOrWhiteSpace(SessaoTitulo);
+
+    public string TextoBotaoDetalhesSessao =>
+        MostrandoDetalhesSessao ? Strings.Formulario_MenosDetalhes : Strings.Formulario_MaisDetalhes;
+
+    public string ProgressoTexto
+    {
+        get
+        {
+            var count = Sessoes.Count;
+            var total = TotalEsperadoSessoes;
+            if (count == 0) return Strings.Progresso_Vazio;
+            if (total.HasValue)
+                return $"{count} de {total.Value} ({ProgressoPorcentagem:0}%)";
+            return $"{count} sessão(ões) registrada(s)";
+        }
+    }
+
+    public decimal ProgressoPorcentagem
+    {
+        get
+        {
+            if (TotalEsperadoSessoes is null or 0 || Sessoes.Count == 0)
+                return 0;
+            return Math.Min(100m, (decimal)Sessoes.Count / TotalEsperadoSessoes.Value * 100);
+        }
+    }
+
+    [RelayCommand]
+    private void MostrarFormularioSessao()
+    {
+        SessaoTitulo = string.Empty;
+        SessaoData = DateTimeOffset.Now;
+        SessaoAnotacoes = null;
+        SessaoNota = null;
+        SessaoClassificacao = null;
+        MensagemErroSessao = null;
+        MostrandoFormularioSessao = true;
+    }
+
+    [RelayCommand]
+    private void FecharFormularioSessao()
+    {
+        MostrandoFormularioSessao = false;
+        MostrandoDetalhesSessao = false;
+    }
+
+    [RelayCommand]
+    private void ToggleDetalhesSessao()
+    {
+        MostrandoDetalhesSessao = !MostrandoDetalhesSessao;
+        OnPropertyChanged(nameof(TextoBotaoDetalhesSessao));
+    }
+
+    [RelayCommand]
+    private async Task RegistrarSessaoAsync()
+    {
+        if (!PodeRegistrarSessao)
+            return;
+
+        MensagemErroSessao = null;
+        var resultado = await _mediator.Send(new RegistrarSessaoCommand(
+            _usuarioIdTemporario,
+            _conteudoId,
+            SessaoTitulo.Trim(),
+            SessaoAnotacoes,
+            SessaoNota,
+            SessaoClassificacao,
+            Formato, // inherit parent format
+            SessaoData));
+
+        if (resultado.IsSuccess)
+        {
+            // Add to top of timeline (most recent first per D-18)
+            Sessoes.Insert(0, new SessaoItemViewModel(
+                resultado.Value,
+                SessaoTitulo.Trim(),
+                SessaoData ?? DateTimeOffset.UtcNow,
+                SessaoClassificacao,
+                SessaoNota,
+                SessaoAnotacoes));
+
+            // Clear form for rapid entry (D-20) but keep form open
+            SessaoTitulo = string.Empty;
+            SessaoData = DateTimeOffset.Now;
+            SessaoAnotacoes = null;
+            SessaoNota = null;
+            SessaoClassificacao = null;
+
+            SessoesContagem = Sessoes.Count;
+            OnPropertyChanged(nameof(ProgressoTexto));
+            OnPropertyChanged(nameof(ProgressoPorcentagem));
+            OnPropertyChanged(nameof(ResumoHistorico));
+        }
+        else
+        {
+            MensagemErroSessao = Strings.Erro_FalhaAoSalvar;
+        }
+    }
+
+    [RelayCommand]
+    private async Task AbrirSessaoAsync(Guid sessaoId)
+    {
+        if (DialogServiceInstance is null)
+            return;
+
+        await DialogServiceInstance.MostrarConteudoDetalheAsync(sessaoId);
+
+        // Reload sessions to reflect any edits made in child modal
+        var resultado = await _mediator.Send(new ObterConteudoQuery(_conteudoId, _usuarioIdTemporario));
+        if (resultado.IsSuccess && resultado.Value is ConteudoDetalheDto dto)
+        {
+            Sessoes.Clear();
+            foreach (var s in dto.Sessoes.OrderByDescending(s => s.CriadoEm))
+                Sessoes.Add(new SessaoItemViewModel(s.Id, s.Titulo, s.CriadoEm, s.Classificacao, s.Nota, s.Anotacoes));
+            SessoesContagem = Sessoes.Count;
+            OnPropertyChanged(nameof(ProgressoTexto));
+            OnPropertyChanged(nameof(ProgressoPorcentagem));
+            OnPropertyChanged(nameof(ResumoHistorico));
+        }
+    }
 }
 
 #pragma warning restore CA2007

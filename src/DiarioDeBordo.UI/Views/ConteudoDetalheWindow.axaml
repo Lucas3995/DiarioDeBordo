@@ -403,11 +403,202 @@
                         </StackPanel>
                     </Expander.Header>
 
-                    <!-- Placeholder: Timeline e sessões serão implementados no Plan 06 -->
-                    <StackPanel Margin="0,12,0,0">
-                        <TextBlock Text="Timeline e sessões serão implementados no Plan 06."
-                                   Opacity="0.5"
-                                   FontSize="13" />
+                    <StackPanel Spacing="12" Margin="0,12,0,0">
+
+                        <!-- Progress summary (UI-SPEC §7) -->
+                        <StackPanel Spacing="8"
+                                    Margin="0,0,0,8">
+                            <TextBlock Text="{Binding ProgressoTexto}"
+                                       FontSize="14"
+                                       AutomationProperties.Name="{Binding ProgressoTexto, StringFormat='Progresso de consumo: {0}'}" />
+                            <!-- Progress bar (visible when TotalEsperado defined) -->
+                            <ProgressBar Value="{Binding ProgressoPorcentagem}"
+                                         Maximum="100"
+                                         Height="4"
+                                         IsVisible="{Binding TotalEsperadoSessoes, Converter={x:Static ObjectConverters.IsNotNull}}" />
+                            <!-- TotalEsperado editable field -->
+                            <StackPanel Spacing="4">
+                                <TextBlock Text="Total esperado de sessões"
+                                           FontSize="12" />
+                                <NumericUpDown Value="{Binding TotalEsperadoSessoes, Mode=TwoWay}"
+                                              Minimum="1"
+                                              FormatString="0"
+                                              Width="100"
+                                              Watermark="—"
+                                              AutomationProperties.Name="Total esperado de sessões (opcional)" />
+                            </StackPanel>
+                        </StackPanel>
+
+                        <!-- Empty state -->
+                        <TextBlock Text="Nenhuma sessão registrada"
+                                   IsVisible="{Binding !Sessoes.Count}"
+                                   Opacity="0.6"
+                                   FontSize="12" />
+
+                        <!-- Timeline (most recent first) -->
+                        <ItemsControl ItemsSource="{Binding Sessoes}"
+                                      AutomationProperties.Name="Timeline de sessões de consumo">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate x:DataType="vm:SessaoItemViewModel">
+                                    <Grid ColumnDefinitions="Auto,12,*"
+                                          Margin="0,0,0,8">
+                                        <!-- Timeline dot -->
+                                        <Ellipse Grid.Column="0"
+                                                 Width="10"
+                                                 Height="10"
+                                                 Fill="{DynamicResource SystemAccentColor}"
+                                                 VerticalAlignment="Top"
+                                                 Margin="0,4,0,0" />
+                                        <!-- Session card (clickable to open child modal) -->
+                                        <Button Grid.Column="2"
+                                                Padding="8"
+                                                CornerRadius="4"
+                                                HorizontalContentAlignment="Stretch"
+                                                Command="{Binding $parent[ItemsControl].((vm:ConteudoDetalheViewModel)DataContext).AbrirSessaoCommand}"
+                                                CommandParameter="{Binding Id}"
+                                                AutomationProperties.Name="{Binding Titulo, StringFormat='Abrir sessão: {0}'}">
+                                            <StackPanel Spacing="4">
+                                                <Grid ColumnDefinitions="*,Auto">
+                                                    <TextBlock Grid.Column="0"
+                                                               Text="{Binding Titulo}"
+                                                               FontWeight="SemiBold"
+                                                               FontSize="13" />
+                                                    <TextBlock Grid.Column="1"
+                                                               Text="{Binding CriadoEm, StringFormat='{}{0:dd MMM yyyy}'}"
+                                                               Opacity="0.6"
+                                                               FontSize="11" />
+                                                </Grid>
+                                                <!-- Annotation preview (truncated) -->
+                                                <TextBlock Text="{Binding Anotacoes}"
+                                                           IsVisible="{Binding Anotacoes, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
+                                                           TextTrimming="CharacterEllipsis"
+                                                           MaxLines="1"
+                                                           Opacity="0.6"
+                                                           FontSize="12" />
+                                                <!-- Classificação + Nota inline -->
+                                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                                    <TextBlock Text="👍"
+                                                               FontSize="12"
+                                                               IsVisible="{Binding IsGostei}" />
+                                                    <TextBlock Text="👎"
+                                                               FontSize="12"
+                                                               IsVisible="{Binding IsNaoGostei}" />
+                                                    <TextBlock Text="{Binding Nota, StringFormat='Nota: {0:0.#}'}"
+                                                               FontSize="12"
+                                                               Opacity="0.6"
+                                                               IsVisible="{Binding Nota, Converter={x:Static ObjectConverters.IsNotNull}}" />
+                                                </StackPanel>
+                                            </StackPanel>
+                                        </Button>
+                                    </Grid>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+
+                        <!-- Registrar sessão button -->
+                        <Button Content="Registrar sessão"
+                                Command="{Binding MostrarFormularioSessaoCommand}"
+                                IsVisible="{Binding !MostrandoFormularioSessao}"
+                                AutomationProperties.Name="Registrar nova sessão de consumo"
+                                Margin="0,4,0,0" />
+
+                        <!-- Error message -->
+                        <TextBlock Text="{Binding MensagemErroSessao}"
+                                   IsVisible="{Binding MensagemErroSessao, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
+                                   Foreground="Red"
+                                   FontSize="12" />
+
+                        <!-- Inline miniform (stays open per D-20) -->
+                        <Border IsVisible="{Binding MostrandoFormularioSessao}"
+                                Padding="12"
+                                CornerRadius="4"
+                                Margin="0,4"
+                                BorderThickness="1"
+                                BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}"
+                                AutomationProperties.Name="Formulário rápido para registrar sessão">
+                            <StackPanel Spacing="8">
+
+                                <!-- Título (obrigatório) -->
+                                <StackPanel Spacing="4">
+                                    <TextBlock Text="Título" FontSize="12" />
+                                    <TextBox Text="{Binding SessaoTitulo, Mode=TwoWay}"
+                                             Watermark="Ex: Episódio 1, Capítulo 3…"
+                                             AutomationProperties.Name="Título da sessão" />
+                                </StackPanel>
+
+                                <!-- Data (defaults to hoje) -->
+                                <StackPanel Spacing="4">
+                                    <TextBlock Text="Data" FontSize="12" />
+                                    <DatePicker SelectedDate="{Binding SessaoData, Mode=TwoWay}"
+                                                AutomationProperties.Name="Data da sessão" />
+                                </StackPanel>
+
+                                <!-- Progressive disclosure toggle -->
+                                <Button Content="{Binding TextoBotaoDetalhesSessao}"
+                                        Command="{Binding ToggleDetalhesSessaoCommand}"
+                                        FontSize="12"
+                                        AutomationProperties.Name="Mostrar ou ocultar campos adicionais da sessão" />
+
+                                <!-- Optional fields -->
+                                <StackPanel IsVisible="{Binding MostrandoDetalhesSessao}"
+                                            Spacing="8">
+                                    <StackPanel Spacing="4">
+                                        <TextBlock Text="Anotações" FontSize="12" />
+                                        <TextBox Text="{Binding SessaoAnotacoes, Mode=TwoWay}"
+                                                 TextWrapping="Wrap"
+                                                 Height="60"
+                                                 AcceptsReturn="True"
+                                                 AutomationProperties.Name="Anotações da sessão" />
+                                    </StackPanel>
+                                    <Grid ColumnDefinitions="Auto,*">
+                                        <StackPanel Grid.Column="0" Spacing="4">
+                                            <TextBlock Text="Nota (0–10)" FontSize="12" />
+                                            <NumericUpDown Value="{Binding SessaoNota, Mode=TwoWay}"
+                                                          Minimum="0"
+                                                          Maximum="10"
+                                                          Increment="0.5"
+                                                          FormatString="0.#"
+                                                          Width="80"
+                                                          Watermark="—"
+                                                          AutomationProperties.Name="Nota da sessão" />
+                                        </StackPanel>
+                                        <StackPanel Grid.Column="1" Spacing="4" Margin="16,0,0,0">
+                                            <TextBlock Text="Classificação" FontSize="12" />
+                                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                                <ToggleButton IsChecked="{Binding SessaoIsGostei}"
+                                                             Width="32"
+                                                             Height="32"
+                                                             AutomationProperties.Name="Marcar sessão como Gostei">
+                                                    <TextBlock Text="👍" FontSize="16" />
+                                                </ToggleButton>
+                                                <ToggleButton IsChecked="{Binding SessaoIsNaoGostei}"
+                                                             Width="32"
+                                                             Height="32"
+                                                             AutomationProperties.Name="Marcar sessão como Não gostei">
+                                                    <TextBlock Text="👎" FontSize="16" />
+                                                </ToggleButton>
+                                            </StackPanel>
+                                        </StackPanel>
+                                    </Grid>
+                                </StackPanel>
+
+                                <!-- Actions -->
+                                <StackPanel Orientation="Horizontal"
+                                            Spacing="8"
+                                            HorizontalAlignment="Right">
+                                    <Button Content="Fechar"
+                                            Command="{Binding FecharFormularioSessaoCommand}"
+                                            FontSize="12"
+                                            AutomationProperties.Name="Fechar formulário de sessão" />
+                                    <Button Content="Registrar sessão"
+                                            Command="{Binding RegistrarSessaoCommand}"
+                                            IsEnabled="{Binding PodeRegistrarSessao}"
+                                            AutomationProperties.Name="Confirmar registro da sessão" />
+                                </StackPanel>
+
+                            </StackPanel>
+                        </Border>
+
                     </StackPanel>
 
                 </Expander>
