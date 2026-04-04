@@ -31,6 +31,7 @@ internal sealed partial class App : Application
     public static AppBuilder BuildAvaloniaApp(IServiceProvider services)
         => AppBuilder.Configure(() => new App(services))
             .UsePlatformDetect()
+            .With(new X11PlatformOptions { EnableIme = true })
             .LogToTrace();
 
     public override void Initialize() => AvaloniaXamlLoader.Load(this);

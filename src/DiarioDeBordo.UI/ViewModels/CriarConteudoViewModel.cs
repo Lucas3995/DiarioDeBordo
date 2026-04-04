@@ -66,7 +66,7 @@ public sealed partial class CriarConteudoViewModel : ObservableObject
         try
         {
             var resultado = await _mediator.Send(
-                new CriarConteudoCommand(_usuarioIdTemporario, Titulo));
+                new CriarConteudoCommand(_usuarioIdTemporario, Titulo, Descricao, Anotacoes));
 
             if (resultado.IsSuccess)
                 ConteudoCriado?.Invoke(this, EventArgs.Empty);

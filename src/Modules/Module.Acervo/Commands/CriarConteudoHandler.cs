@@ -33,6 +33,12 @@ internal sealed class CriarConteudoHandler : IRequestHandler<CriarConteudoComman
             conteudo = Conteudo.Criar(
                 usuarioId: cmd.UsuarioId,
                 titulo: cmd.Titulo);
+
+            // Optional fields filled at creation via progressive disclosure
+            if (!string.IsNullOrWhiteSpace(cmd.Descricao))
+                conteudo.Descricao = cmd.Descricao.Trim();
+            if (!string.IsNullOrWhiteSpace(cmd.Anotacoes))
+                conteudo.Anotacoes = cmd.Anotacoes.Trim();
         }
         catch (DomainException ex)
         {

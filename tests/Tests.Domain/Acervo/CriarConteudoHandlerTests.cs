@@ -95,4 +95,31 @@ public class CriarConteudoHandlerTests
             Arg.Is<Core.Entidades.Conteudo>(c => c.Titulo == "Dune"),
             Arg.Any<CancellationToken>());
     }
+
+    [Fact]
+    public async Task Handle_ComDescricaoEAnotacoes_SalvaAmbosOsCampos()
+    {
+        var cmd = new CriarConteudoCommand(Guid.NewGuid(), "Dune",
+            Descricao: "Planeta areia.", Anotacoes: "Leitura obrigatória");
+
+        await _handler.Handle(cmd, CancellationToken.None);
+
+        await _repo.Received(1).AdicionarAsync(
+            Arg.Is<Core.Entidades.Conteudo>(c =>
+                c.Descricao == "Planeta areia." && c.Anotacoes == "Leitura obrigatória"),
+            Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task Handle_ComDescricaoVazia_NaoSetaDescricao()
+    {
+        var cmd = new CriarConteudoCommand(Guid.NewGuid(), "Dune",
+            Descricao: "   ", Anotacoes: null);
+
+        await _handler.Handle(cmd, CancellationToken.None);
+
+        await _repo.Received(1).AdicionarAsync(
+            Arg.Is<Core.Entidades.Conteudo>(c => c.Descricao == null),
+            Arg.Any<CancellationToken>());
+    }
 }
