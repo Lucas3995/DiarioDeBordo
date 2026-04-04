@@ -1,3 +1,5 @@
+using DiarioDeBordo.Core.Enums;
+
 namespace DiarioDeBordo.Module.Acervo.DTOs;
 
 /// <summary>DTO de resumo — usado na listagem de conteúdos (list view).</summary>
@@ -7,4 +9,7 @@ public sealed record ConteudoResumoDto(
     string Titulo,
     string Formato,
     string Papel,
-    DateTimeOffset CriadoEm);
+    DateTimeOffset CriadoEm,
+    Classificacao? Classificacao,
+    string? Subtipo,
+    decimal? Nota);

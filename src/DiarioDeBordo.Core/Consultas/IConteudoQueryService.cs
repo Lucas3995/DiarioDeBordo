@@ -11,6 +11,7 @@ public interface IConteudoQueryService
 {
     Task<ResultadoPaginado<ConteudoResumoData>> ListarAsync(Guid usuarioId, PaginacaoParams paginacao, CancellationToken ct);
     Task<ConteudoDetalheData?> ObterAsync(Guid id, Guid usuarioId, CancellationToken ct);
+    Task<ResultadoPaginado<SessaoData>> ListarSessoesAsync(Guid conteudoPaiId, Guid usuarioId, PaginacaoParams paginacao, CancellationToken ct);
 }
 
 public sealed record ConteudoResumoData(

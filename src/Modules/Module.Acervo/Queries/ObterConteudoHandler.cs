@@ -28,15 +28,26 @@ internal sealed class ObterConteudoHandler
         if (data is null)
             return Resultado<ConteudoDetalheDto>.Failure(Erros.NaoEncontrado);
 
-        return Resultado<ConteudoDetalheDto>.Success(
-            new ConteudoDetalheDto(
-                data.Id,
-                data.Titulo,
-                data.Descricao,
-                data.Anotacoes,
-                data.Nota,
-                data.Formato.ToString(),
-                data.Papel.ToString(),
-                data.CriadoEm));
+        var dto = new ConteudoDetalheDto(
+            data.Id,
+            data.Titulo,
+            data.Descricao,
+            data.Anotacoes,
+            data.Nota,
+            data.Formato.ToString(),
+            data.Papel.ToString(),
+            data.CriadoEm,
+            data.Classificacao,
+            data.IsFilho,
+            data.TotalEsperadoSessoes,
+            data.Subtipo,
+            data.EstadoProgresso.ToString(),
+            data.PosicaoAtual,
+            data.Categorias.Select(c => new CategoriaDto(c.Id, c.Nome, c.IsAutomatica)).ToList().AsReadOnly(),
+            data.Relacoes.Select(r => new RelacaoDto(r.Id, r.ConteudoDestinoId, r.TituloDestino, r.NomeTipo, r.IsInversa)).ToList().AsReadOnly(),
+            data.Sessoes.Select(s => new SessaoDto(s.Id, s.Titulo, s.CriadoEm, s.Classificacao, s.Nota, s.Anotacoes)).ToList().AsReadOnly(),
+            data.SessoesContagem);
+
+        return Resultado<ConteudoDetalheDto>.Success(dto);
     }
 }

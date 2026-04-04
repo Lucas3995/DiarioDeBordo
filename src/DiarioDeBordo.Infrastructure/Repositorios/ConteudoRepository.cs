@@ -2,7 +2,6 @@ using DiarioDeBordo.Core.Entidades;
 using DiarioDeBordo.Core.Repositorios;
 using DiarioDeBordo.Infrastructure.Persistencia;
 using Microsoft.EntityFrameworkCore;
-
 namespace DiarioDeBordo.Infrastructure.Repositorios;
 
 /// <summary>
@@ -65,6 +64,60 @@ internal sealed class ConteudoRepository : IConteudoRepository
             .Where(c => c.UsuarioId == usuarioId) // usuarioId MANDATORY — SEG-02
             .Where(c => c.Fontes.Any(f => f.Plataforma == plataforma && f.Valor == identificador))
             .FirstOrDefaultAsync(ct)
+            .ConfigureAwait(false);
+    }
+
+    /// <summary>
+    /// Substitui as categorias do conteúdo: remove as atuais e adiciona o conjunto desejado.
+    /// SEG-02: usuarioId not used directly here (conteudoId is already scoped to user by caller), but included for audit.
+    /// </summary>
+    public async Task AtualizarCategoriasAsync(Guid conteudoId, Guid usuarioId, IReadOnlyList<Guid> categoriaIds, CancellationToken ct)
+    {
+        _ = usuarioId; // SEG-02: caller must validate ownership before calling
+
+        // Remove all current associations
+        var atuais = await _context.ConteudoCategorias
+            .Where(cc => cc.ConteudoId == conteudoId)
+            .ToListAsync(ct)
+            .ConfigureAwait(false);
+        _context.ConteudoCategorias.RemoveRange(atuais);
+
+        // Add new associations
+        var agora = DateTimeOffset.UtcNow;
+        foreach (var categoriaId in categoriaIds)
+        {
+            await _context.ConteudoCategorias.AddAsync(
+                new ConteudoCategoria
+                {
+                    ConteudoId = conteudoId,
+                    CategoriaId = categoriaId,
+                    AssociadaEm = agora,
+                }, ct).ConfigureAwait(false);
+        }
+
+        await _context.SaveChangesAsync(ct).ConfigureAwait(false);
+    }
+
+    public async Task RemoverTodasCategoriasAsync(Guid conteudoId, CancellationToken ct)
+    {
+        var categorias = await _context.ConteudoCategorias
+            .Where(cc => cc.ConteudoId == conteudoId)
+            .ToListAsync(ct)
+            .ConfigureAwait(false);
+        _context.ConteudoCategorias.RemoveRange(categorias);
+        await _context.SaveChangesAsync(ct).ConfigureAwait(false);
+    }
+
+    public async Task<IReadOnlyList<Guid>> ListarFilhosAsync(
+        Guid conteudoId, Guid usuarioId, Guid contemTipoRelacaoId, CancellationToken ct)
+    {
+        return await _context.Relacoes
+            .Where(r => r.ConteudoOrigemId == conteudoId
+                        && r.UsuarioId == usuarioId
+                        && r.TipoRelacaoId == contemTipoRelacaoId
+                        && !r.IsInversa)
+            .Select(r => r.ConteudoDestinoId)
+            .ToListAsync(ct)
             .ConfigureAwait(false);
     }
 }

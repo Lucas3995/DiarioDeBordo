@@ -32,7 +32,10 @@ internal sealed class ListarConteudosHandler
                 d.Titulo,
                 d.Formato.ToString(),
                 d.Papel.ToString(),
-                d.CriadoEm))
+                d.CriadoEm,
+                d.Classificacao,
+                d.Subtipo,
+                null))  // Nota not included in list view for performance (detail view has it)
             .ToList()
             .AsReadOnly();
 

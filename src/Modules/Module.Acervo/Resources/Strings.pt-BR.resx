@@ -68,4 +68,174 @@
   <data name="Label_Cancelar" xml:space="preserve">
     <value>Cancelar</value>
   </data>
+
+  <!-- Detalhe / Modal -->
+  <data name="Modal_BotaoSalvar" xml:space="preserve">
+    <value>Salvar</value>
+  </data>
+  <data name="Modal_BotaoCancelar" xml:space="preserve">
+    <value>Cancelar</value>
+  </data>
+  <data name="Modal_BotaoExcluir" xml:space="preserve">
+    <value>Excluir</value>
+  </data>
+  <data name="Modal_Titulo_Existente" xml:space="preserve">
+    <value>Detalhe do conteúdo</value>
+  </data>
+
+  <!-- Seções do modal -->
+  <data name="Secao_Identificacao" xml:space="preserve">
+    <value>Identificação</value>
+  </data>
+  <data name="Secao_Avaliacao" xml:space="preserve">
+    <value>Avaliação</value>
+  </data>
+  <data name="Secao_Organizacao" xml:space="preserve">
+    <value>Organização</value>
+  </data>
+  <data name="Secao_Historico" xml:space="preserve">
+    <value>Histórico de consumo</value>
+  </data>
+
+  <!-- Labels de campos -->
+  <data name="Label_Descricao" xml:space="preserve">
+    <value>Descrição</value>
+  </data>
+  <data name="Label_Anotacoes" xml:space="preserve">
+    <value>Anotações</value>
+  </data>
+  <data name="Label_Formato" xml:space="preserve">
+    <value>Formato</value>
+  </data>
+  <data name="Label_Subtipo" xml:space="preserve">
+    <value>Subtipo</value>
+  </data>
+  <data name="Label_Nota" xml:space="preserve">
+    <value>Nota (0–10)</value>
+  </data>
+  <data name="Label_Classificacao" xml:space="preserve">
+    <value>Classificação</value>
+  </data>
+  <data name="Label_Progresso" xml:space="preserve">
+    <value>Progresso</value>
+  </data>
+  <data name="Label_Categorias" xml:space="preserve">
+    <value>Categorias</value>
+  </data>
+  <data name="Label_Relacoes" xml:space="preserve">
+    <value>Relações</value>
+  </data>
+  <data name="Label_TotalEsperado" xml:space="preserve">
+    <value>Total esperado de sessões</value>
+  </data>
+  <data name="Label_Data" xml:space="preserve">
+    <value>Data</value>
+  </data>
+
+  <!-- Ações -->
+  <data name="Relacao_BotaoAdicionar" xml:space="preserve">
+    <value>Adicionar relação</value>
+  </data>
+  <data name="Relacao_BotaoVincular" xml:space="preserve">
+    <value>Vincular</value>
+  </data>
+  <data name="Sessao_BotaoRegistrar" xml:space="preserve">
+    <value>Registrar sessão</value>
+  </data>
+  <data name="Formulario_MaisDetalhes" xml:space="preserve">
+    <value>Mais detalhes</value>
+  </data>
+  <data name="Formulario_MenosDetalhes" xml:space="preserve">
+    <value>Menos detalhes</value>
+  </data>
+  <data name="Card_VerDetalhe" xml:space="preserve">
+    <value>Ver detalhe</value>
+  </data>
+
+  <!-- Estados vazios -->
+  <data name="Categorias_EstadoVazio" xml:space="preserve">
+    <value>Nenhuma categoria associada</value>
+  </data>
+  <data name="Relacoes_EstadoVazio" xml:space="preserve">
+    <value>Nenhuma relação definida</value>
+  </data>
+  <data name="Sessoes_EstadoVazio" xml:space="preserve">
+    <value>Nenhuma sessão registrada</value>
+  </data>
+  <data name="Avaliacao_SemAvaliacao" xml:space="preserve">
+    <value>Sem avaliação</value>
+  </data>
+
+  <!-- Diálogos de confirmação -->
+  <data name="Dialog_ExcluirConteudo_Titulo" xml:space="preserve">
+    <value>Excluir conteúdo?</value>
+  </data>
+  <data name="Dialog_ExcluirConteudo_Mensagem" xml:space="preserve">
+    <value>Esta ação removerá o conteúdo e todas as sessões registradas. Esta ação é irreversível.</value>
+  </data>
+  <data name="Dialog_DescartarAlteracoes_Titulo" xml:space="preserve">
+    <value>Descartar alterações?</value>
+  </data>
+  <data name="Dialog_DescartarAlteracoes_Mensagem" xml:space="preserve">
+    <value>Você tem alterações não salvas. Deseja descartá-las?</value>
+  </data>
+  <data name="Dialog_ExcluirRelacao_Titulo" xml:space="preserve">
+    <value>Remover relação?</value>
+  </data>
+  <data name="Dialog_ExcluirRelacao_Mensagem" xml:space="preserve">
+    <value>A relação será removida dos dois conteúdos.</value>
+  </data>
+
+  <!-- Watermarks / Placeholders -->
+  <data name="Categorias_Watermark" xml:space="preserve">
+    <value>Buscar ou criar categoria...</value>
+  </data>
+  <data name="Relacao_Watermark_Busca" xml:space="preserve">
+    <value>Buscar conteúdo para vincular...</value>
+  </data>
+  <data name="Sessao_Watermark_Titulo" xml:space="preserve">
+    <value>Ex: Episódio 1, Capítulo 3...</value>
+  </data>
+
+  <!-- Progresso formatado -->
+  <data name="Progresso_ComTotal" xml:space="preserve">
+    <value>{0}% — {1} de {2} sessões</value>
+  </data>
+  <data name="Progresso_SemTotal" xml:space="preserve">
+    <value>{0} sessão(ões) registrada(s)</value>
+  </data>
+  <data name="Progresso_Vazio" xml:space="preserve">
+    <value>Nenhuma sessão registrada</value>
+  </data>
+
+  <!-- Criação inline -->
+  <data name="Categoria_CriarInline" xml:space="preserve">
+    <value>Criar categoria '{0}'</value>
+  </data>
+  <data name="TipoRelacao_CriarInline" xml:space="preserve">
+    <value>Criar tipo '{0}'</value>
+  </data>
+  <data name="TipoRelacao_NomeInverso" xml:space="preserve">
+    <value>Nome inverso (ex: 'Continuação de')</value>
+  </data>
+
+  <!-- Erros adicionais -->
+  <data name="Erro_FalhaAoSalvar" xml:space="preserve">
+    <value>Falha ao salvar as alterações.</value>
+  </data>
+  <data name="Erro_FalhaAoExcluir" xml:space="preserve">
+    <value>Falha ao excluir o conteúdo.</value>
+  </data>
+  <data name="Erro_FalhaAoCarregar" xml:space="preserve">
+    <value>Falha ao carregar o conteúdo.</value>
+  </data>
+  <data name="Erro_CategoriaDuplicada" xml:space="preserve">
+    <value>Essa categoria já está associada a este conteúdo.</value>
+  </data>
+  <data name="Erro_RelacaoDuplicada" xml:space="preserve">
+    <value>Essa relação já existe entre os dois conteúdos.</value>
+  </data>
+  <data name="Erro_NotaForaDaFaixa" xml:space="preserve">
+    <value>A nota deve estar entre 0 e 10.</value>
+  </data>
 </root>

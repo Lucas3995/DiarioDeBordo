@@ -120,4 +120,32 @@ internal sealed class ConteudoQueryService : IConteudoQueryService
             sessoes.AsReadOnly(),
             sessoesIds.Count);
     }
+
+    public async Task<ResultadoPaginado<SessaoData>> ListarSessoesAsync(
+        Guid conteudoPaiId, Guid usuarioId, PaginacaoParams paginacao, CancellationToken ct)
+    {
+        // Find child session IDs via "Contém" relations (D-18)
+        var sessoesIds = await _context.Relacoes
+            .Where(r => r.ConteudoOrigemId == conteudoPaiId
+                        && r.UsuarioId == usuarioId
+                        && r.TipoRelacaoId == _contemTipoId
+                        && !r.IsInversa)
+            .Select(r => r.ConteudoDestinoId)
+            .ToListAsync(ct)
+            .ConfigureAwait(false);
+
+        var total = sessoesIds.Count;
+
+        var sessoes = await _context.Conteudos
+            .Where(c => sessoesIds.Contains(c.Id))
+            .OrderBy(c => c.CriadoEm)
+            .Skip(paginacao.Offset)
+            .Take(paginacao.ItensPorPagina)
+            .Select(c => new SessaoData(c.Id, c.Titulo, c.CriadoEm, c.Classificacao, c.Nota, c.Anotacoes))
+            .ToListAsync(ct)
+            .ConfigureAwait(false);
+
+        return new ResultadoPaginado<SessaoData>(
+            sessoes.AsReadOnly(), total, paginacao.Pagina, paginacao.ItensPorPagina);
+    }
 }

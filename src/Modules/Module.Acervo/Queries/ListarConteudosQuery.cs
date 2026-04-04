@@ -17,3 +17,9 @@ public sealed record ListarConteudosQuery(
 public sealed record ObterConteudoQuery(
     Guid Id,
     Guid UsuarioId) : IRequest<Resultado<ConteudoDetalheDto>>;
+
+/// <summary>Lista as sessões (filhos) de um conteúdo pai, paginadas e ordenadas cronologicamente (D-18).</summary>
+public sealed record ListarSessoesQuery(
+    Guid ConteudoPaiId,
+    Guid UsuarioId,
+    PaginacaoParams Paginacao) : IRequest<Resultado<PaginatedList<SessaoDto>>>;

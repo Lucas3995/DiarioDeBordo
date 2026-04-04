@@ -81,12 +81,13 @@ public sealed class Conteudo
     public static Conteudo CriarComoFilho(
         Guid usuarioId,
         string titulo,
-        FormatoMidia formato = FormatoMidia.Nenhum)
+        FormatoMidia formato = FormatoMidia.Nenhum,
+        DateTimeOffset? dataConsumo = null)
     {
         if (string.IsNullOrWhiteSpace(titulo))
             throw new DomainException("TITULO_OBRIGATORIO", "O título é obrigatório."); // I-01
 
-        var now = DateTimeOffset.UtcNow;
+        var now = dataConsumo ?? DateTimeOffset.UtcNow;
         return new Conteudo
         {
             Id = Guid.NewGuid(),

@@ -1,3 +1,5 @@
+using DiarioDeBordo.Core.Enums;
+
 namespace DiarioDeBordo.Module.Acervo.DTOs;
 
 /// <summary>DTO de detalhe — usado na tela de detalhe do conteúdo.</summary>
@@ -10,4 +12,14 @@ public sealed record ConteudoDetalheDto(
     decimal? Nota,
     string Formato,
     string Papel,
-    DateTimeOffset CriadoEm);
+    DateTimeOffset CriadoEm,
+    Classificacao? Classificacao,
+    bool IsFilho,
+    int? TotalEsperadoSessoes,
+    string? Subtipo,
+    string EstadoProgresso,
+    string? PosicaoAtual,
+    IReadOnlyList<CategoriaDto> Categorias,
+    IReadOnlyList<RelacaoDto> Relacoes,
+    IReadOnlyList<SessaoDto> Sessoes,
+    int SessoesContagem);
