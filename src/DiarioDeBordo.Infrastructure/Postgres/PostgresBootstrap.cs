@@ -31,6 +31,7 @@ internal sealed partial class PostgresBootstrap : IPostgresBootstrap
         {
             var pgDataDir = GetPgDataDir();
             var pgBinDir = GetPgBinDir();
+            LogUsingPgBinDir(_logger, pgBinDir);
 
             // First run: initialize cluster
             if (!await IsInitializedAsync().ConfigureAwait(false))
@@ -189,9 +190,50 @@ internal sealed partial class PostgresBootstrap : IPostgresBootstrap
 
     private static string GetPgBinDir()
     {
-        var appDir = AppContext.BaseDirectory;
-        return Path.Combine(appDir, "installer", "postgres", "bin");
+#if DEBUG
+        var systemBin = FindSystemPgBinDir();
+        if (systemBin is not null)
+            return systemBin;
+#endif
+        return Path.Combine(AppContext.BaseDirectory, "installer", "postgres", "bin");
     }
+
+#if DEBUG
+    /// <summary>
+    /// Localiza o diretório bin do PostgreSQL instalado no sistema.
+    /// Usado apenas em Debug para facilitar o desenvolvimento local sem o bundled Postgres.
+    /// </summary>
+    private static string? FindSystemPgBinDir()
+    {
+        if (OperatingSystem.IsLinux())
+        {
+            const string pgBase = "/usr/lib/postgresql";
+            if (!Directory.Exists(pgBase)) return null;
+
+            return Directory.GetDirectories(pgBase)
+                .Select(d => (path: Path.Combine(d, "bin"), ver: int.TryParse(Path.GetFileName(d), System.Globalization.NumberStyles.Integer, System.Globalization.CultureInfo.InvariantCulture, out var v) ? v : 0))
+                .Where(x => Directory.Exists(x.path) && File.Exists(Path.Combine(x.path, "pg_ctl")))
+                .OrderByDescending(x => x.ver)
+                .Select(x => x.path)
+                .FirstOrDefault();
+        }
+
+        if (OperatingSystem.IsWindows())
+        {
+            const string pgBase = @"C:\Program Files\PostgreSQL";
+            if (!Directory.Exists(pgBase)) return null;
+
+            return Directory.GetDirectories(pgBase)
+                .Select(d => (path: Path.Combine(d, "bin"), ver: int.TryParse(Path.GetFileName(d), System.Globalization.NumberStyles.Integer, System.Globalization.CultureInfo.InvariantCulture, out var v) ? v : 0))
+                .Where(x => Directory.Exists(x.path) && File.Exists(Path.Combine(x.path, "pg_ctl.exe")))
+                .OrderByDescending(x => x.ver)
+                .Select(x => x.path)
+                .FirstOrDefault();
+        }
+
+        return null;
+    }
+#endif
 
     private static string GetPgDataDir()
     {
@@ -205,6 +247,9 @@ internal sealed partial class PostgresBootstrap : IPostgresBootstrap
     }
 
     // LoggerMessage delegates — avoids CA1848/CA1873 boxing allocation warnings
+    [LoggerMessage(Level = LogLevel.Information, Message = "Using PostgreSQL bin directory: {PgBinDir}")]
+    private static partial void LogUsingPgBinDir(ILogger logger, string pgBinDir);
+
     [LoggerMessage(Level = LogLevel.Information, Message = "Initializing PostgreSQL cluster at {DataDir}")]
     private static partial void LogInitializingCluster(ILogger logger, string dataDir);
 
