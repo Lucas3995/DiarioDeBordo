@@ -375,8 +375,8 @@
                                     <StackPanel Spacing="4">
                                         <TextBlock Text="Tipo de relação" FontSize="12" />
                                         <AutoCompleteBox Name="TipoRelacaoAutoComplete"
-                                                         ItemsSource="{Binding NomesTiposRelacao}"
-                                                         FilterMode="Contains"
+                                                         SelectedItem="{Binding TipoSelecionadoItem, Mode=TwoWay}"
+                                                         FilterMode="None"
                                                          Watermark="Selecionar tipo…"
                                                          MinimumPrefixLength="0"
                                                          MinimumPopulateDelay="0:0:0.000"

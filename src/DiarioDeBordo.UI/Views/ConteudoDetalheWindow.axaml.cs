@@ -48,8 +48,9 @@ public partial class ConteudoDetalheWindow : Window
         if (DataContext is ConteudoDetalheViewModel vm)
         {
             vm.Owner = this;
-            // Trigger loading after window is shown
-            vm.CarregarCommand.Execute(null);
+            // Trigger loading after window is shown — must complete before PreCarregar
+            // to avoid concurrent DbContext usage (both share the same context via root DI).
+            await vm.CarregarCommand.ExecuteAsync(null);
 
             // Pre-load relation types — small dataset, loaded once; refreshed after Salvar
             await vm.PreCarregarTiposRelacaoAsync();
@@ -107,17 +108,23 @@ public partial class ConteudoDetalheWindow : Window
                 };
             }
 
-            // TipoRelacao uses ItemsSource + client-side filter (data pre-loaded in PreCarregarTiposRelacaoAsync)
-            // AsyncPopulator is NOT used here because it only triggers on text change, not on initial focus.
+            // TipoRelacao uses AsyncPopulator (same pattern as Categoria/ConteudoAlvo) because
+            // SelectionChanged only fires reliably in Avalonia 11 when the populator manages the list.
+            // Data is already pre-loaded in NomesTiposRelacao — no extra DB call needed.
             if (this.FindControl<AutoCompleteBox>("TipoRelacaoAutoComplete") is AutoCompleteBox tipoAc)
             {
-                // User selected an existing type from dropdown
-                tipoAc.SelectionChanged += (_, args) =>
+                tipoAc.AsyncPopulator = (text, ct) =>
                 {
-                    if (args.AddedItems.Count > 0 && args.AddedItems[0] is string nome)
-                        vm.SelecionarOuCriarTipoRelacao(nome);
+                    var filtro = text ?? string.Empty;
+                    IEnumerable<object> items = filtro.Length == 0
+                        ? vm.NomesTiposRelacao.Cast<object>()
+                        : vm.NomesTiposRelacao
+                            .Where(n => n.Contains(filtro, StringComparison.OrdinalIgnoreCase))
+                            .Cast<object>();
+                    return Task.FromResult(items);
                 };
 
+                // Selection via click is handled by SelectedItem TwoWay binding in AXAML.
                 // User pressed Enter to confirm a new or existing type name
                 tipoAc.KeyDown += (_, args) =>
                 {

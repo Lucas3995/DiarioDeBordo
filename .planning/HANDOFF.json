@@ -1,0 +1,62 @@
+{
+  "version": "1.0",
+  "timestamp": "2026-04-04T08:21:59.580Z",
+  "phase": "3",
+  "phase_name": "Acervo Básico",
+  "phase_dir": ".planning/phases/03-acervo-b-sico",
+  "plan": 6,
+  "task": "verify-work",
+  "total_tasks": "6 plans executed",
+  "status": "paused",
+  "completed_tasks": [
+    {"id": 1, "name": "Plan 03-01 (modelagem)", "status": "done"},
+    {"id": 2, "name": "Plan 03-02", "status": "done"},
+    {"id": 3, "name": "Plan 03-03", "status": "done"},
+    {"id": 4, "name": "Plan 03-04", "status": "done"},
+    {"id": 5, "name": "Plan 03-05", "status": "done"},
+    {"id": 6, "name": "Plan 03-06", "status": "done"},
+    {"id": 7, "name": "Bug 1: Visualizar crasha (DbContext concorrente)", "status": "done", "commit": "local"},
+    {"id": 8, "name": "Validação: Criar, Editar, Avaliação, Categorias, Excluir", "status": "done"},
+    {"id": 9, "name": "Bug 2: Vincular desabilitado (SelectedItem TwoWay binding)", "status": "in_progress", "progress": "Fix aplicado, build OK, aguarda confirmação do usuário"}
+  ],
+  "remaining_tasks": [
+    {"id": 10, "name": "Item 5: Relações — validação completa", "status": "not_started"},
+    {"id": 11, "name": "Item 6: Sessões — registrar, timeline, múltiplas", "status": "not_started"},
+    {"id": 12, "name": "Item 7: Paginação — >20 itens", "status": "not_started"},
+    {"id": 13, "name": "/gsd:verify-work 3", "status": "not_started"},
+    {"id": 14, "name": "/gsd:ship 3", "status": "not_started"}
+  ],
+  "blockers": [
+    {
+      "description": "Bug 2 fix (SelectedItem binding para TipoRelacao) aguarda confirmação do usuário",
+      "type": "human_action",
+      "workaround": "Se ainda quebrado: verificar se SelecionarOuCriarTipoRelacao chama NotifyCanExecuteChanged no VincularCommand"
+    }
+  ],
+  "human_actions_pending": [
+    {
+      "action": "Testar botão Vincular conteúdos (Item 5 — Relações)",
+      "context": "Fix aplicado mas não confirmado. Rodar app e tentar adicionar uma relação.",
+      "blocking": true
+    },
+    {
+      "action": "Testar Item 6 (Sessões) e Item 7 (Paginação)",
+      "context": "Não testados ainda nesta sessão.",
+      "blocking": false
+    }
+  ],
+  "decisions": [
+    {"decision": "AsyncPopulator ao invés de Populating event", "rationale": "API correta Avalonia 11 para async dropdown", "phase": "3"},
+    {"decision": "window.Show() sem owner", "rationale": "owned windows ficam always-on-top no X11", "phase": "3"},
+    {"decision": "Relações bufferizadas (IsPendente=true)", "rationale": "Spec: relação só persiste no Salvar", "phase": "3"},
+    {"decision": "SelectedItem TwoWay binding como sinal de seleção", "rationale": "SelectionChanged não dispara confiravelmente no Avalonia 11", "phase": "3"},
+    {"decision": "await ExecuteAsync antes de PreCarregar", "rationale": "Evita DbContext concorrente (root DI = singleton context)", "phase": "3"}
+  ],
+  "uncommitted_files": [
+    "src/DiarioDeBordo.UI/ViewModels/ConteudoDetalheViewModel.cs",
+    "src/DiarioDeBordo.UI/Views/ConteudoDetalheWindow.axaml",
+    "src/DiarioDeBordo.UI/Views/ConteudoDetalheWindow.axaml.cs"
+  ],
+  "next_action": "Pedir ao usuário para testar o botão Vincular (Item 5). Se OK: commit + testar Sessões e Paginação. Se quebrado: checar NotifyCanExecuteChanged em VincularCommand.",
+  "context_notes": "134 testes passando. Próxima fase após validação: Fase 4 — Adaptadores RSS e YouTube. Branch: teste-com-gsd, 4 commits à frente do origin."
+}

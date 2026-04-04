@@ -549,12 +549,30 @@ public sealed partial class ConteudoDetalheViewModel : ObservableObject
         ConteudoAlvoSelecionado = null;
     }
 
+    /// <summary>
+    /// Bound TwoWay to AutoCompleteBox.SelectedItem for relation type.
+    /// SelectedItem is the reliable selection signal in Avalonia 11 — SelectionChanged is not.
+    /// </summary>
+    private object? _tipoSelecionadoItem;
+    public object? TipoSelecionadoItem
+    {
+        get => _tipoSelecionadoItem;
+        set
+        {
+            _tipoSelecionadoItem = value;
+            if (value is string nome && !string.IsNullOrWhiteSpace(nome))
+                SelecionarOuCriarTipoRelacao(nome);
+            OnPropertyChanged();
+        }
+    }
+
     [RelayCommand]
     private void CancelarFormularioRelacao()
     {
         MostrandoFormularioRelacao = false;
         ConteudoAlvoSelecionado = null;
         TipoRelacaoSelecionado = null;
+        TipoSelecionadoItem = null;
         NomeInversoNovoTipo = null;
         CriandoNovoTipo = false;
         _novoNomeTipo = null;
