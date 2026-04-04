@@ -91,20 +91,13 @@ public partial class ConteudoDetalheWindow : Window
 
             if (this.FindControl<AutoCompleteBox>("ConteudoAlvoAutoComplete") is AutoCompleteBox conteudoAc)
             {
+                // AsyncPopulator populates SugestoesConteudo so ConteudoAlvoSelecionadoItem setter
+                // can look up the full DTO by title. Selection is handled via SelectedItem TwoWay
+                // binding — SelectionChanged is not reliable in Avalonia 11.
                 conteudoAc.AsyncPopulator = async (text, ct) =>
                 {
                     await vm.PopularSugestoesConteudoAsync(text ?? string.Empty);
                     return vm.SugestoesConteudo.Select(c => c.Titulo).Cast<object>();
-                };
-
-                conteudoAc.SelectionChanged += (_, args) =>
-                {
-                    if (args.AddedItems.Count > 0 && args.AddedItems[0] is string titulo)
-                    {
-                        vm.ConteudoAlvoSelecionado = vm.SugestoesConteudo
-                            .FirstOrDefault(c => c.Titulo == titulo);
-                        // Clear text — the selected content title is shown via chip/label, not the input
-                    }
                 };
             }
 

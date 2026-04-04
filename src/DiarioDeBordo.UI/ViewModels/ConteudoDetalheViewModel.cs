@@ -543,10 +543,30 @@ public sealed partial class ConteudoDetalheViewModel : ObservableObject
         MostrandoFormularioRelacao = true;
     }
 
+    /// <summary>
+    /// Bound TwoWay to AutoCompleteBox.SelectedItem for target content.
+    /// SelectedItem is the reliable selection signal in Avalonia 11 — SelectionChanged is not.
+    /// </summary>
+    private object? _conteudoAlvoSelecionadoItem;
+    public object? ConteudoAlvoSelecionadoItem
+    {
+        get => _conteudoAlvoSelecionadoItem;
+        set
+        {
+            _conteudoAlvoSelecionadoItem = value;
+            if (value is string titulo && !string.IsNullOrWhiteSpace(titulo))
+                ConteudoAlvoSelecionado = _sugestoesConteudoBacking
+                    .FirstOrDefault(c => c.Titulo == titulo);
+            OnPropertyChanged();
+        }
+    }
+
     [RelayCommand]
     private void LimparConteudoAlvo()
     {
         ConteudoAlvoSelecionado = null;
+        _conteudoAlvoSelecionadoItem = null;
+        OnPropertyChanged(nameof(ConteudoAlvoSelecionadoItem));
     }
 
     /// <summary>
@@ -571,6 +591,8 @@ public sealed partial class ConteudoDetalheViewModel : ObservableObject
     {
         MostrandoFormularioRelacao = false;
         ConteudoAlvoSelecionado = null;
+        _conteudoAlvoSelecionadoItem = null;
+        OnPropertyChanged(nameof(ConteudoAlvoSelecionadoItem));
         TipoRelacaoSelecionado = null;
         TipoSelecionadoItem = null;
         NomeInversoNovoTipo = null;
@@ -580,7 +602,7 @@ public sealed partial class ConteudoDetalheViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private void VincularConteudosAsync()
+    private void VincularConteudos()
     {
         if (ConteudoAlvoSelecionado is null)
             return;

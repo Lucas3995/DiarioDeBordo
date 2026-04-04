@@ -5,11 +5,11 @@
         x:Class="DiarioDeBordo.UI.Views.ConteudoDetalheWindow"
         x:DataType="vm:ConteudoDetalheViewModel"
         Width="720"
-        Height="640"
+        Height="760"
         MinWidth="600"
-        MinHeight="500"
-        WindowStartupLocation="CenterOwner"
-        ShowInTaskbar="False"
+        MinHeight="560"
+        WindowStartupLocation="CenterScreen"
+        ShowInTaskbar="True"
         CanResize="True"
         Title="{Binding TituloJanela}"
         AutomationProperties.Name="Janela de detalhe e edição de conteúdo">
@@ -17,10 +17,14 @@
     <Grid RowDefinitions="*,Auto">
 
         <!-- Row 0: Scrollable content with 4 Expander sections -->
+        <!-- Padding on ScrollViewer incorrectly reduces ExtentHeight in Avalonia 11 (issues #12182, #17158).
+             Fix: move padding to a Border child so the full content height is visible. -->
         <ScrollViewer Grid.Row="0"
-                      Padding="32,24,32,16"
+                      VerticalScrollBarVisibility="Auto"
+                      HorizontalScrollBarVisibility="Disabled"
                       AutomationProperties.Name="Área de conteúdo do detalhe">
 
+            <Border Padding="32,24,32,24">
             <StackPanel Spacing="12">
 
                 <!-- Error message -->
@@ -347,6 +351,7 @@
                                     <StackPanel Spacing="4">
                                         <TextBlock Text="Conteúdo alvo" FontSize="12" />
                                         <AutoCompleteBox Name="ConteudoAlvoAutoComplete"
+                                                         SelectedItem="{Binding ConteudoAlvoSelecionadoItem, Mode=TwoWay}"
                                                          IsVisible="{Binding ConteudoAlvoSelecionado, Converter={x:Static ObjectConverters.IsNull}}"
                                                          Watermark="Buscar conteúdo para vincular…"
                                                          FilterMode="None"
@@ -632,6 +637,7 @@
                 </Expander>
 
             </StackPanel>
+            </Border>
 
         </ScrollViewer>
 
