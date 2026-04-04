@@ -37,7 +37,6 @@ internal sealed class DialogService : IDialogService
         if (mainWindow is null)
             return Task.FromResult<bool?>(false);
 
-        // Resolve ViewModel via factory (to get DI-injected dependencies)
         var vmFactory = _serviceProvider.GetRequiredService<Func<Guid, ConteudoDetalheViewModel>>();
         var vm = vmFactory(conteudoId);
 
@@ -46,11 +45,11 @@ internal sealed class DialogService : IDialogService
             DataContext = vm,
         };
 
-        // Use Show() (non-modal) so the main window stays interactive.
-        // TaskCompletionSource lets the caller still await the result.
+        // Show() without owner — fully independent window, no forced z-order.
+        // TCS propagates the result when the window closes.
         var tcs = new TaskCompletionSource<bool?>();
         window.Closed += (_, _) => tcs.TrySetResult(window.WindowResult);
-        window.Show(mainWindow);
+        window.Show();
         return tcs.Task;
     }
 
@@ -59,10 +58,11 @@ internal sealed class DialogService : IDialogService
         string mensagem,
         string botaoPrimario,
         string botaoSecundario,
-        bool isPrimarioDestructivo = false)
+        bool isPrimarioDestructivo = false,
+        Window? owner = null)
     {
-        var mainWindow = GetMainWindow();
-        if (mainWindow is null)
+        var parent = owner ?? GetMainWindow();
+        if (parent is null)
             return false;
 
         var vm = new ConfirmacaoDialogViewModel(titulo, mensagem, botaoPrimario, botaoSecundario, isPrimarioDestructivo);
@@ -71,7 +71,7 @@ internal sealed class DialogService : IDialogService
             DataContext = vm,
         };
 
-        return await dialog.ShowDialog<bool>(mainWindow);
+        return await dialog.ShowDialog<bool>(parent);
     }
 }
 

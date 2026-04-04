@@ -1,3 +1,5 @@
+using Avalonia.Controls;
+
 namespace DiarioDeBordo.UI.Services;
 
 /// <summary>
@@ -15,11 +17,13 @@ public interface IDialogService
     /// <summary>
     /// Exibe um diálogo de confirmação genérico (D-02, D-03).
     /// Retorna true se o usuário clicou no botão primário, false se cancelou.
+    /// <param name="owner">Janela pai do diálogo. Null = MainWindow.</param>
     /// </summary>
     Task<bool> MostrarConfirmacaoAsync(
         string titulo,
         string mensagem,
         string botaoPrimario,
         string botaoSecundario,
-        bool isPrimarioDestructivo = false);
+        bool isPrimarioDestructivo = false,
+        Window? owner = null);
 }

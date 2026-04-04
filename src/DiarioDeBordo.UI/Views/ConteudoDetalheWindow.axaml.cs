@@ -51,44 +51,69 @@ public partial class ConteudoDetalheWindow : Window
             // Trigger loading after window is shown
             vm.CarregarCommand.Execute(null);
 
-            // Wire AutoCompleteBox Populating events for async suggestions
+            // Wire AutoCompleteBox async populators — AsyncPopulator is the correct Avalonia 11 API
+            // for async data; Populating+Cancel+Populated is error-prone and the old approach
+            // (Populating only) never set ItemsSource so the dropdown was always empty.
             if (this.FindControl<AutoCompleteBox>("CategoriaAutoComplete") is AutoCompleteBox categoriaAc)
             {
-                categoriaAc.Populating += async (_, args) =>
-                    await vm.PopularSugestoesCategoriasAsync(args.Parameter ?? string.Empty);
+                categoriaAc.AsyncPopulator = async (text, ct) =>
+                {
+                    await vm.PopularSugestoesCategoriasAsync(text ?? string.Empty);
+                    return vm.SugestoesCategoria.Select(c => c.Nome).Cast<object>();
+                };
 
-                // Handle selection completed
                 categoriaAc.SelectionChanged += async (_, args) =>
                 {
-                    if (args.AddedItems.Count > 0 && args.AddedItems[0] is DiarioDeBordo.Module.Acervo.DTOs.CategoriaDto dto)
+                    if (args.AddedItems.Count > 0 && args.AddedItems[0] is string nome)
                     {
-                        await vm.SelecionarCategoriaAsync(dto.Nome);
+                        await vm.SelecionarCategoriaAsync(nome);
                         categoriaAc.Text = string.Empty;
+                        categoriaAc.SelectedItem = null;
+                    }
+                };
+
+                // Enter key: add typed text as new or existing category
+                categoriaAc.KeyDown += async (_, args) =>
+                {
+                    if (args.Key == Avalonia.Input.Key.Return && !string.IsNullOrWhiteSpace(categoriaAc.Text))
+                    {
+                        var text = categoriaAc.Text!;
+                        categoriaAc.Text = string.Empty;
+                        args.Handled = true;
+                        await vm.SelecionarCategoriaAsync(text);
                     }
                 };
             }
 
             if (this.FindControl<AutoCompleteBox>("ConteudoAlvoAutoComplete") is AutoCompleteBox conteudoAc)
             {
-                conteudoAc.Populating += async (_, args) =>
-                    await vm.PopularSugestoesConteudoAsync(args.Parameter ?? string.Empty);
+                conteudoAc.AsyncPopulator = async (text, ct) =>
+                {
+                    await vm.PopularSugestoesConteudoAsync(text ?? string.Empty);
+                    return vm.SugestoesConteudo.Select(c => c.Titulo).Cast<object>();
+                };
 
                 conteudoAc.SelectionChanged += (_, args) =>
                 {
-                    if (args.AddedItems.Count > 0 && args.AddedItems[0] is DiarioDeBordo.Module.Acervo.DTOs.ConteudoResumoDto dto)
-                        vm.ConteudoAlvoSelecionado = dto;
+                    if (args.AddedItems.Count > 0 && args.AddedItems[0] is string titulo)
+                        vm.ConteudoAlvoSelecionado = vm.SugestoesConteudo
+                            .FirstOrDefault(c => c.Titulo == titulo);
                 };
             }
 
             if (this.FindControl<AutoCompleteBox>("TipoRelacaoAutoComplete") is AutoCompleteBox tipoAc)
             {
-                tipoAc.Populating += async (_, args) =>
-                    await vm.PopularSugestoesTipoRelacaoAsync(args.Parameter ?? string.Empty);
+                tipoAc.AsyncPopulator = async (text, ct) =>
+                {
+                    await vm.PopularSugestoesTipoRelacaoAsync(text ?? string.Empty);
+                    return vm.SugestoesTipoRelacao.Select(t => t.Nome).Cast<object>();
+                };
 
                 tipoAc.SelectionChanged += (_, args) =>
                 {
-                    if (args.AddedItems.Count > 0 && args.AddedItems[0] is DiarioDeBordo.Module.Acervo.DTOs.TipoRelacaoDto dto)
-                        vm.TipoRelacaoSelecionado = dto;
+                    if (args.AddedItems.Count > 0 && args.AddedItems[0] is string nome)
+                        vm.TipoRelacaoSelecionado = vm.SugestoesTipoRelacao
+                            .FirstOrDefault(t => t.Nome == nome);
                 };
             }
         }

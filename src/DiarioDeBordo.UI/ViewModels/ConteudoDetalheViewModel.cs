@@ -379,7 +379,8 @@ public sealed partial class ConteudoDetalheViewModel : ObservableObject
             Strings.Dialog_ExcluirConteudo_Mensagem,
             Strings.Modal_BotaoExcluir,
             Strings.Label_Cancelar,
-            isPrimarioDestructivo: true);
+            isPrimarioDestructivo: true,
+            owner: Owner);
 
         if (!confirmado)
             return;
@@ -405,7 +406,8 @@ public sealed partial class ConteudoDetalheViewModel : ObservableObject
                 Strings.Dialog_DescartarAlteracoes_Titulo,
                 Strings.Dialog_DescartarAlteracoes_Mensagem,
                 "Descartar",
-                Strings.Label_Cancelar);
+                Strings.Label_Cancelar,
+                owner: Owner);
 
             if (!descartar)
                 return;
@@ -572,7 +574,8 @@ public sealed partial class ConteudoDetalheViewModel : ObservableObject
             Strings.Dialog_ExcluirRelacao_Mensagem,
             "Remover",
             Strings.Label_Cancelar,
-            isPrimarioDestructivo: true);
+            isPrimarioDestructivo: true,
+            owner: Owner);
 
         if (!confirmado)
             return;
