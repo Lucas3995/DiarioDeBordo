@@ -71,7 +71,8 @@
 
             <!-- Content list -->
             <ScrollViewer IsVisible="{Binding !IsEmpty}">
-                <ItemsControl ItemsSource="{Binding Conteudos}"
+                <ItemsControl x:Name="ConteudosList"
+                              ItemsSource="{Binding Conteudos}"
                               Margin="24,8,24,24"
                               AutomationProperties.Name="Lista de conteúdos do acervo">
                     <ItemsControl.ItemTemplate>
@@ -119,14 +120,14 @@
                                                 VerticalAlignment="Center">
                                         <Button Padding="8"
                                                 Opacity="0.6"
-                                                Command="{Binding $parent[ItemsControl].((vm:AcervoViewModel)DataContext).AbrirDetalheCommand}"
+                                                Command="{Binding #ConteudosList.((vm:AcervoViewModel)DataContext).AbrirDetalheCommand}"
                                                 CommandParameter="{Binding Id}"
                                                 AutomationProperties.Name="{Binding Titulo, StringFormat='Ver detalhe de {0}'}">
                                             <TextBlock Text="👁" FontSize="14" />
                                         </Button>
                                         <Button Padding="8"
                                                 Opacity="0.6"
-                                                Command="{Binding $parent[ItemsControl].((vm:AcervoViewModel)DataContext).ExcluirConteudoCommand}"
+                                                Command="{Binding #ConteudosList.((vm:AcervoViewModel)DataContext).ExcluirConteudoCommand}"
                                                 CommandParameter="{Binding Id}"
                                                 AutomationProperties.Name="{Binding Titulo, StringFormat='Excluir {0}'}">
                                             <TextBlock Text="🗑" FontSize="14" />

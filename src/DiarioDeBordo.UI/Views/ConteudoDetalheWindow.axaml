@@ -219,7 +219,8 @@
                                        FontWeight="Medium" />
 
                             <!-- Chips -->
-                            <ItemsControl ItemsSource="{Binding CategoriasAssociadas}"
+                            <ItemsControl x:Name="CategoriasLista"
+                                          ItemsSource="{Binding CategoriasAssociadas}"
                                           AutomationProperties.Name="Categorias associadas">
                                 <ItemsControl.ItemsPanel>
                                     <ItemsPanelTemplate>
@@ -240,7 +241,7 @@
                                                 <Button Content="✕"
                                                         Padding="2"
                                                         FontSize="10"
-                                                        Command="{Binding $parent[ItemsControl].((vm:ConteudoDetalheViewModel)DataContext).RemoverCategoriaCommand}"
+                                                        Command="{Binding #CategoriasLista.((vm:ConteudoDetalheViewModel)DataContext).RemoverCategoriaCommand}"
                                                         CommandParameter="{Binding Id}"
                                                         AutomationProperties.Name="{Binding Nome, StringFormat='Remover categoria {0}'}" />
                                             </StackPanel>
@@ -272,7 +273,8 @@
                                        FontWeight="Medium" />
 
                             <!-- Existing relations list -->
-                            <ItemsControl ItemsSource="{Binding Relacoes}"
+                            <ItemsControl x:Name="RelacoesLista"
+                                          ItemsSource="{Binding Relacoes}"
                                           AutomationProperties.Name="Lista de relações do conteúdo">
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate x:DataType="vm:RelacaoItemViewModel">
@@ -295,7 +297,7 @@
                                                 </StackPanel>
                                                 <Button Grid.Column="1"
                                                         Padding="4"
-                                                        Command="{Binding $parent[ItemsControl].((vm:ConteudoDetalheViewModel)DataContext).RemoverRelacaoCommand}"
+                                                        Command="{Binding #RelacoesLista.((vm:ConteudoDetalheViewModel)DataContext).RemoverRelacaoCommand}"
                                                         CommandParameter="{Binding Id}"
                                                         AutomationProperties.Name="{Binding TituloDestino, StringFormat='Remover relação com {0}'}">
                                                     <TextBlock Text="🗑" FontSize="12" />
@@ -436,7 +438,8 @@
                                    FontSize="12" />
 
                         <!-- Timeline (most recent first) -->
-                        <ItemsControl ItemsSource="{Binding Sessoes}"
+                        <ItemsControl x:Name="SessoesLista"
+                                      ItemsSource="{Binding Sessoes}"
                                       AutomationProperties.Name="Timeline de sessões de consumo">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate x:DataType="vm:SessaoItemViewModel">
@@ -454,7 +457,7 @@
                                                 Padding="8"
                                                 CornerRadius="4"
                                                 HorizontalContentAlignment="Stretch"
-                                                Command="{Binding $parent[ItemsControl].((vm:ConteudoDetalheViewModel)DataContext).AbrirSessaoCommand}"
+                                                Command="{Binding #SessoesLista.((vm:ConteudoDetalheViewModel)DataContext).AbrirSessaoCommand}"
                                                 CommandParameter="{Binding Id}"
                                                 AutomationProperties.Name="{Binding Titulo, StringFormat='Abrir sessão: {0}'}">
                                             <StackPanel Spacing="4">
