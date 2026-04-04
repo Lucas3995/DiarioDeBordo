@@ -351,8 +351,11 @@ public sealed partial class ConteudoDetalheViewModel : ObservableObject
             var resultado = await _mediator.Send(cmd);
             if (resultado.IsSuccess)
             {
-                // Signal to window: content was modified
-                (Owner as Views.ConteudoDetalheWindow)?.Close(true);
+                // Reset dirty tracking so OnClosing does not intercept the close.
+                SnapshotOriginals();
+                OnPropertyChanged(nameof(IsDirty));
+                // Signal to window: content was modified — use FecharJanela to bypass dirty check.
+                (Owner as Views.ConteudoDetalheWindow)?.FecharJanela(true);
             }
             else
             {
@@ -384,8 +387,8 @@ public sealed partial class ConteudoDetalheViewModel : ObservableObject
         var resultado = await _mediator.Send(new ExcluirConteudoCommand(_conteudoId, _usuarioIdTemporario));
         if (resultado.IsSuccess)
         {
-            // null = deleted
-            (Owner as Views.ConteudoDetalheWindow)?.Close(null);
+            // null = deleted — use FecharJanela to bypass dirty check.
+            (Owner as Views.ConteudoDetalheWindow)?.FecharJanela(null);
         }
         else
         {
@@ -408,7 +411,8 @@ public sealed partial class ConteudoDetalheViewModel : ObservableObject
                 return;
         }
 
-        (Owner as Views.ConteudoDetalheWindow)?.Close(false);
+        // Use FecharJanela to bypass dirty check in OnClosing.
+        (Owner as Views.ConteudoDetalheWindow)?.FecharJanela(false);
     }
 
     // Owner reference — set by ConteudoDetalheWindow after it creates this VM

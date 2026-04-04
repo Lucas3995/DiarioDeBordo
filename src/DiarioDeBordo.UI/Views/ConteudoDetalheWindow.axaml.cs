@@ -14,9 +14,23 @@ namespace DiarioDeBordo.UI.Views;
 /// </summary>
 public partial class ConteudoDetalheWindow : Window
 {
+    // Set to true before any programmatic Close() call so OnClosing skips the dirty check.
+    // This prevents Salvar/Cancelar/Excluir from re-triggering the discard dialog.
+    private bool _permitirFechamento;
+
     public ConteudoDetalheWindow()
     {
         InitializeComponent();
+    }
+
+    /// <summary>
+    /// Closes the window programmatically, bypassing the dirty-check in OnClosing.
+    /// All ViewModel commands must use this method instead of calling Close() directly.
+    /// </summary>
+    public void FecharJanela(bool? result)
+    {
+        _permitirFechamento = true;
+        Close(result);
     }
 
     protected override void OnOpened(EventArgs e)
@@ -77,11 +91,19 @@ public partial class ConteudoDetalheWindow : Window
     {
         ArgumentNullException.ThrowIfNull(e);
 
-        // Intercept close (X button) to show discard confirmation if dirty
+        // Programmatic close (Salvar/Cancelar/Excluir commands) — let it through.
+        if (_permitirFechamento)
+        {
+            base.OnClosing(e);
+            return;
+        }
+
+        // User-initiated close (X button): ask for discard confirmation when dirty.
         if (DataContext is ConteudoDetalheViewModel vm && vm.IsDirty)
         {
             e.Cancel = true;
-            // Trigger cancel command which handles the discard confirmation dialog
+            // Trigger cancel command which handles the discard confirmation dialog.
+            // CancelarAsync will call FecharJanela() which sets _permitirFechamento = true.
             _ = vm.CancelarCommand.ExecuteAsync(null);
         }
         else
