@@ -132,6 +132,7 @@ internal sealed partial class PostgresBootstrap : IPostgresBootstrap
 
         // Configure postgresql.conf
         var confPath = Path.Combine(pgDataDir, "postgresql.conf");
+        var unixSocketDir = OperatingSystem.IsWindows() ? string.Empty : "unix_socket_directories = '/tmp'";
         var config = $"""
             port = {PgPort}
             listen_addresses = 'localhost'
@@ -140,6 +141,7 @@ internal sealed partial class PostgresBootstrap : IPostgresBootstrap
             log_statement = 'none'
             shared_buffers = 128MB
             max_connections = 20
+            {unixSocketDir}
             """;
         await File.AppendAllTextAsync(confPath, Environment.NewLine + config, ct).ConfigureAwait(false);
 
