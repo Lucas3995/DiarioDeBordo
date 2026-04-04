@@ -91,6 +91,24 @@ internal sealed class ConteudoConfiguration : IEntityTypeConfiguration<Conteudo>
         builder.HasIndex(c => new { c.UsuarioId, c.CriadoEm })
             .HasDatabaseName("idx_conteudos_usuario_criado_em");
 
+        // D-19: filter IsFilho from list — composite index for performance
+        builder.HasIndex(c => new { c.UsuarioId, c.IsFilho })
+            .HasDatabaseName("idx_conteudos_usuario_is_filho");
+
+        // New columns: Classificacao, IsFilho, TotalEsperadoSessoes
+        builder.Property(c => c.Classificacao)
+            .HasColumnName("classificacao")
+            .HasConversion<string>()
+            .HasMaxLength(50);
+
+        builder.Property(c => c.IsFilho)
+            .HasColumnName("is_filho")
+            .IsRequired()
+            .HasDefaultValue(false);
+
+        builder.Property(c => c.TotalEsperadoSessoes)
+            .HasColumnName("total_esperado_sessoes");
+
         // Fontes — owned collection stored in separate table
         builder.Navigation(c => c.Fontes)
             .HasField("_fontes")

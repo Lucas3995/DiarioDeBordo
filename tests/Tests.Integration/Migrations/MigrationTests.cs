@@ -73,6 +73,57 @@ public class MigrationTests : PostgresTestBase
         Assert.True(await Context.Database.CanConnectAsync());
     }
 
+    // ---- Phase 3 — new tables ----
+
+    [Fact]
+    public async Task Migration_Up_CriaTabela_TipoRelacoes()
+    {
+        var tables = await ObterTabelasAsync();
+        Assert.Contains("tipo_relacoes", tables);
+    }
+
+    [Fact]
+    public async Task Migration_Up_CriaTabela_Relacoes()
+    {
+        var tables = await ObterTabelasAsync();
+        Assert.Contains("relacoes", tables);
+    }
+
+    [Fact]
+    public async Task Migration_Up_CriaTabela_ConteudoCategorias()
+    {
+        var tables = await ObterTabelasAsync();
+        Assert.Contains("conteudo_categorias", tables);
+    }
+
+    [Fact]
+    public async Task Migration_Up_Conteudos_TemColuna_IsFilho()
+    {
+        var columns = await ObterColunasAsync("conteudos");
+        Assert.Contains("is_filho", columns);
+    }
+
+    [Fact]
+    public async Task Migration_Up_Conteudos_TemColuna_Classificacao()
+    {
+        var columns = await ObterColunasAsync("conteudos");
+        Assert.Contains("classificacao", columns);
+    }
+
+    [Fact]
+    public async Task Migration_Up_Conteudos_TemColuna_TotalEsperadoSessoes()
+    {
+        var columns = await ObterColunasAsync("conteudos");
+        Assert.Contains("total_esperado_sessoes", columns);
+    }
+
+    [Fact]
+    public async Task Migration_Up_SeedData_NoveTiposSistema()
+    {
+        var count = Context.TipoRelacoes.Count(t => t.IsSistema);
+        Assert.Equal(9, count);
+    }
+
     private async Task<IReadOnlyList<string>> ObterTabelasAsync()
     {
         var conn = Context.Database.GetDbConnection();

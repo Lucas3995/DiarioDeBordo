@@ -5,7 +5,6 @@ namespace DiarioDeBordo.Infrastructure.Persistencia;
 
 /// <summary>
 /// DbContext do DiarioDeBordo.
-/// REGRA: apenas Conteudo e Categoria têm DbSet na Fase 2. Dashboard e Feed são views — nunca persistidas.
 /// </summary>
 public sealed class DiarioDeBordoDbContext : DbContext
 {
@@ -14,6 +13,9 @@ public sealed class DiarioDeBordoDbContext : DbContext
 
     public DbSet<Conteudo> Conteudos => Set<Conteudo>();
     public DbSet<Categoria> Categorias => Set<Categoria>();
+    public DbSet<TipoRelacao> TipoRelacoes => Set<TipoRelacao>();
+    public DbSet<Relacao> Relacoes => Set<Relacao>();
+    public DbSet<ConteudoCategoria> ConteudoCategorias => Set<ConteudoCategoria>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
