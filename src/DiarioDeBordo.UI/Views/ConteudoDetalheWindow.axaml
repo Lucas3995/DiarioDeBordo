@@ -241,7 +241,7 @@
                                                 <Button Content="✕"
                                                         Padding="2"
                                                         FontSize="10"
-                                                        Command="{Binding #CategoriasLista.((vm:ConteudoDetalheViewModel)DataContext).RemoverCategoriaCommand}"
+                                                        Command="{Binding RemoverCommand}"
                                                         CommandParameter="{Binding Id}"
                                                         AutomationProperties.Name="{Binding Nome, StringFormat='Remover categoria {0}'}" />
                                             </StackPanel>
@@ -297,7 +297,7 @@
                                                 </StackPanel>
                                                 <Button Grid.Column="1"
                                                         Padding="4"
-                                                        Command="{Binding #RelacoesLista.((vm:ConteudoDetalheViewModel)DataContext).RemoverRelacaoCommand}"
+                                                        Command="{Binding RemoverCommand}"
                                                         CommandParameter="{Binding Id}"
                                                         AutomationProperties.Name="{Binding TituloDestino, StringFormat='Remover relação com {0}'}">
                                                     <TextBlock Text="🗑" FontSize="12" />
@@ -457,7 +457,7 @@
                                                 Padding="8"
                                                 CornerRadius="4"
                                                 HorizontalContentAlignment="Stretch"
-                                                Command="{Binding #SessoesLista.((vm:ConteudoDetalheViewModel)DataContext).AbrirSessaoCommand}"
+                                                Command="{Binding AbrirCommand}"
                                                 CommandParameter="{Binding Id}"
                                                 AutomationProperties.Name="{Binding Titulo, StringFormat='Abrir sessão: {0}'}">
                                             <StackPanel Spacing="4">

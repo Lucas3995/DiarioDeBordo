@@ -37,7 +37,7 @@ public sealed partial class AcervoViewModel : ObservableObject
     [ObservableProperty]
     private CriarConteudoViewModel? _criarConteudoViewModel;
 
-    public ObservableCollection<ConteudoResumoDto> Conteudos { get; } = [];
+    public ObservableCollection<ConteudoCardViewModel> Conteudos { get; } = [];
 
     public bool IsEmpty => !IsLoading && Conteudos.Count == 0;
 
@@ -74,7 +74,11 @@ public sealed partial class AcervoViewModel : ObservableObject
             {
                 _totalConteudos = resultado.Value!.TotalItems;
                 foreach (var item in resultado.Value!.Items)
-                    Conteudos.Add(item);
+                    Conteudos.Add(new ConteudoCardViewModel(
+                        item.Id, item.Titulo, item.Formato, item.Subtipo,
+                        item.Nota, item.Classificacao,
+                        AbrirDetalheInternalAsync,
+                        ExcluirConteudoInternalAsync));
             }
         }
         finally
@@ -108,7 +112,10 @@ public sealed partial class AcervoViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private async Task AbrirDetalheAsync(Guid conteudoId)
+    private async Task AbrirDetalheAsync(Guid conteudoId) =>
+        await AbrirDetalheInternalAsync(conteudoId);
+
+    private async Task AbrirDetalheInternalAsync(Guid conteudoId)
     {
         var resultado = await _dialogService.MostrarConteudoDetalheAsync(conteudoId);
         if (resultado is true || resultado is null) // modified or deleted
@@ -116,9 +123,11 @@ public sealed partial class AcervoViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private async Task ExcluirConteudoAsync(Guid conteudoId)
+    private async Task ExcluirConteudoAsync(Guid conteudoId) =>
+        await ExcluirConteudoInternalAsync(conteudoId);
+
+    private async Task ExcluirConteudoInternalAsync(Guid conteudoId)
     {
-        // Find title for confirmation message
         var conteudo = Conteudos.FirstOrDefault(c => c.Id == conteudoId);
         var titulo = conteudo?.Titulo ?? "este conteúdo";
 
@@ -135,7 +144,7 @@ public sealed partial class AcervoViewModel : ObservableObject
         var result = await _mediator.Send(new ExcluirConteudoCommand(conteudoId, _usuarioIdTemporario));
         if (result.IsSuccess)
         {
-            _paginaAtual = 1; // Reset to first page after delete
+            _paginaAtual = 1;
             await CarregarAsync();
         }
     }

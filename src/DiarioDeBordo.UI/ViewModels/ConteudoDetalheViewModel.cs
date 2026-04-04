@@ -287,17 +287,17 @@ public sealed partial class ConteudoDetalheViewModel : ObservableObject
         // Populate category chips
         CategoriasAssociadas.Clear();
         foreach (var c in dto.Categorias)
-            CategoriasAssociadas.Add(new CategoriaChipViewModel(c.Id, c.Nome, c.IsAutomatica));
+            CategoriasAssociadas.Add(new CategoriaChipViewModel(c.Id, c.Nome, c.IsAutomatica, RemoverCategoriaInternal));
 
         // Populate relations list
         Relacoes.Clear();
         foreach (var r in dto.Relacoes)
-            Relacoes.Add(new RelacaoItemViewModel(r.Id, r.NomeTipo, r.TituloDestino, r.IsInversa));
+            Relacoes.Add(new RelacaoItemViewModel(r.Id, r.NomeTipo, r.TituloDestino, r.IsInversa, RemoverRelacaoInternalAsync));
 
         // Populate sessions timeline (ordered most recent first per D-18)
         Sessoes.Clear();
         foreach (var s in dto.Sessoes.OrderByDescending(s => s.CriadoEm))
-            Sessoes.Add(new SessaoItemViewModel(s.Id, s.Titulo, s.CriadoEm, s.Classificacao, s.Nota, s.Anotacoes));
+            Sessoes.Add(new SessaoItemViewModel(s.Id, s.Titulo, s.CriadoEm, s.Classificacao, s.Nota, s.Anotacoes, AbrirSessaoInternalAsync));
 
         OnPropertyChanged(nameof(ResumoAvaliacao));
         OnPropertyChanged(nameof(ResumoOrganizacao));
@@ -417,7 +417,9 @@ public sealed partial class ConteudoDetalheViewModel : ObservableObject
     // --- Category commands ---
 
     [RelayCommand]
-    private void RemoverCategoria(Guid categoriaId)
+    private void RemoverCategoria(Guid categoriaId) => RemoverCategoriaInternal(categoriaId);
+
+    private void RemoverCategoriaInternal(Guid categoriaId)
     {
         var chip = CategoriasAssociadas.FirstOrDefault(c => c.Id == categoriaId);
         if (chip is not null)
@@ -464,7 +466,7 @@ public sealed partial class ConteudoDetalheViewModel : ObservableObject
 
         if (sugestao is not null)
         {
-            CategoriasAssociadas.Add(new CategoriaChipViewModel(sugestao.Id, sugestao.Nome, sugestao.IsAutomatica));
+            CategoriasAssociadas.Add(new CategoriaChipViewModel(sugestao.Id, sugestao.Nome, sugestao.IsAutomatica, RemoverCategoriaInternal));
         }
         else
         {
@@ -473,7 +475,7 @@ public sealed partial class ConteudoDetalheViewModel : ObservableObject
             var existente = resultado.FirstOrDefault(c => string.Equals(c.Nome, nomeCategoria, StringComparison.OrdinalIgnoreCase));
             if (existente is not null)
             {
-                CategoriasAssociadas.Add(new CategoriaChipViewModel(existente.Id, existente.Nome, existente.IsAutomatica));
+                CategoriasAssociadas.Add(new CategoriaChipViewModel(existente.Id, existente.Nome, existente.IsAutomatica, RemoverCategoriaInternal));
             }
             else
             {
@@ -545,7 +547,7 @@ public sealed partial class ConteudoDetalheViewModel : ObservableObject
         if (resultado.IsSuccess)
         {
             // Add to local list (UI immediate feedback — per D-15)
-            Relacoes.Add(new RelacaoItemViewModel(resultado.Value, nomeTipo, ConteudoAlvoSelecionado.Titulo, false));
+            Relacoes.Add(new RelacaoItemViewModel(resultado.Value, nomeTipo, ConteudoAlvoSelecionado.Titulo, false, RemoverRelacaoInternalAsync));
             // Clear form but keep it open (D-14: allow multiple relations)
             ConteudoAlvoSelecionado = null;
             TipoRelacaoSelecionado = null;
@@ -561,7 +563,9 @@ public sealed partial class ConteudoDetalheViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private async Task RemoverRelacaoAsync(Guid relacaoId)
+    private async Task RemoverRelacaoAsync(Guid relacaoId) => await RemoverRelacaoInternalAsync(relacaoId);
+
+    private async Task RemoverRelacaoInternalAsync(Guid relacaoId)
     {
         if (DialogServiceInstance is null)
             return;
@@ -762,7 +766,8 @@ public sealed partial class ConteudoDetalheViewModel : ObservableObject
                 SessaoData ?? DateTimeOffset.UtcNow,
                 SessaoClassificacao,
                 SessaoNota,
-                SessaoAnotacoes));
+                SessaoAnotacoes,
+                AbrirSessaoInternalAsync));
 
             // Clear form for rapid entry (D-20) but keep form open
             SessaoTitulo = string.Empty;
@@ -783,7 +788,9 @@ public sealed partial class ConteudoDetalheViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private async Task AbrirSessaoAsync(Guid sessaoId)
+    private async Task AbrirSessaoAsync(Guid sessaoId) => await AbrirSessaoInternalAsync(sessaoId);
+
+    private async Task AbrirSessaoInternalAsync(Guid sessaoId)
     {
         if (DialogServiceInstance is null)
             return;
@@ -796,7 +803,7 @@ public sealed partial class ConteudoDetalheViewModel : ObservableObject
         {
             Sessoes.Clear();
             foreach (var s in dto.Sessoes.OrderByDescending(s => s.CriadoEm))
-                Sessoes.Add(new SessaoItemViewModel(s.Id, s.Titulo, s.CriadoEm, s.Classificacao, s.Nota, s.Anotacoes));
+                Sessoes.Add(new SessaoItemViewModel(s.Id, s.Titulo, s.CriadoEm, s.Classificacao, s.Nota, s.Anotacoes, AbrirSessaoInternalAsync));
             SessoesContagem = Sessoes.Count;
             OnPropertyChanged(nameof(ProgressoTexto));
             OnPropertyChanged(nameof(ProgressoPorcentagem));

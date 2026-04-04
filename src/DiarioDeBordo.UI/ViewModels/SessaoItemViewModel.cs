@@ -1,3 +1,4 @@
+using CommunityToolkit.Mvvm.Input;
 using DiarioDeBordo.Core.Enums;
 
 namespace DiarioDeBordo.UI.ViewModels;
@@ -15,7 +16,9 @@ public sealed class SessaoItemViewModel
     public bool IsGostei => Classificacao == DiarioDeBordo.Core.Enums.Classificacao.Gostei;
     public bool IsNaoGostei => Classificacao == DiarioDeBordo.Core.Enums.Classificacao.NaoGostei;
 
-    public SessaoItemViewModel(Guid id, string titulo, DateTimeOffset criadoEm, Classificacao? classificacao, decimal? nota, string? anotacoes)
+    public IAsyncRelayCommand AbrirCommand { get; }
+
+    public SessaoItemViewModel(Guid id, string titulo, DateTimeOffset criadoEm, Classificacao? classificacao, decimal? nota, string? anotacoes, Func<Guid, Task> abrir)
     {
         Id = id;
         Titulo = titulo;
@@ -23,5 +26,6 @@ public sealed class SessaoItemViewModel
         Classificacao = classificacao;
         Nota = nota;
         Anotacoes = anotacoes;
+        AbrirCommand = new AsyncRelayCommand(() => abrir(id));
     }
 }

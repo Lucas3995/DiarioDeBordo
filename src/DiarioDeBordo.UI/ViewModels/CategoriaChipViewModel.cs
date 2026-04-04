@@ -1,4 +1,5 @@
 using Avalonia.Media;
+using CommunityToolkit.Mvvm.Input;
 
 namespace DiarioDeBordo.UI.ViewModels;
 
@@ -18,10 +19,13 @@ public sealed class CategoriaChipViewModel
             ? new SolidColorBrush(Color.FromArgb(38, 0, 120, 212)) // ~15% SystemAccentColor
             : Brushes.Transparent;
 
-    public CategoriaChipViewModel(Guid id, string nome, bool isAutomatica)
+    public IRelayCommand RemoverCommand { get; }
+
+    public CategoriaChipViewModel(Guid id, string nome, bool isAutomatica, Action<Guid> remover)
     {
         Id = id;
         Nome = nome;
         IsAutomatica = isAutomatica;
+        RemoverCommand = new RelayCommand(() => remover(id));
     }
 }

@@ -76,7 +76,7 @@
                               Margin="24,8,24,24"
                               AutomationProperties.Name="Lista de conteúdos do acervo">
                     <ItemsControl.ItemTemplate>
-                        <DataTemplate x:DataType="dto:ConteudoResumoDto">
+                        <DataTemplate x:DataType="vm:ConteudoCardViewModel">
                             <Border Margin="0,0,0,8"
                                     Padding="16"
                                     BorderThickness="1"
@@ -113,22 +113,20 @@
                                                        IsVisible="{Binding Nota, Converter={x:Static ObjectConverters.IsNotNull}}" />
                                         </StackPanel>
                                     </StackPanel>
-                                    <!-- Right: action buttons (always visible — WCAG AAA) -->
+                                    <!-- Right: action buttons — commands live on ConteudoCardViewModel, no cross-context cast needed -->
                                     <StackPanel Grid.Column="1"
                                                 Orientation="Horizontal"
                                                 Spacing="4"
                                                 VerticalAlignment="Center">
                                         <Button Padding="8"
                                                 Opacity="0.6"
-                                                Command="{Binding #ConteudosList.((vm:AcervoViewModel)DataContext).AbrirDetalheCommand}"
-                                                CommandParameter="{Binding Id}"
+                                                Command="{Binding AbrirDetalheCommand}"
                                                 AutomationProperties.Name="{Binding Titulo, StringFormat='Ver detalhe de {0}'}">
                                             <TextBlock Text="👁" FontSize="14" />
                                         </Button>
                                         <Button Padding="8"
                                                 Opacity="0.6"
-                                                Command="{Binding #ConteudosList.((vm:AcervoViewModel)DataContext).ExcluirConteudoCommand}"
-                                                CommandParameter="{Binding Id}"
+                                                Command="{Binding ExcluirCommand}"
                                                 AutomationProperties.Name="{Binding Titulo, StringFormat='Excluir {0}'}">
                                             <TextBlock Text="🗑" FontSize="14" />
                                         </Button>
