@@ -36,6 +36,12 @@ public sealed partial class ConteudoDetalheViewModel : ObservableObject
     private EstadoProgresso _estadoProgressoOriginal;
     private string? _posicaoAtualOriginal;
 
+    // True after at least one successful save — ensures list refreshes when window closes later
+    private bool _fezAlteracoes;
+
+    /// <summary>Exposto para ConteudoDetalheWindow.OnClosing verificar se houve saves anteriores.</summary>
+    public bool FezAlteracoes => _fezAlteracoes;
+
     // --- Editable properties ---
 
     [ObservableProperty]
@@ -157,11 +163,16 @@ public sealed partial class ConteudoDetalheViewModel : ObservableObject
     public IReadOnlyList<ConteudoResumoDto> SugestoesConteudo => _sugestoesConteudoBacking;
     public IReadOnlyList<TipoRelacaoDto> SugestoesTipoRelacao => _sugestoesTipoRelacaoBacking;
 
+    // Flat string list bound directly to TipoRelacaoAutoComplete ItemsSource (client-side filter)
+    private List<string> _nomesTiposRelacao = [];
+    public IReadOnlyList<string> NomesTiposRelacao => _nomesTiposRelacao;
+
     // Snapshot of original category IDs for dirty tracking
     private HashSet<Guid> _categoriasOriginaisIds = [];
 
     // --- Computed ---
 
+    /// <summary>True quando há alguma alteração não salva (campos, categorias ou relações pendentes).</summary>
     public bool IsDirty =>
         Titulo != _tituloOriginal ||
         Descricao != _descricaoOriginal ||
@@ -172,7 +183,8 @@ public sealed partial class ConteudoDetalheViewModel : ObservableObject
         _notaOriginal != Nota ||
         _estadoProgressoOriginal != EstadoProgresso ||
         _posicaoAtualOriginal != PosicaoAtual ||
-        !CategoriasAssociadas.Select(c => c.Id).ToHashSet().SetEquals(_categoriasOriginaisIds);
+        !CategoriasAssociadas.Select(c => c.Id).ToHashSet().SetEquals(_categoriasOriginaisIds) ||
+        Relacoes.Any(r => r.IsPendente);
 
     public string TituloJanela => IsDirty
         ? Strings.Modal_Titulo_Existente + " •"
@@ -352,18 +364,46 @@ public sealed partial class ConteudoDetalheViewModel : ObservableObject
                 CategoriasAssociadas.Select(c => c.Id).ToList().AsReadOnly());
 
             var resultado = await _mediator.Send(cmd);
-            if (resultado.IsSuccess)
-            {
-                // Reset dirty tracking so OnClosing does not intercept the close.
-                SnapshotOriginals();
-                OnPropertyChanged(nameof(IsDirty));
-                // Signal to window: content was modified — use FecharJanela to bypass dirty check.
-                (Owner as Views.ConteudoDetalheWindow)?.FecharJanela(true);
-            }
-            else
+            if (!resultado.IsSuccess)
             {
                 MensagemErro = Strings.Erro_FalhaAoSalvar;
+                return;
             }
+
+            // Persist buffered (pending) relations
+            var pendentes = Relacoes.Where(r => r.IsPendente).ToList();
+            foreach (var pendente in pendentes)
+            {
+                var relResult = await _mediator.Send(new CriarRelacaoCommand(
+                    _usuarioIdTemporario,
+                    _conteudoId,
+                    pendente.ConteudoDestinoId,
+                    pendente.NomeTipoPersistir,
+                    pendente.NomeInversoPersistir));
+
+                if (relResult.IsSuccess)
+                {
+                    // Replace pending entry with persisted one
+                    var idx = Relacoes.IndexOf(pendente);
+                    Relacoes[idx] = new RelacaoItemViewModel(
+                        relResult.Value,
+                        pendente.NomeTipoPersistir,
+                        pendente.TituloDestino,
+                        false,
+                        RemoverRelacaoInternalAsync);
+                }
+                // Ignore duplicate errors silently (already linked)
+            }
+
+            // Reset dirty tracking — window stays open for more edits
+            SnapshotOriginals();
+            _fezAlteracoes = true;
+            OnPropertyChanged(nameof(IsDirty));
+            OnPropertyChanged(nameof(TituloJanela));
+
+            // Refresh relation types in case a new type was created via pending relations
+            if (pendentes.Count > 0)
+                await PreCarregarTiposRelacaoAsync();
         }
         finally
         {
@@ -416,8 +456,9 @@ public sealed partial class ConteudoDetalheViewModel : ObservableObject
                 return;
         }
 
-        // Use FecharJanela to bypass dirty check in OnClosing.
-        (Owner as Views.ConteudoDetalheWindow)?.FecharJanela(false);
+        // If previous saves occurred, signal modified so the list refreshes.
+        var result = _fezAlteracoes ? (bool?)true : false;
+        (Owner as Views.ConteudoDetalheWindow)?.FecharJanela(result);
     }
 
     // Owner reference — set by ConteudoDetalheWindow after it creates this VM
@@ -521,7 +562,7 @@ public sealed partial class ConteudoDetalheViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private async Task VincularConteudosAsync()
+    private void VincularConteudosAsync()
     {
         if (ConteudoAlvoSelecionado is null)
             return;
@@ -537,7 +578,7 @@ public sealed partial class ConteudoDetalheViewModel : ObservableObject
         else if (!string.IsNullOrWhiteSpace(_novoNomeTipo) && !string.IsNullOrWhiteSpace(NomeInversoNovoTipo))
         {
             nomeTipo = _novoNomeTipo;
-            nomeInverso = NomeInversoNovoTipo;
+            nomeInverso = NomeInversoNovoTipo!;
         }
         else
         {
@@ -545,30 +586,42 @@ public sealed partial class ConteudoDetalheViewModel : ObservableObject
             return;
         }
 
-        MensagemErroRelacao = null;
-        var resultado = await _mediator.Send(new CriarRelacaoCommand(
-            _usuarioIdTemporario,
-            _conteudoId,
-            ConteudoAlvoSelecionado.Id,
-            nomeTipo,
-            nomeInverso));
-
-        if (resultado.IsSuccess)
-        {
-            // Add to local list (UI immediate feedback — per D-15)
-            Relacoes.Add(new RelacaoItemViewModel(resultado.Value, nomeTipo, ConteudoAlvoSelecionado.Titulo, false, RemoverRelacaoInternalAsync));
-            // Clear form but keep it open (D-14: allow multiple relations)
-            ConteudoAlvoSelecionado = null;
-            TipoRelacaoSelecionado = null;
-            _novoNomeTipo = null;
-            NomeInversoNovoTipo = null;
-            CriandoNovoTipo = false;
-            OnPropertyChanged(nameof(ResumoOrganizacao));
-        }
-        else
+        // Check for duplicate in local (pending + persisted) list
+        if (Relacoes.Any(r => r.ConteudoDestinoId == ConteudoAlvoSelecionado.Id ||
+                              (r.TituloDestino == ConteudoAlvoSelecionado.Titulo && r.NomeTipo == nomeTipo)))
         {
             MensagemErroRelacao = Strings.Erro_RelacaoDuplicada;
+            return;
         }
+
+        MensagemErroRelacao = null;
+        var alvo = ConteudoAlvoSelecionado;
+
+        // Buffer relation locally — only persisted when Salvar is clicked
+        Relacoes.Add(new RelacaoItemViewModel(
+            nomeTipo,
+            nomeInverso,
+            alvo.Id,
+            alvo.Titulo,
+            RemoverRelacaoPendenteAsync));
+
+        // Clear form but keep it open for more relations
+        ConteudoAlvoSelecionado = null;
+        TipoRelacaoSelecionado = null;
+        _novoNomeTipo = null;
+        NomeInversoNovoTipo = null;
+        CriandoNovoTipo = false;
+        OnPropertyChanged(nameof(IsDirty));
+        OnPropertyChanged(nameof(TituloJanela));
+        OnPropertyChanged(nameof(ResumoOrganizacao));
+    }
+
+    private Task RemoverRelacaoPendenteAsync(RelacaoItemViewModel item)
+    {
+        Relacoes.Remove(item);
+        OnPropertyChanged(nameof(IsDirty));
+        OnPropertyChanged(nameof(TituloJanela));
+        return Task.CompletedTask;
     }
 
     [RelayCommand]
@@ -623,6 +676,24 @@ public sealed partial class ConteudoDetalheViewModel : ObservableObject
             var resultado = await _mediator.Send(new BuscarTiposRelacaoQuery(_usuarioIdTemporario, prefixo));
             _sugestoesTipoRelacaoBacking.Clear();
             _sugestoesTipoRelacaoBacking.AddRange(resultado);
+            OnPropertyChanged(nameof(SugestoesTipoRelacao));
+        }
+        catch (OperationCanceledException) { }
+    }
+
+    /// <summary>
+    /// Pre-loads ALL relation types into NomesTiposRelacao for client-side filtering.
+    /// Called on window open and after Salvar (in case a new type was created).
+    /// </summary>
+    public async Task PreCarregarTiposRelacaoAsync()
+    {
+        try
+        {
+            var tipos = await _mediator.Send(new BuscarTiposRelacaoQuery(_usuarioIdTemporario, string.Empty));
+            _sugestoesTipoRelacaoBacking.Clear();
+            _sugestoesTipoRelacaoBacking.AddRange(tipos);
+            _nomesTiposRelacao = tipos.Select(t => t.Nome).ToList();
+            OnPropertyChanged(nameof(NomesTiposRelacao));
             OnPropertyChanged(nameof(SugestoesTipoRelacao));
         }
         catch (OperationCanceledException) { }

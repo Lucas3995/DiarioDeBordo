@@ -40,7 +40,7 @@ public partial class ConteudoDetalheWindow : Window
         Close(result);
     }
 
-    protected override void OnOpened(EventArgs e)
+    protected override async void OnOpened(EventArgs e)
     {
         base.OnOpened(e);
 
@@ -50,6 +50,9 @@ public partial class ConteudoDetalheWindow : Window
             vm.Owner = this;
             // Trigger loading after window is shown
             vm.CarregarCommand.Execute(null);
+
+            // Pre-load relation types — small dataset, loaded once; refreshed after Salvar
+            await vm.PreCarregarTiposRelacaoAsync();
 
             // Wire AutoCompleteBox async populators — AsyncPopulator is the correct Avalonia 11 API
             // for async data; Populating+Cancel+Populated is error-prone and the old approach
@@ -104,14 +107,10 @@ public partial class ConteudoDetalheWindow : Window
                 };
             }
 
+            // TipoRelacao uses ItemsSource + client-side filter (data pre-loaded in PreCarregarTiposRelacaoAsync)
+            // AsyncPopulator is NOT used here because it only triggers on text change, not on initial focus.
             if (this.FindControl<AutoCompleteBox>("TipoRelacaoAutoComplete") is AutoCompleteBox tipoAc)
             {
-                tipoAc.AsyncPopulator = async (text, ct) =>
-                {
-                    await vm.PopularSugestoesTipoRelacaoAsync(text ?? string.Empty);
-                    return vm.SugestoesTipoRelacao.Select(t => t.Nome).Cast<object>();
-                };
-
                 // User selected an existing type from dropdown
                 tipoAc.SelectionChanged += (_, args) =>
                 {
@@ -151,6 +150,13 @@ public partial class ConteudoDetalheWindow : Window
             // Trigger cancel command which handles the discard confirmation dialog.
             // CancelarAsync will call FecharJanela() which sets _permitirFechamento = true.
             _ = vm.CancelarCommand.ExecuteAsync(null);
+        }
+        else if (DataContext is ConteudoDetalheViewModel vm2 && vm2.FezAlteracoes)
+        {
+            // Not dirty but had prior saves: signal modified so main list refreshes.
+            _permitirFechamento = true;
+            WindowResult = true;
+            base.OnClosing(e);
         }
         else
         {

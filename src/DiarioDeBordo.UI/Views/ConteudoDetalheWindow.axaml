@@ -294,6 +294,13 @@
                                                                FontSize="13" />
                                                     <TextBlock Text="{Binding TituloDestino}"
                                                                FontSize="13" />
+                                                    <!-- Pending indicator — relation not yet saved -->
+                                                    <TextBlock Text="(não salvo)"
+                                                               IsVisible="{Binding IsPendente}"
+                                                               Opacity="0.6"
+                                                               FontSize="11"
+                                                               FontStyle="Italic"
+                                                               VerticalAlignment="Center" />
                                                 </StackPanel>
                                                 <Button Grid.Column="1"
                                                         Padding="4"
@@ -368,10 +375,11 @@
                                     <StackPanel Spacing="4">
                                         <TextBlock Text="Tipo de relação" FontSize="12" />
                                         <AutoCompleteBox Name="TipoRelacaoAutoComplete"
+                                                         ItemsSource="{Binding NomesTiposRelacao}"
+                                                         FilterMode="Contains"
                                                          Watermark="Selecionar tipo…"
-                                                         FilterMode="None"
                                                          MinimumPrefixLength="0"
-                                                         MinimumPopulateDelay="0:0:0.200"
+                                                         MinimumPopulateDelay="0:0:0.000"
                                                          AutomationProperties.Name="Selecionar tipo de relação" />
                                         <!-- Inverse name field (shown when creating new type) -->
                                         <StackPanel IsVisible="{Binding CriandoNovoTipo}" Spacing="4">
