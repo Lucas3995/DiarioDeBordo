@@ -1,6 +1,7 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="using:DiarioDeBordo.UI.ViewModels"
+        xmlns:dto="using:DiarioDeBordo.Module.Acervo.DTOs"
         x:Class="DiarioDeBordo.UI.Views.ConteudoDetalheWindow"
         x:DataType="vm:ConteudoDetalheViewModel"
         Width="720"
@@ -105,7 +106,7 @@
 
                 </Expander>
 
-                <!-- 2. Avaliação (collapsed — filled in Plan 05) -->
+                <!-- 2. Avaliação (collapsed — nota, classificação, progresso) -->
                 <Expander IsExpanded="False"
                           AutomationProperties.Name="Seção Avaliação: nota e classificação">
 
@@ -122,16 +123,78 @@
                         </StackPanel>
                     </Expander.Header>
 
-                    <!-- Placeholder: Nota e classificação serão implementados no Plan 05 -->
-                    <StackPanel Margin="0,12,0,0">
-                        <TextBlock Text="Nota e classificação serão implementados no Plan 05."
-                                   Opacity="0.5"
-                                   FontSize="13" />
+                    <StackPanel Spacing="12" Margin="0,12,0,0">
+
+                        <!-- Nota field (UI-SPEC §5) -->
+                        <StackPanel Spacing="4">
+                            <TextBlock Text="Nota (0–10)"
+                                       FontWeight="Medium" />
+                            <Grid ColumnDefinitions="Auto,Auto">
+                                <NumericUpDown Grid.Column="0"
+                                              Value="{Binding Nota}"
+                                              Minimum="0"
+                                              Maximum="10"
+                                              Increment="0.5"
+                                              FormatString="0.#"
+                                              Width="100"
+                                              Watermark="—"
+                                              AutomationProperties.Name="Nota pessoal de 0 a 10"
+                                              AutomationProperties.HelpText="Opcional. Use setas ou digite um valor entre 0 e 10." />
+                                <Button Grid.Column="1"
+                                        Content="✕"
+                                        Padding="4"
+                                        Command="{Binding LimparNotaCommand}"
+                                        IsVisible="{Binding Nota, Converter={x:Static ObjectConverters.IsNotNull}}"
+                                        AutomationProperties.Name="Limpar nota"
+                                        Margin="4,0,0,0" />
+                            </Grid>
+                        </StackPanel>
+
+                        <!-- Classificação selector (UI-SPEC §4, three-state D-07) -->
+                        <StackPanel Spacing="4">
+                            <TextBlock Text="Classificação"
+                                       FontWeight="Medium" />
+                            <StackPanel Orientation="Horizontal"
+                                        Spacing="8"
+                                        AutomationProperties.Name="{Binding ClassificacaoTexto, StringFormat='Classificação: {0}'}">
+                                <ToggleButton IsChecked="{Binding IsGostei}"
+                                             Width="36"
+                                             Height="36"
+                                             AutomationProperties.Name="Marcar como Gostei">
+                                    <TextBlock Text="👍" FontSize="20" />
+                                </ToggleButton>
+                                <ToggleButton IsChecked="{Binding IsNaoGostei}"
+                                             Width="36"
+                                             Height="36"
+                                             AutomationProperties.Name="Marcar como Não gostei">
+                                    <TextBlock Text="👎" FontSize="20" />
+                                </ToggleButton>
+                            </StackPanel>
+                        </StackPanel>
+
+                        <!-- Progresso (estado + posição) -->
+                        <StackPanel Spacing="4">
+                            <TextBlock Text="Progresso"
+                                       FontWeight="Medium" />
+                            <Grid ColumnDefinitions="Auto,*">
+                                <ComboBox Grid.Column="0"
+                                          Width="150"
+                                          ItemsSource="{Binding EstadosProgresso}"
+                                          SelectedItem="{Binding EstadoProgresso, Mode=TwoWay}"
+                                          AutomationProperties.Name="Estado de progresso" />
+                                <TextBox Grid.Column="1"
+                                         Margin="8,0,0,0"
+                                         Text="{Binding PosicaoAtual, Mode=TwoWay}"
+                                         Watermark="Ex: Página 120, Episódio 5…"
+                                         AutomationProperties.Name="Posição atual no conteúdo" />
+                            </Grid>
+                        </StackPanel>
+
                     </StackPanel>
 
                 </Expander>
 
-                <!-- 3. Organização (collapsed — filled in Plan 05) -->
+                <!-- 3. Organização (collapsed — categorias e relações) -->
                 <Expander IsExpanded="False"
                           AutomationProperties.Name="Seção Organização: categorias e relações">
 
@@ -148,11 +211,176 @@
                         </StackPanel>
                     </Expander.Header>
 
-                    <!-- Placeholder: Categorias e relações serão implementados no Plan 05 -->
-                    <StackPanel Margin="0,12,0,0">
-                        <TextBlock Text="Categorias e relações serão implementados no Plan 05."
-                                   Opacity="0.5"
-                                   FontSize="13" />
+                    <StackPanel Spacing="12" Margin="0,12,0,0">
+
+                        <!-- Categorias section -->
+                        <StackPanel Spacing="4">
+                            <TextBlock Text="Categorias"
+                                       FontWeight="Medium" />
+
+                            <!-- Chips -->
+                            <ItemsControl ItemsSource="{Binding CategoriasAssociadas}"
+                                          AutomationProperties.Name="Categorias associadas">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <WrapPanel Orientation="Horizontal" />
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate x:DataType="vm:CategoriaChipViewModel">
+                                        <Border CornerRadius="14"
+                                                Padding="8,4"
+                                                Margin="4,2"
+                                                Height="28"
+                                                Background="{Binding Background}">
+                                            <StackPanel Orientation="Horizontal" Spacing="4">
+                                                <TextBlock Text="{Binding NomeExibicao}"
+                                                           FontSize="12"
+                                                           VerticalAlignment="Center" />
+                                                <Button Content="✕"
+                                                        Padding="2"
+                                                        FontSize="10"
+                                                        Command="{Binding $parent[ItemsControl].((vm:ConteudoDetalheViewModel)DataContext).RemoverCategoriaCommand}"
+                                                        CommandParameter="{Binding Id}"
+                                                        AutomationProperties.Name="{Binding Nome, StringFormat='Remover categoria {0}'}" />
+                                            </StackPanel>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+
+                            <!-- AutoCompleteBox for adding categories -->
+                            <AutoCompleteBox Name="CategoriaAutoComplete"
+                                             Watermark="Adicionar categoria…"
+                                             FilterMode="None"
+                                             MinimumPrefixLength="1"
+                                             MinimumPopulateDelay="200"
+                                             AutomationProperties.Name="Campo de busca e criação de categorias"
+                                             MinWidth="200" />
+
+                            <!-- Empty state -->
+                            <TextBlock Text="Nenhuma categoria associada"
+                                       IsVisible="{Binding !CategoriasAssociadas.Count}"
+                                       Opacity="0.6"
+                                       FontSize="12" />
+                        </StackPanel>
+
+                        <!-- Relações section -->
+                        <StackPanel Spacing="4"
+                                    Margin="0,8,0,0">
+                            <TextBlock Text="Relações"
+                                       FontWeight="Medium" />
+
+                            <!-- Existing relations list -->
+                            <ItemsControl ItemsSource="{Binding Relacoes}"
+                                          AutomationProperties.Name="Lista de relações do conteúdo">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate x:DataType="vm:RelacaoItemViewModel">
+                                        <Border Padding="8,4"
+                                                Margin="0,2"
+                                                CornerRadius="4"
+                                                BorderThickness="1"
+                                                BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}">
+                                            <Grid ColumnDefinitions="*,Auto">
+                                                <StackPanel Grid.Column="0"
+                                                            Orientation="Horizontal"
+                                                            Spacing="4">
+                                                    <TextBlock Text="{Binding NomeTipo}"
+                                                               FontSize="13" />
+                                                    <TextBlock Text="→"
+                                                               Opacity="0.6"
+                                                               FontSize="13" />
+                                                    <TextBlock Text="{Binding TituloDestino}"
+                                                               FontSize="13" />
+                                                </StackPanel>
+                                                <Button Grid.Column="1"
+                                                        Padding="4"
+                                                        Command="{Binding $parent[ItemsControl].((vm:ConteudoDetalheViewModel)DataContext).RemoverRelacaoCommand}"
+                                                        CommandParameter="{Binding Id}"
+                                                        AutomationProperties.Name="{Binding TituloDestino, StringFormat='Remover relação com {0}'}">
+                                                    <TextBlock Text="🗑" FontSize="12" />
+                                                </Button>
+                                            </Grid>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+
+                            <!-- Empty state -->
+                            <TextBlock Text="Nenhuma relação definida"
+                                       IsVisible="{Binding !Relacoes.Count}"
+                                       Opacity="0.6"
+                                       FontSize="12" />
+
+                            <!-- Error message -->
+                            <TextBlock Text="{Binding MensagemErroRelacao}"
+                                       IsVisible="{Binding MensagemErroRelacao, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
+                                       Foreground="Red"
+                                       FontSize="12" />
+
+                            <!-- Add relation button -->
+                            <Button Content="Adicionar relação"
+                                    Command="{Binding MostrarFormularioRelacaoCommand}"
+                                    IsVisible="{Binding !MostrandoFormularioRelacao}"
+                                    AutomationProperties.Name="Adicionar nova relação"
+                                    Margin="0,4,0,0" />
+
+                            <!-- Inline add form -->
+                            <Border IsVisible="{Binding MostrandoFormularioRelacao}"
+                                    Padding="12"
+                                    CornerRadius="4"
+                                    Margin="0,4"
+                                    BorderThickness="1"
+                                    BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}">
+                                <StackPanel Spacing="8">
+
+                                    <!-- Step 1: Search target content -->
+                                    <StackPanel Spacing="4">
+                                        <TextBlock Text="Conteúdo alvo" FontSize="12" />
+                                        <AutoCompleteBox Name="ConteudoAlvoAutoComplete"
+                                                         Watermark="Buscar conteúdo para vincular…"
+                                                         FilterMode="None"
+                                                         MinimumPrefixLength="1"
+                                                         MinimumPopulateDelay="300"
+                                                         AutomationProperties.Name="Buscar conteúdo para relacionar" />
+                                    </StackPanel>
+
+                                    <!-- Step 2: Select relation type -->
+                                    <StackPanel Spacing="4">
+                                        <TextBlock Text="Tipo de relação" FontSize="12" />
+                                        <AutoCompleteBox Name="TipoRelacaoAutoComplete"
+                                                         Watermark="Selecionar tipo…"
+                                                         FilterMode="None"
+                                                         MinimumPrefixLength="0"
+                                                         MinimumPopulateDelay="200"
+                                                         AutomationProperties.Name="Selecionar tipo de relação" />
+                                        <!-- Inverse name field (shown when creating new type) -->
+                                        <StackPanel IsVisible="{Binding CriandoNovoTipo}" Spacing="4">
+                                            <TextBlock Text="Nome inverso (ex: 'Continuação de')" FontSize="12" />
+                                            <TextBox Text="{Binding NomeInversoNovoTipo, Mode=TwoWay}"
+                                                     Watermark="Ex: Continuação de"
+                                                     AutomationProperties.Name="Nome inverso do tipo de relação" />
+                                        </StackPanel>
+                                    </StackPanel>
+
+                                    <!-- Actions -->
+                                    <StackPanel Orientation="Horizontal"
+                                                Spacing="8"
+                                                HorizontalAlignment="Right">
+                                        <Button Content="Cancelar"
+                                                Command="{Binding CancelarFormularioRelacaoCommand}"
+                                                AutomationProperties.Name="Cancelar adição de relação" />
+                                        <Button Content="Vincular conteúdos"
+                                                Command="{Binding VincularConteudosCommand}"
+                                                IsEnabled="{Binding PodeVincular}"
+                                                AutomationProperties.Name="Vincular conteúdos" />
+                                    </StackPanel>
+
+                                </StackPanel>
+                            </Border>
+
+                        </StackPanel>
+
                     </StackPanel>
 
                 </Expander>

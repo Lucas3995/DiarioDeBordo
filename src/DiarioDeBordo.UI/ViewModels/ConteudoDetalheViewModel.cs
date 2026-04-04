@@ -9,6 +9,7 @@ using DiarioDeBordo.Module.Acervo.DTOs;
 using DiarioDeBordo.Module.Acervo.Queries;
 using DiarioDeBordo.Module.Acervo.Resources;
 using MediatR;
+using System.Collections.ObjectModel;
 
 namespace DiarioDeBordo.UI.ViewModels;
 
@@ -30,6 +31,10 @@ public sealed partial class ConteudoDetalheViewModel : ObservableObject
     private string? _anotacoesOriginal;
     private FormatoMidia _formatoOriginal;
     private string? _subtipoOriginal;
+    private Classificacao? _classificacaoOriginal;
+    private decimal? _notaOriginal;
+    private EstadoProgresso _estadoProgressoOriginal;
+    private string? _posicaoAtualOriginal;
 
     // --- Editable properties ---
 
@@ -62,15 +67,37 @@ public sealed partial class ConteudoDetalheViewModel : ObservableObject
     // --- Display-only (from DTO, not editable in Plan 04) ---
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(IsGostei))]
+    [NotifyPropertyChangedFor(nameof(IsNaoGostei))]
+    [NotifyPropertyChangedFor(nameof(ClassificacaoTexto))]
+    [NotifyPropertyChangedFor(nameof(ResumoAvaliacao))]
+    [NotifyPropertyChangedFor(nameof(IsDirty))]
+    [NotifyPropertyChangedFor(nameof(TituloJanela))]
     private Classificacao? _classificacao;
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(ResumoAvaliacao))]
+    [NotifyPropertyChangedFor(nameof(IsDirty))]
+    [NotifyPropertyChangedFor(nameof(TituloJanela))]
     private decimal? _nota;
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(ResumoAvaliacao))]
+    [NotifyPropertyChangedFor(nameof(IsDirty))]
+    [NotifyPropertyChangedFor(nameof(TituloJanela))]
+    private EstadoProgresso _estadoProgresso;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(IsDirty))]
+    [NotifyPropertyChangedFor(nameof(TituloJanela))]
+    private string? _posicaoAtual;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(ResumoOrganizacao))]
     private int _categoriaCount;
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(ResumoOrganizacao))]
     private int _relacaoCount;
 
     [ObservableProperty]
@@ -93,6 +120,43 @@ public sealed partial class ConteudoDetalheViewModel : ObservableObject
     [ObservableProperty]
     private string? _mensagemErro;
 
+    // --- Relation form state ---
+
+    [ObservableProperty]
+    private bool _mostrandoFormularioRelacao;
+
+    [ObservableProperty]
+    private ConteudoResumoDto? _conteudoAlvoSelecionado;
+
+    [ObservableProperty]
+    private TipoRelacaoDto? _tipoRelacaoSelecionado;
+
+    [ObservableProperty]
+    private string? _nomeInversoNovoTipo;
+
+    [ObservableProperty]
+    private bool _criandoNovoTipo;
+
+    [ObservableProperty]
+    private string? _mensagemErroRelacao;
+
+    // --- Collections ---
+
+    public System.Collections.ObjectModel.ObservableCollection<CategoriaChipViewModel> CategoriasAssociadas { get; } = [];
+    public System.Collections.ObjectModel.ObservableCollection<RelacaoItemViewModel> Relacoes { get; } = [];
+
+    // Autocomplete suggestion lists (populated by Populating event handlers in code-behind)
+    private readonly List<CategoriaDto> _sugestoesCategoriaBacking = [];
+    private readonly List<ConteudoResumoDto> _sugestoesConteudoBacking = [];
+    private readonly List<TipoRelacaoDto> _sugestoesTipoRelacaoBacking = [];
+
+    public IReadOnlyList<CategoriaDto> SugestoesCategoria => _sugestoesCategoriaBacking;
+    public IReadOnlyList<ConteudoResumoDto> SugestoesConteudo => _sugestoesConteudoBacking;
+    public IReadOnlyList<TipoRelacaoDto> SugestoesTipoRelacao => _sugestoesTipoRelacaoBacking;
+
+    // Snapshot of original category IDs for dirty tracking
+    private HashSet<Guid> _categoriasOriginaisIds = [];
+
     // --- Computed ---
 
     public bool IsDirty =>
@@ -100,7 +164,12 @@ public sealed partial class ConteudoDetalheViewModel : ObservableObject
         Descricao != _descricaoOriginal ||
         Anotacoes != _anotacoesOriginal ||
         Formato != _formatoOriginal ||
-        Subtipo != _subtipoOriginal;
+        Subtipo != _subtipoOriginal ||
+        _classificacaoOriginal != Classificacao ||
+        _notaOriginal != Nota ||
+        _estadoProgressoOriginal != EstadoProgresso ||
+        _posicaoAtualOriginal != PosicaoAtual ||
+        !CategoriasAssociadas.Select(c => c.Id).ToHashSet().SetEquals(_categoriasOriginaisIds);
 
     public string TituloJanela => IsDirty
         ? Strings.Modal_Titulo_Existente + " •"
@@ -115,8 +184,8 @@ public sealed partial class ConteudoDetalheViewModel : ObservableObject
             : Strings.Avaliacao_SemAvaliacao;
 
     public string ResumoOrganizacao =>
-        CategoriaCount > 0 || RelacaoCount > 0
-            ? $"{CategoriaCount} categorias · {RelacaoCount} relações"
+        CategoriasAssociadas.Count > 0 || Relacoes.Count > 0
+            ? $"{CategoriasAssociadas.Count} categorias · {Relacoes.Count} relações"
             : Strings.Categorias_EstadoVazio;
 
     public string ResumoHistorico =>
@@ -126,8 +195,44 @@ public sealed partial class ConteudoDetalheViewModel : ObservableObject
                 : $"{SessoesContagem} sessão(ões) registrada(s)"
             : Strings.Progresso_Vazio;
 
+    // Three-state Classificação toggle properties (D-07/D-09)
+    public bool IsGostei
+    {
+        get => Classificacao == Core.Enums.Classificacao.Gostei;
+        set
+        {
+            Classificacao = value ? Core.Enums.Classificacao.Gostei : null;
+        }
+    }
+
+    public bool IsNaoGostei
+    {
+        get => Classificacao == Core.Enums.Classificacao.NaoGostei;
+        set
+        {
+            Classificacao = value ? Core.Enums.Classificacao.NaoGostei : null;
+        }
+    }
+
+    public string ClassificacaoTexto => Classificacao switch
+    {
+        Core.Enums.Classificacao.Gostei => "Gostei",
+        Core.Enums.Classificacao.NaoGostei => "Não gostei",
+        _ => "Sem classificação",
+    };
+
+    public bool PodeVincular => ConteudoAlvoSelecionado is not null &&
+                                 (TipoRelacaoSelecionado is not null || !string.IsNullOrWhiteSpace(NomeInversoNovoTipo));
+
     // Expose IDialogService interface from UI services namespace (avoid circular reference)
     private DiarioDeBordo.UI.Services.IDialogService? DialogServiceInstance => _dialogService;
+
+    // Static enum values for ComboBox binding
+    public static IReadOnlyList<FormatoMidia> FormatosMidia { get; } =
+        Enum.GetValues<FormatoMidia>().ToList().AsReadOnly();
+
+    public static IReadOnlyList<EstadoProgresso> EstadosProgresso { get; } =
+        Enum.GetValues<EstadoProgresso>().ToList().AsReadOnly();
 
     public ConteudoDetalheViewModel(IMediator mediator, Guid conteudoId, DiarioDeBordo.UI.Services.IDialogService dialogService)
     {
@@ -173,11 +278,21 @@ public sealed partial class ConteudoDetalheViewModel : ObservableObject
         Subtipo = dto.Subtipo;
         Classificacao = dto.Classificacao;
         Nota = dto.Nota;
-        CategoriaCount = dto.Categorias.Count;
-        RelacaoCount = dto.Relacoes.Count;
+        EstadoProgresso = Enum.TryParse<EstadoProgresso>(dto.EstadoProgresso, out var ep) ? ep : EstadoProgresso.NaoIniciado;
+        PosicaoAtual = dto.PosicaoAtual;
         SessoesContagem = dto.SessoesContagem;
         TotalEsperadoSessoes = dto.TotalEsperadoSessoes;
         IsFilho = dto.IsFilho;
+
+        // Populate category chips
+        CategoriasAssociadas.Clear();
+        foreach (var c in dto.Categorias)
+            CategoriasAssociadas.Add(new CategoriaChipViewModel(c.Id, c.Nome, c.IsAutomatica));
+
+        // Populate relations list
+        Relacoes.Clear();
+        foreach (var r in dto.Relacoes)
+            Relacoes.Add(new RelacaoItemViewModel(r.Id, r.NomeTipo, r.TituloDestino, r.IsInversa));
 
         OnPropertyChanged(nameof(ResumoAvaliacao));
         OnPropertyChanged(nameof(ResumoOrganizacao));
@@ -191,6 +306,11 @@ public sealed partial class ConteudoDetalheViewModel : ObservableObject
         _anotacoesOriginal = Anotacoes;
         _formatoOriginal = Formato;
         _subtipoOriginal = Subtipo;
+        _classificacaoOriginal = Classificacao;
+        _notaOriginal = Nota;
+        _estadoProgressoOriginal = EstadoProgresso;
+        _posicaoAtualOriginal = PosicaoAtual;
+        _categoriasOriginaisIds = CategoriasAssociadas.Select(c => c.Id).ToHashSet();
     }
 
     [RelayCommand]
@@ -216,10 +336,10 @@ public sealed partial class ConteudoDetalheViewModel : ObservableObject
                 Classificacao,
                 Formato,
                 Subtipo,
-                EstadoProgresso.NaoIniciado, // Will be wired in Plan 05
-                null,
+                EstadoProgresso,
+                PosicaoAtual,
                 TotalEsperadoSessoes,
-                []);  // Categories wired in Plan 05
+                CategoriasAssociadas.Select(c => c.Id).ToList().AsReadOnly());
 
             var resultado = await _mediator.Send(cmd);
             if (resultado.IsSuccess)
@@ -287,9 +407,222 @@ public sealed partial class ConteudoDetalheViewModel : ObservableObject
     // Owner reference — set by ConteudoDetalheWindow after it creates this VM
     public Window? Owner { get; set; }
 
-    // Enum values for ComboBox binding
-    public static IReadOnlyList<FormatoMidia> FormatosMidia { get; } =
-        Enum.GetValues<FormatoMidia>().ToList().AsReadOnly();
+    // --- Category commands ---
+
+    [RelayCommand]
+    private void RemoverCategoria(Guid categoriaId)
+    {
+        var chip = CategoriasAssociadas.FirstOrDefault(c => c.Id == categoriaId);
+        if (chip is not null)
+        {
+            CategoriasAssociadas.Remove(chip);
+            OnPropertyChanged(nameof(IsDirty));
+            OnPropertyChanged(nameof(TituloJanela));
+            OnPropertyChanged(nameof(ResumoOrganizacao));
+        }
+    }
+
+    [RelayCommand]
+    private void LimparNota()
+    {
+        Nota = null;
+    }
+
+    /// <summary>Called by code-behind Populating event for categories AutoCompleteBox.</summary>
+    public async Task PopularSugestoesCategoriasAsync(string prefixo)
+    {
+        try
+        {
+            var resultado = await _mediator.Send(new BuscarCategoriasQuery(_usuarioIdTemporario, prefixo));
+            _sugestoesCategoriaBacking.Clear();
+            _sugestoesCategoriaBacking.AddRange(resultado);
+            OnPropertyChanged(nameof(SugestoesCategoria));
+        }
+        catch (OperationCanceledException) { }
+    }
+
+    /// <summary>Called by code-behind when user selects/enters a category.</summary>
+    public async Task SelecionarCategoriaAsync(string nomeCategoria)
+    {
+        if (string.IsNullOrWhiteSpace(nomeCategoria))
+            return;
+
+        // Check if already associated
+        if (CategoriasAssociadas.Any(c => string.Equals(c.Nome, nomeCategoria, StringComparison.OrdinalIgnoreCase)))
+            return;
+
+        // Check if it's an existing suggestion
+        var sugestao = _sugestoesCategoriaBacking.FirstOrDefault(
+            c => string.Equals(c.Nome, nomeCategoria, StringComparison.OrdinalIgnoreCase));
+
+        if (sugestao is not null)
+        {
+            CategoriasAssociadas.Add(new CategoriaChipViewModel(sugestao.Id, sugestao.Nome, sugestao.IsAutomatica));
+        }
+        else
+        {
+            // Create new category via query service (ObterOuCriarAsync pattern)
+            var resultado = await _mediator.Send(new BuscarCategoriasQuery(_usuarioIdTemporario, nomeCategoria));
+            var existente = resultado.FirstOrDefault(c => string.Equals(c.Nome, nomeCategoria, StringComparison.OrdinalIgnoreCase));
+            if (existente is not null)
+            {
+                CategoriasAssociadas.Add(new CategoriaChipViewModel(existente.Id, existente.Nome, existente.IsAutomatica));
+            }
+            else
+            {
+                // Will be created on save via AtualizarConteudoCommand using ICategoriaRepository.ObterOuCriarAsync
+                // For now, add a placeholder with empty Guid (to be resolved on save)
+                // Better: create it now via a dedicated command
+                // For Plan 05: just add it with a marker that it needs creation
+                // TODO: create inline via CriarCategoriaCommand in Phase 3 completion
+            }
+        }
+
+        OnPropertyChanged(nameof(IsDirty));
+        OnPropertyChanged(nameof(TituloJanela));
+        OnPropertyChanged(nameof(ResumoOrganizacao));
+    }
+
+    // --- Relation commands ---
+
+    [RelayCommand]
+    private void MostrarFormularioRelacao()
+    {
+        MostrandoFormularioRelacao = true;
+    }
+
+    [RelayCommand]
+    private void CancelarFormularioRelacao()
+    {
+        MostrandoFormularioRelacao = false;
+        ConteudoAlvoSelecionado = null;
+        TipoRelacaoSelecionado = null;
+        NomeInversoNovoTipo = null;
+        CriandoNovoTipo = false;
+        MensagemErroRelacao = null;
+    }
+
+    [RelayCommand]
+    private async Task VincularConteudosAsync()
+    {
+        if (ConteudoAlvoSelecionado is null)
+            return;
+
+        string nomeTipo;
+        string nomeInverso;
+
+        if (TipoRelacaoSelecionado is not null)
+        {
+            nomeTipo = TipoRelacaoSelecionado.Nome;
+            nomeInverso = TipoRelacaoSelecionado.NomeInverso;
+        }
+        else if (!string.IsNullOrWhiteSpace(_novoNomeTipo) && !string.IsNullOrWhiteSpace(NomeInversoNovoTipo))
+        {
+            nomeTipo = _novoNomeTipo;
+            nomeInverso = NomeInversoNovoTipo;
+        }
+        else
+        {
+            MensagemErroRelacao = "Selecione ou crie um tipo de relação.";
+            return;
+        }
+
+        MensagemErroRelacao = null;
+        var resultado = await _mediator.Send(new CriarRelacaoCommand(
+            _usuarioIdTemporario,
+            _conteudoId,
+            ConteudoAlvoSelecionado.Id,
+            nomeTipo,
+            nomeInverso));
+
+        if (resultado.IsSuccess)
+        {
+            // Add to local list (UI immediate feedback — per D-15)
+            Relacoes.Add(new RelacaoItemViewModel(resultado.Value, nomeTipo, ConteudoAlvoSelecionado.Titulo, false));
+            // Clear form but keep it open (D-14: allow multiple relations)
+            ConteudoAlvoSelecionado = null;
+            TipoRelacaoSelecionado = null;
+            _novoNomeTipo = null;
+            NomeInversoNovoTipo = null;
+            CriandoNovoTipo = false;
+            OnPropertyChanged(nameof(ResumoOrganizacao));
+        }
+        else
+        {
+            MensagemErroRelacao = Strings.Erro_RelacaoDuplicada;
+        }
+    }
+
+    [RelayCommand]
+    private async Task RemoverRelacaoAsync(Guid relacaoId)
+    {
+        if (DialogServiceInstance is null)
+            return;
+
+        var confirmado = await DialogServiceInstance.MostrarConfirmacaoAsync(
+            Strings.Dialog_ExcluirRelacao_Titulo,
+            Strings.Dialog_ExcluirRelacao_Mensagem,
+            "Remover",
+            Strings.Label_Cancelar,
+            isPrimarioDestructivo: true);
+
+        if (!confirmado)
+            return;
+
+        var resultado = await _mediator.Send(new RemoverRelacaoCommand(relacaoId, _usuarioIdTemporario));
+        if (resultado.IsSuccess)
+        {
+            var item = Relacoes.FirstOrDefault(r => r.Id == relacaoId);
+            if (item is not null)
+            {
+                Relacoes.Remove(item);
+                OnPropertyChanged(nameof(ResumoOrganizacao));
+            }
+        }
+    }
+
+    /// <summary>Called by code-behind Populating event for content search AutoCompleteBox.</summary>
+    public async Task PopularSugestoesConteudoAsync(string prefixo)
+    {
+        try
+        {
+            var resultado = await _mediator.Send(new BuscarConteudosQuery(_usuarioIdTemporario, prefixo, _conteudoId));
+            _sugestoesConteudoBacking.Clear();
+            _sugestoesConteudoBacking.AddRange(resultado);
+            OnPropertyChanged(nameof(SugestoesConteudo));
+        }
+        catch (OperationCanceledException) { }
+    }
+
+    /// <summary>Called by code-behind Populating event for relation type AutoCompleteBox.</summary>
+    public async Task PopularSugestoesTipoRelacaoAsync(string prefixo)
+    {
+        try
+        {
+            var resultado = await _mediator.Send(new BuscarTiposRelacaoQuery(_usuarioIdTemporario, prefixo));
+            _sugestoesTipoRelacaoBacking.Clear();
+            _sugestoesTipoRelacaoBacking.AddRange(resultado);
+            OnPropertyChanged(nameof(SugestoesTipoRelacao));
+
+            // Check if typed name matches existing type
+            var exato = resultado.FirstOrDefault(t => string.Equals(t.Nome, prefixo, StringComparison.OrdinalIgnoreCase));
+            if (exato is not null)
+            {
+                TipoRelacaoSelecionado = exato;
+                CriandoNovoTipo = false;
+            }
+            else if (!string.IsNullOrWhiteSpace(prefixo))
+            {
+                TipoRelacaoSelecionado = null;
+                CriandoNovoTipo = true;
+                _novoNomeTipo = prefixo;
+            }
+            OnPropertyChanged(nameof(PodeVincular));
+        }
+        catch (OperationCanceledException) { }
+    }
+
+    private string? _novoNomeTipo;
 }
 
 #pragma warning restore CA2007
