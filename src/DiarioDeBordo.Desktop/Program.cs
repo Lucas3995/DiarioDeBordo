@@ -14,6 +14,13 @@ internal static class Program
     [System.STAThread]
     public static int Main(string[] args)
     {
+        // On Linux, IBus (XMODIFIERS=@im=ibus) intercepts dead keys at the X11 level
+        // but Avalonia 11's XIM integration doesn't properly receive the composed
+        // characters back (e.g., ´ + a → á). Bypassing IBus lets XKB handle dead key
+        // composition directly via XLookupString, which works correctly.
+        if (OperatingSystem.IsLinux())
+            Environment.SetEnvironmentVariable("XMODIFIERS", "@im=none");
+
         // Bootstrap PostgreSQL and apply migrations BEFORE Avalonia starts.
         // This avoids threading issues — Avalonia requires all UI operations on its
         // UI thread, which hasn't been set up yet at this point.
