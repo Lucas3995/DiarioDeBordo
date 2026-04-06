@@ -5,6 +5,7 @@ status: draft
 shadcn_initialized: false
 preset: none
 created: 2026-04-06
+revised: 2026-04-06
 ---
 
 # Phase 4 — UI Design Contract
@@ -31,14 +32,13 @@ created: 2026-04-06
 
 ## Spacing Scale
 
-Inherited from Phase 3. No changes to the base scale.
+Inherited from Phase 3. Phase 4 removes the non-standard 12px token that was introduced in an earlier draft.
 
 | Token | Value | Usage |
 |-------|-------|-------|
 | xs | 4px | Icon gaps, inline padding, chip internal padding vertical |
 | sm | 8px | Between buttons, compact element spacing, card vertical gap |
-| md | 12px | Form field group spacing within inline forms |
-| lg | 16px | Card internal padding, section content padding |
+| lg | 16px | Card internal padding, section content padding, form field group spacing within inline forms |
 | xl | 24px | Page-level horizontal margin, section separator spacing |
 | 2xl | 32px | Modal internal padding (horizontal) |
 | 3xl | 48px | Reserved for page-level spacing |
@@ -54,21 +54,23 @@ Exceptions:
 
 ## Typography
 
-Inherited from Phase 3. No changes to the base scale.
+Inherited from Phase 3. Phase 4 consolidates to exactly 4 sizes and 2 weights.
 
 | Role | Size | Weight | Line Height | Usage |
 |------|------|--------|-------------|-------|
-| Caption | 12px | Regular (400) | 1.4 | Status bar, metadata badges, timestamps, chip labels, breadcrumb segments, badge text, item count |
-| Body | 14px | Regular (400) | 1.5 | Card body text, form field values, modal body text, list item titles, contextual annotation text |
-| Label | 14px | Medium (500) | 1.4 | Form field labels, section headers in forms -- distinguished by `FontWeight="Medium"` |
+| Caption | 12px | Regular (400) | 1.4 | Status bar, metadata badges, timestamps, chip labels, breadcrumb segments, badge text (collection type), item count, source type pill, source priority number |
+| Body | 14px | Regular (400) | 1.5 | Card body text, form field values, modal body text, list item titles, contextual annotation text, deduplication candidate info |
+| Label | 14px | SemiBold (600) | 1.4 | Form field labels, section headers in forms, filter tab text, item selector heading, deduplication warning heading -- distinguished from Body by `FontWeight="SemiBold"` |
 | Subheading | 15px | SemiBold (600) | 1.3 | Expander section headers inside modals |
 | Heading | 24px | SemiBold (600) | 1.2 | Page title ("Acervo") -- only used once per view |
 
-**Phase 4 additions:**
-- Badge text (collection type): 11px, SemiBold (600), line-height 1.0 -- used inside type badge pill on collection cards
-- Breadcrumb current segment: 12px, SemiBold (600) -- last segment in breadcrumb (non-clickable)
-- Breadcrumb ancestor segment: 12px, Regular (400) -- clickable ancestor segments
-- Duplicate warning heading: 13px, SemiBold (600) -- banner heading in deduplication alert
+**Phase 4 additions (within the 4-size, 2-weight budget):**
+- Badge text (collection type): 12px Caption, SemiBold (600), line-height 1.0 -- uses Caption size with heavier weight inside type badge pill on collection cards
+- Breadcrumb current segment: 12px Caption, SemiBold (600) -- last segment in breadcrumb (non-clickable)
+- Breadcrumb ancestor segment: 12px Caption, Regular (400) -- clickable ancestor segments
+- Duplicate warning heading: 14px Label, SemiBold (600) -- banner heading in deduplication alert (uses Label role)
+- Filter tab active text: 14px Label, SemiBold (600) -- active filter tab (uses Label role)
+- Filter tab inactive text: 14px Body, Regular (400) -- inactive filter tab (uses Body role)
 
 ---
 
@@ -87,7 +89,7 @@ All colors use FluentTheme `DynamicResource` semantic tokens. Inherited from Pha
 | Warning | `#CA8A04` (dark amber) on `#FEFCE8` (light amber background) | Deduplication warning banner background and text |
 
 **Phase 4 accent reserved-for list (exhaustive, extends Phase 3):**
-1. "Salvar" button in modal (inherited)
+1. "Salvar coletanea" / "Salvar conteudo" button in modal footer (inherited, labels now object-specific)
 2. "Adicionar conteudo" / "+ Adicionar" button in list header (inherited)
 3. Active/selected navigation item highlight (inherited)
 4. Progress bar fill -- both collection progress and session progress (inherited + extended)
@@ -168,10 +170,10 @@ The interaction patterns for this phase are grounded in peer-reviewed literature
 |----------|-------|
 | Position | Below header row, above content list (Grid.Row="1.5" -- new row) |
 | Margin | 24px left, 0 top, 24px right, 8px bottom |
-| Button padding | 12px horizontal, 6px vertical |
+| Button padding | 16px horizontal, 8px vertical |
 | Active state | `SystemAccentColor` at `Opacity="0.15"` background, `SystemAccentColor` foreground, `FontWeight="SemiBold"` |
 | Inactive state | Transparent background, default foreground, `FontWeight="Regular"` |
-| Font size | 13px |
+| Font size | 14px (Body role when inactive, Label role when active) |
 | Spacing between buttons | 4px |
 | Default selection | "Todos" |
 
@@ -198,7 +200,7 @@ The interaction patterns for this phase are grounded in peer-reviewed literature
 |---------|------|
 | Thumbnail (left) | 48x48px, `CornerRadius="4"`, cover image if exists, else placeholder (folder icon at Opacity="0.3" on `SystemControlBackgroundAltHighBrush`) |
 | Title | 14px Body, Regular (400), single line with `TextTrimming="CharacterEllipsis"` |
-| Type badge | Pill shape (`CornerRadius="8"`), 11px SemiBold, padding 6px horizontal 2px vertical. Guiada = accent tint. Miscelanea = neutral surface |
+| Type badge | Pill shape (`CornerRadius="8"`), 12px Caption SemiBold (600), padding 8px horizontal 4px vertical. Guiada = accent tint. Miscelanea = neutral surface |
 | Item count + progress | 12px Caption, Opacity="0.6". Format: "{n} itens" for Miscelanea, "{n} itens -- {pct}%" for Guiada |
 | Progress bar (Guiada only) | Height="3px", `CornerRadius="1.5"`, `SystemAccentColor` fill, visible only for Guiada collections with items |
 | Action buttons | Same as content card: eye (ver detalhe) + trash (excluir), 32x32px visual, always visible at Opacity="0.6" |
@@ -239,7 +241,7 @@ The interaction patterns for this phase are grounded in peer-reviewed literature
 |                                                      |
 |   Pagina 1 de 1  [<] [1] [>]                        |  <- Pagination (ACE-09)
 +-----------------------------------------------------+
-| [Excluir]              [Cancelar] [Salvar]           |  <- Fixed footer
+| [Excluir]       [Cancelar edicao] [Salvar coletanea] |  <- Fixed footer
 +-----------------------------------------------------+
 ```
 
@@ -259,7 +261,7 @@ The interaction patterns for this phase are grounded in peer-reviewed literature
 
 | Element | Spec |
 |---------|------|
-| Container | `Border` with `Background=SystemAccentColor at Opacity="0.08"`, `CornerRadius="6"`, padding 12px |
+| Container | `Border` with `Background=SystemAccentColor at Opacity="0.08"`, `CornerRadius="6"`, padding 16px |
 | Label | "Proximo:" at 12px Caption, Opacity="0.6" |
 | Item title | 14px Body, SemiBold (600) |
 | Item number | Prefixed: "3. " |
@@ -309,7 +311,7 @@ The interaction patterns for this phase are grounded in peer-reviewed literature
 ```
 | 3 | Espacos Vetoriais         | [NOTE]   [X]   |
 |   +----------------------------------------------+
-|   | Anotacao nesta coletanea                     |  <- Label, 12px
+|   | Anotacao nesta coletanea                     |  <- Label, 12px Caption
 |   | [multiline text area, 60px height]           |
 |   | Auto-saves on blur (no explicit save button) |
 |   +----------------------------------------------+
@@ -333,7 +335,7 @@ The interaction patterns for this phase are grounded in peer-reviewed literature
 
 ```
 +-----------------------------------------------------+
-| Adicionar item a coletanea                           |  <- 13px SemiBold
+| Adicionar item a coletanea                           |  <- 14px SemiBold (Label role)
 | [AutoCompleteBox: Buscar conteudo do acervo...]      |  <- Search field
 |                                                      |
 | Resultados:                                          |
@@ -341,7 +343,7 @@ The interaction patterns for this phase are grounded in peer-reviewed literature
 | > Neuromancer (Livro)                                |
 | > [Coletanea] Classicos de FC (Miscelanea, 8 itens) |  <- Collection items show type
 |                                                      |
-|                          [Cancelar] [Adicionar]      |
+|                          [Cancelar edicao] [Adicionar]      |
 +-----------------------------------------------------+
 ```
 
@@ -378,7 +380,7 @@ v Fontes                           (2 fontes)
 | Element | Spec |
 |---------|------|
 | Priority number | 12px Caption, SemiBold, Opacity="0.6", auto-assigned from list position |
-| Type badge | `ComboBox` appearance but read-only after creation: "Url", "ArquivoLocal", "Rss", "Identificador". 12px Caption in a pill (`CornerRadius="8"`, padding 4px 6px) |
+| Type badge | `ComboBox` appearance but read-only after creation: "Url", "ArquivoLocal", "Rss", "Identificador". 12px Caption in a pill (`CornerRadius="8"`, padding 4px 8px) |
 | Value | 14px Body, `TextTrimming="CharacterEllipsis"`, single line |
 | Reorder up button | Unicode arrow up, 28x28px visual, 44x44px hit area. Disabled on first item |
 | Reorder down button | Unicode arrow down, 28x28px visual, 44x44px hit area. Disabled on last item |
@@ -398,7 +400,7 @@ v Fontes                           (2 fontes)
 +--------------------------------------------+
 | Tipo:  [Dropdown: Url v]                   |
 | Valor: [TextBox: URL, caminho ou ID...]    |
-|                     [Cancelar] [Adicionar]  |
+|                     [Cancelar edicao] [Adicionar]  |
 +--------------------------------------------+
 ```
 
@@ -432,7 +434,7 @@ v Identificacao                    (Duna)
 | "Escolher imagem" button | Default style, 12px text, opens OS file picker (filters: jpg, jpeg, png, webp) |
 | "Remover" button | Default style, 12px text, destructive color on text, visible only when image exists |
 | Image constraints | Max 10MB (I-05), max 1 per content in this phase (D-16). Violations show inline error below the image area |
-| Layout | `StackPanel` with image + button row, Margin="0,0,0,12" (space below before Titulo field) |
+| Layout | `StackPanel` with image + button row, Margin="0,0,0,16" (space below before Titulo field) |
 | AutomationProperties | Image: `AutomationProperties.Name="Imagem de capa do conteudo"`. Choose: `AutomationProperties.Name="Escolher imagem de capa"`. Remove: `AutomationProperties.Name="Remover imagem de capa"` |
 
 ### 8. Deduplication Warning Banner (D-07, D-08, D-09)
@@ -445,7 +447,7 @@ v Identificacao                    (Duna)
 
 ```
 +--------------------------------------------+
-| [!] Fonte identica detectada               |  <- 13px SemiBold, amber
+| [!] Fonte identica detectada               |  <- 14px SemiBold (Label role), amber
 |     "Duna" criado em 02/04/2026            |  <- 14px Body
 |     [Ver este]  [Criar mesmo assim]         |  <- Links/buttons
 +--------------------------------------------+
@@ -455,7 +457,7 @@ v Identificacao                    (Duna)
 
 ```
 +--------------------------------------------+
-| [!] Titulo semelhante encontrado           |  <- 13px SemiBold, amber
+| [!] Titulo semelhante encontrado           |  <- 14px SemiBold (Label role), amber
 |     "Duna - Frank Herbert" criado em 01/04  |  <- 14px Body
 |     [Ver este]  [Criar mesmo assim]         |
 +--------------------------------------------+
@@ -463,9 +465,9 @@ v Identificacao                    (Duna)
 
 | Element | Spec |
 |---------|------|
-| Container | `Border`, `Background=#FEFCE8`, `BorderBrush=#CA8A04` at Opacity="0.3", `BorderThickness="1"`, `CornerRadius="6"`, padding 12px |
+| Container | `Border`, `Background=#FEFCE8`, `BorderBrush=#CA8A04` at Opacity="0.3", `BorderThickness="1"`, `CornerRadius="6"`, padding 16px |
 | Icon | Warning triangle unicode, `#CA8A04`, 16px |
-| Heading | 13px SemiBold, `#CA8A04`. Text varies by confidence level (D-09) |
+| Heading | 14px SemiBold (Label role), `#CA8A04`. Text varies by confidence level (D-09) |
 | Candidate info | 14px Body, default foreground. Shows title + creation date |
 | "Ver este" button | Link-style button (underlined text, no border, accent color). Opens candidate's `ConteudoDetalheWindow` in overlay |
 | "Criar mesmo assim" button | Link-style button (underlined text, no border, default foreground at Opacity="0.7"). Dismisses the banner and allows creation to proceed |
@@ -515,8 +517,9 @@ All strings MUST be added to `Strings.resx` (pt-BR culture). No hardcoded string
 | Remove cover image | `Imagem_BotaoRemover` | `Remover` |
 | Create anyway (duplicate) | `Dedup_BotaoCriarMesmoAssim` | `Criar mesmo assim` |
 | View existing (duplicate) | `Dedup_BotaoVerEste` | `Ver este` |
-| Save (modal) | `Modal_BotaoSalvar` | `Salvar` (inherited) |
-| Cancel (modal) | `Modal_BotaoCancelar` | `Cancelar` (inherited) |
+| Save collection (modal) | `Modal_BotaoSalvarColetanea` | `Salvar coletanea` |
+| Save content (modal) | `Modal_BotaoSalvarConteudo` | `Salvar conteudo` |
+| Cancel editing (modal) | `Modal_BotaoCancelarEdicao` | `Cancelar edicao` |
 | Delete (modal) | `Modal_BotaoExcluir` | `Excluir` (inherited) |
 
 ### Empty States
@@ -557,9 +560,9 @@ All strings MUST be added to `Strings.resx` (pt-BR culture). No hardcoded string
 
 | Action | Dialog Title (resx key) | Dialog Message (resx key) | Primary Button | Secondary Button |
 |--------|------------------------|---------------------------|----------------|-----------------|
-| Delete collection | `Dialog_ExcluirColetanea_Titulo`: `Excluir coletanea` | `Dialog_ExcluirColetanea_Mensagem`: `"{Titulo}" sera excluida permanentemente. Os itens dentro da coletanea NAO serao excluidos — apenas a organizacao sera perdida.` | `Excluir` (destructive) | `Cancelar` |
-| Remove item from collection | `Dialog_RemoverItemColetanea_Titulo`: `Remover item da coletanea` | `Dialog_RemoverItemColetanea_Mensagem`: `"{TituloItem}" sera removido de "{TituloColetanea}". O conteudo permanece no acervo.` | `Remover` (destructive) | `Cancelar` |
-| Remove source | `Dialog_RemoverFonte_Titulo`: `Remover fonte` | `Dialog_RemoverFonte_Mensagem`: `A fonte "{valor}" sera removida deste conteudo.` | `Remover` (destructive) | `Cancelar` |
+| Delete collection | `Dialog_ExcluirColetanea_Titulo`: `Excluir coletanea` | `Dialog_ExcluirColetanea_Mensagem`: `"{Titulo}" sera excluida permanentemente. Os itens dentro da coletanea NAO serao excluidos — apenas a organizacao sera perdida.` | `Excluir` (destructive) | `Cancelar edicao` |
+| Remove item from collection | `Dialog_RemoverItemColetanea_Titulo`: `Remover item da coletanea` | `Dialog_RemoverItemColetanea_Mensagem`: `"{TituloItem}" sera removido de "{TituloColetanea}". O conteudo permanece no acervo.` | `Remover` (destructive) | `Cancelar edicao` |
+| Remove source | `Dialog_RemoverFonte_Titulo`: `Remover fonte` | `Dialog_RemoverFonte_Mensagem`: `A fonte "{valor}" sera removida deste conteudo.` | `Remover` (destructive) | `Cancelar edicao` |
 | Remove cover image | No confirmation needed -- action is immediately reversible (user can re-add the image). This is a lightweight action, not destructive |
 | Discard unsaved changes | Inherited from Phase 3 | Inherited from Phase 3 | Inherited | Inherited |
 
@@ -652,7 +655,7 @@ All strings MUST be added to `Strings.resx` (pt-BR culture). No hardcoded string
 3. Priority numbers re-assign: 1, 2, 3...
 4. Brief accent highlight flash on moved row (200ms)
 5. Up arrow disabled on first item; down arrow disabled on last item
-6. Changes included in modal's dirty state -- saved with "Salvar"
+6. Changes included in modal's dirty state -- saved with "Salvar conteudo"
 
 ### Source Addition Flow (D-12, D-13)
 
@@ -674,7 +677,7 @@ All strings MUST be added to `Strings.resx` (pt-BR culture). No hardcoded string
 5. If valid: image preview appears at 120x160px
 6. "Remover" button becomes visible
 7. Image change included in modal's dirty state
-8. On "Salvar": image persisted via `Conteudo.AdicionarImagem()`
+8. On "Salvar conteudo": image persisted via `Conteudo.AdicionarImagem()`
 
 ### Deduplication Check Flow (D-07, D-08, D-09)
 
@@ -738,6 +741,14 @@ Extends Phase 3 contract. All Phase 3 criteria still apply.
 
 ---
 
+## Revision Log
+
+| Date | Dimensions Fixed | Changes |
+|------|-----------------|---------|
+| 2026-04-06 | D1 Copywriting, D4 Typography, D5 Spacing | Replaced generic "Salvar"/"Cancelar" with object-specific labels. Consolidated 6 font sizes to 4 (removed 11px and 13px). Reduced 3 weights to 2 (removed Medium 500). Removed non-standard 12px spacing token, replaced with 16px where referenced. |
+
+---
+
 ## Checker Sign-Off
 
 - [ ] Dimension 1 Copywriting: PASS
@@ -753,3 +764,4 @@ Extends Phase 3 contract. All Phase 3 criteria still apply.
 
 *Phase: 04-curadoria-coletaneas-e-fontes*
 *UI-SPEC created: 2026-04-06 via gsd-ui-researcher*
+*UI-SPEC revised: 2026-04-06 -- fix D1/D4/D5 blocking issues*
