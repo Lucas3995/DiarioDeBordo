@@ -106,6 +106,20 @@ public class AtualizarConteudoHandlerTests
     }
 
     [Fact]
+    public async Task Given_TotalEsperadoSessoesZero_When_Atualizar_Then_RetornaFailure()
+    {
+        var id = Guid.NewGuid();
+        _repo.ObterPorIdAsync(id, _usuarioId, Arg.Any<CancellationToken>()).Returns(CriarConteudoFake());
+        var cmd = new AtualizarConteudoCommand(id, _usuarioId, "Titulo", null, null, null, null,
+            FormatoMidia.Nenhum, null, EstadoProgresso.NaoIniciado, null, 0, []);
+
+        var resultado = await _handler.Handle(cmd, CancellationToken.None);
+
+        Assert.False(resultado.IsSuccess);
+        Assert.Equal("TOTAL_ESPERADO_INVALIDO", resultado.Error!.Codigo);
+    }
+
+    [Fact]
     public async Task Given_ConteudoEncontrado_When_Atualizar_Then_AtualizarCategorias()
     {
         var id = Guid.NewGuid();

@@ -82,6 +82,29 @@ public class ExcluirConteudoHandlerTests
     }
 
     [Fact]
+    public async Task Given_FilhoComRelacoes_When_Excluir_Then_RemoveRelacoeDoFilho()
+    {
+        var id = Guid.NewGuid();
+        var filhoId = Guid.NewGuid();
+        var relacaoFilhoId = Guid.NewGuid();
+
+        var relacaoFilho = new Relacao
+        {
+            Id = relacaoFilhoId, ConteudoOrigemId = filhoId, ConteudoDestinoId = Guid.NewGuid(),
+            TipoRelacaoId = Guid.NewGuid(), IsInversa = false, UsuarioId = _usuarioId, CriadoEm = DateTimeOffset.UtcNow,
+        };
+
+        _conteudoRepo.ObterPorIdAsync(id, _usuarioId, Arg.Any<CancellationToken>()).Returns(Conteudo.Criar(_usuarioId, "Dune"));
+        _conteudoRepo.ListarFilhosAsync(id, _usuarioId, Arg.Any<Guid>(), Arg.Any<CancellationToken>()).Returns([filhoId]);
+        _relacaoRepo.ListarPorConteudoAsync(filhoId, _usuarioId, Arg.Any<CancellationToken>()).Returns([relacaoFilho]);
+        _relacaoRepo.ListarPorConteudoAsync(id, _usuarioId, Arg.Any<CancellationToken>()).Returns([]);
+
+        await _handler.Handle(new ExcluirConteudoCommand(id, _usuarioId), CancellationToken.None);
+
+        await _relacaoRepo.Received(1).RemoverParAsync(relacaoFilhoId, _usuarioId, Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
     public async Task Given_ConteudoComFilhos_When_Excluir_Then_RemoveFilhosFirst()
     {
         var id = Guid.NewGuid();

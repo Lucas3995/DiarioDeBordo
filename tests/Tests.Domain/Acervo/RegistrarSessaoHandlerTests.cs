@@ -96,6 +96,20 @@ public class RegistrarSessaoHandlerTests
     }
 
     [Fact]
+    public async Task Given_NotaAcimaDoMaximo_When_RegistrarSessao_Then_ReturnsFailure()
+    {
+        var paiId = Guid.NewGuid();
+        _conteudoRepo.ObterPorIdAsync(paiId, _usuarioId, Arg.Any<CancellationToken>())
+            .Returns(Conteudo.Criar(_usuarioId, "Breaking Bad"));
+
+        var cmd = new RegistrarSessaoCommand(_usuarioId, paiId, "Ep 1", null, 15m, null, FormatoMidia.Nenhum, null);
+        var resultado = await _handler.Handle(cmd, CancellationToken.None);
+
+        Assert.False(resultado.IsSuccess);
+        Assert.Equal("NOTA_FORA_DA_FAIXA", resultado.Error!.Codigo);
+    }
+
+    [Fact]
     public async Task Given_DataConsumo_When_RegistrarSessao_Then_SetsCriadoEm()
     {
         var paiId = Guid.NewGuid();

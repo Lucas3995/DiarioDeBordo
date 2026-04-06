@@ -86,6 +86,36 @@ public class ObterConteudoHandlerTests
     }
 
     [Fact]
+    public async Task Handle_ConteudoComColecoes_MapeiaCategoriaRelacaoESessao()
+    {
+        var id = Guid.NewGuid();
+        var usuarioId = Guid.NewGuid();
+        var catId = Guid.NewGuid();
+        var relId = Guid.NewGuid();
+        var sessaoId = Guid.NewGuid();
+
+        var data = new ConteudoDetalheData(id, "Duna", null, null, null, FormatoMidia.Texto, PapelConteudo.Item,
+            DateTimeOffset.UtcNow, null, false, null, null, EstadoProgresso.NaoIniciado, null,
+            [new CategoriaData(catId, "Ficção", false)],
+            [new RelacaoData(relId, Guid.NewGuid(), "Dune Messiah", "Sequência", false)],
+            [new SessaoData(sessaoId, "Ep. 1", DateTimeOffset.UtcNow, null, null, null)],
+            1);
+
+        _queryService.ObterAsync(id, usuarioId, Arg.Any<CancellationToken>()).Returns(data);
+
+        var result = await _handler.Handle(new ObterConteudoQuery(id, usuarioId), CancellationToken.None);
+
+        Assert.True(result.IsSuccess);
+        var dto = result.Value!;
+        Assert.Single(dto.Categorias);
+        Assert.Equal(catId, dto.Categorias[0].Id);
+        Assert.Single(dto.Relacoes);
+        Assert.Equal(relId, dto.Relacoes[0].Id);
+        Assert.Single(dto.Sessoes);
+        Assert.Equal(sessaoId, dto.Sessoes[0].Id);
+    }
+
+    [Fact]
     public async Task Handle_IsolaUsuario_NaoRetornaConteudoDeOutroUsuario()
     {
         var id = Guid.NewGuid();
