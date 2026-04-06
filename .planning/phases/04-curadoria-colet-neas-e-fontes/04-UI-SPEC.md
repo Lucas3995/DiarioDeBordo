@@ -1,7 +1,8 @@
 ---
 phase: 4
 slug: curadoria-coletaneas-e-fontes
-status: draft
+status: approved
+reviewed_at: 2026-04-06T00:00:00Z
 shadcn_initialized: false
 preset: none
 created: 2026-04-06
