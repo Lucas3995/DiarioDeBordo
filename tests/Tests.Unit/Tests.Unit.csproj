@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <IsTestProject>true</IsTestProject>
+    <!-- CA1707: Underscore-separated names are standard test method naming convention (Arrange_Act_Assert) -->
+    <NoWarn>$(NoWarn);CA1707</NoWarn>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../../src/DiarioDeBordo.Core/DiarioDeBordo.Core.csproj" />
+    <ProjectReference Include="../../src/Modules/Module.Shared/DiarioDeBordo.Module.Shared.csproj" />
+    <PackageReference Include="NSubstitute" Version="5.3.0" />
+  </ItemGroup>
+</Project>

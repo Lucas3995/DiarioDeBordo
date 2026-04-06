@@ -1,0 +1,35 @@
+<Application xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:DiarioDeBordo.UI.ViewModels"
+             xmlns:views="using:DiarioDeBordo.UI.Views"
+             x:Class="DiarioDeBordo.Desktop.App"
+             RequestedThemeVariant="Light">
+
+    <Application.Styles>
+        <FluentTheme />
+    </Application.Styles>
+
+    <Application.DataTemplates>
+        <DataTemplate DataType="{x:Type vm:AcervoViewModel}">
+            <views:AcervoView />
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:CriarConteudoViewModel}">
+            <views:CriarConteudoView />
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:PlaceholderViewModel}">
+            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="8">
+                <TextBlock Text="{Binding SectionName}"
+                           FontSize="20"
+                           FontWeight="SemiBold"
+                           HorizontalAlignment="Center" />
+                <TextBlock Text="{Binding Message}"
+                           FontSize="14"
+                           Opacity="0.6"
+                           TextWrapping="Wrap"
+                           MaxWidth="400"
+                           HorizontalAlignment="Center" />
+            </StackPanel>
+        </DataTemplate>
+    </Application.DataTemplates>
+
+</Application>

@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <AssemblyName>DiarioDeBordo</AssemblyName>
+    <OutputType>WinExe</OutputType>
+    <!-- WinExe hides console on Windows; on Linux this is equivalent to Exe -->
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../DiarioDeBordo.Core/DiarioDeBordo.Core.csproj" />
+    <ProjectReference Include="../DiarioDeBordo.Infrastructure/DiarioDeBordo.Infrastructure.csproj" />
+    <ProjectReference Include="../DiarioDeBordo.UI/DiarioDeBordo.UI.csproj" />
+    <ProjectReference Include="../Modules/Module.Acervo/DiarioDeBordo.Module.Acervo.csproj" />
+    <ProjectReference Include="../Modules/Module.Agregacao/DiarioDeBordo.Module.Agregacao.csproj" />
+    <ProjectReference Include="../Modules/Module.Reproducao/DiarioDeBordo.Module.Reproducao.csproj" />
+    <ProjectReference Include="../Modules/Module.IntegracaoExterna/DiarioDeBordo.Module.IntegracaoExterna.csproj" />
+    <ProjectReference Include="../Modules/Module.Busca/DiarioDeBordo.Module.Busca.csproj" />
+    <ProjectReference Include="../Modules/Module.Portabilidade/DiarioDeBordo.Module.Portabilidade.csproj" />
+    <ProjectReference Include="../Modules/Module.Identidade/DiarioDeBordo.Module.Identidade.csproj" />
+    <ProjectReference Include="../Modules/Module.Preferencias/DiarioDeBordo.Module.Preferencias.csproj" />
+    <ProjectReference Include="../Modules/Module.Shared/DiarioDeBordo.Module.Shared.csproj" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.4" />
+    <PackageReference Include="MediatR" Version="12.4.1" />
+    <PackageReference Include="Avalonia" Version="11.2.4" />
+    <PackageReference Include="Avalonia.Desktop" Version="11.2.4" />
+    <PackageReference Include="Avalonia.Themes.Fluent" Version="11.2.4" />
+    <PackageReference Include="SukiUI" Version="2.1.0" />
+  </ItemGroup>
+</Project>

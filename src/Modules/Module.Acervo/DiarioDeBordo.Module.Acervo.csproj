@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <AssemblyName>DiarioDeBordo.Module.Acervo</AssemblyName>
+    <!-- Set RootNamespace explicitly so the auto-generated logical name for Resources/Strings.resx
+         becomes DiarioDeBordo.Module.Acervo.Resources.Strings.resources (not DiarioDeBordo.Resources.*) -->
+    <RootNamespace>DiarioDeBordo.Module.Acervo</RootNamespace>
+    <!-- CA1716: 'Module' and 'Acervo' are VB.NET reserved keywords — namespace is intentional for project structure -->
+    <NoWarn>$(NoWarn);CA1716</NoWarn>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../../DiarioDeBordo.Core/DiarioDeBordo.Core.csproj" />
+    <ProjectReference Include="../Module.Shared/DiarioDeBordo.Module.Shared.csproj" />
+    <PackageReference Include="MediatR" Version="12.4.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Tests.Domain" />
+    <InternalsVisibleTo Include="DiarioDeBordo.UI" />
+  </ItemGroup>
+</Project>

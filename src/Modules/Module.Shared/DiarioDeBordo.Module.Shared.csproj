@@ -1,0 +1,11 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <AssemblyName>DiarioDeBordo.Module.Shared</AssemblyName>
+    <!-- CA1716: 'Module' and 'Shared' are VB.NET reserved keywords — namespace is intentional for project structure -->
+    <NoWarn>$(NoWarn);CA1716</NoWarn>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../../DiarioDeBordo.Core/DiarioDeBordo.Core.csproj" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.4" />
+  </ItemGroup>
+</Project>

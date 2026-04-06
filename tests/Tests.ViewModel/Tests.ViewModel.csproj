@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <IsTestProject>true</IsTestProject>
+    <!-- CA1515: test classes must be public for xunit discovery -->
+    <!-- CA1707: test methods use underscores (Given_When_Then convention) -->
+    <!-- CA2007: no ConfigureAwait needed in tests -->
+    <NoWarn>$(NoWarn);CA1515;CA1707;CA2007</NoWarn>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../../src/DiarioDeBordo.UI/DiarioDeBordo.UI.csproj" />
+    <PackageReference Include="NSubstitute" Version="5.3.0" />
+    <PackageReference Include="MediatR" Version="12.4.1" />
+  </ItemGroup>
+</Project>

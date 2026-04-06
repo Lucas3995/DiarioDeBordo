@@ -1,0 +1,32 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <AssemblyName>DiarioDeBordo.Infrastructure</AssemblyName>
+    <!-- CA1812: internal classes instantiated only via DI/EF Core (not directly in code).
+         CA1308: ToLowerInvariant is intentional for category name normalization.
+         CA1062: EF Core migration parameters (MigrationBuilder) are never null; generated code.
+         CA1861: Constant arrays in migration CreateIndex calls are one-time DDL; generated code. -->
+    <NoWarn>CA1812;CA1308;CA1062;CA1861</NoWarn>
+  </PropertyGroup>
+  <ItemGroup>
+    <!-- Allow test projects to access internal classes (ConteudoRepository, CategoriaRepository, ConteudoQueryService) -->
+    <InternalsVisibleTo Include="Tests.Integration" />
+    <InternalsVisibleTo Include="Tests.E2E" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="../DiarioDeBordo.Core/DiarioDeBordo.Core.csproj" />
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.4" />
+    <!-- Explicit pin to 9.0.4: Npgsql's nuspec declares [9.0.1, 10.0.0) which NuGet resolves
+         to the minimum (9.0.1) in projects that reference Infrastructure as a project reference.
+         This explicit reference anchors the entire dependency graph to 9.0.4. -->
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="9.0.4" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.4">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.4" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="9.0.4" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.4" />
+    <!-- Windows DPAPI: package available cross-platform but DPAPI methods only work on Windows at runtime -->
+    <PackageReference Include="System.Security.Cryptography.ProtectedData" Version="9.0.0" />
+  </ItemGroup>
+</Project>

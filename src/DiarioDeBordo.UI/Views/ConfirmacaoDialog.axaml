@@ -1,0 +1,54 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:DiarioDeBordo.UI.ViewModels"
+        x:Class="DiarioDeBordo.UI.Views.ConfirmacaoDialog"
+        x:DataType="vm:ConfirmacaoDialogViewModel"
+        SizeToContent="WidthAndHeight"
+        WindowStartupLocation="CenterOwner"
+        ShowInTaskbar="False"
+        CanResize="False"
+        MinWidth="360"
+        MaxWidth="480"
+        Title="{Binding Titulo}"
+        AutomationProperties.Name="{Binding Titulo, StringFormat='Dialog de confirmação: {0}'}">
+
+    <StackPanel Spacing="24" Margin="32,24">
+
+        <!-- Título -->
+        <TextBlock Text="{Binding Titulo}"
+                   FontSize="20"
+                   FontWeight="SemiBold"
+                   TextWrapping="Wrap"
+                   AutomationProperties.Name="Título do diálogo de confirmação" />
+
+        <!-- Mensagem -->
+        <TextBlock Text="{Binding Mensagem}"
+                   FontSize="14"
+                   TextWrapping="Wrap"
+                   Opacity="0.8"
+                   MaxWidth="416"
+                   AutomationProperties.Name="Mensagem do diálogo de confirmação" />
+
+        <!-- Botões -->
+        <StackPanel Orientation="Horizontal"
+                    HorizontalAlignment="Right"
+                    Spacing="8">
+
+            <!-- Botão secundário (cancelar/manter) -->
+            <Button Content="{Binding BotaoSecundario}"
+                    Name="BotaoSecundarioBtn"
+                    AutomationProperties.Name="{Binding BotaoSecundario}"
+                    AutomationProperties.HelpText="Cancela a ação e fecha o diálogo." />
+
+            <!-- Botão primário (confirmar/destruir) -->
+            <Button Content="{Binding BotaoPrimario}"
+                    Name="BotaoPrimarioBtn"
+                    Classes.destructive="{Binding IsPrimarioDestructivo}"
+                    AutomationProperties.Name="{Binding BotaoPrimario}"
+                    AutomationProperties.HelpText="Confirma a ação." />
+
+        </StackPanel>
+
+    </StackPanel>
+
+</Window>

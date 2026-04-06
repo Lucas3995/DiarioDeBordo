@@ -1,0 +1,140 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, teste-com-gsd ]
+  pull_request:
+    branches: [ main ]
+
+env:
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
+  DOTNET_CLI_TELEMETRY_OPTOUT: 1
+  DOTNET_NOLOGO: true
+
+jobs:
+  build-and-test:
+    name: Build & Test (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false   # See both platforms fail, not just the first
+      matrix:
+        os: [ ubuntu-latest, windows-latest ]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 10
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Restore tools (reportgenerator)
+        run: dotnet tool restore
+
+      - name: Restore dependencies
+        run: dotnet restore DiarioDeBordo.sln
+
+      # TreatWarningsAsErrors=true in Directory.Build.props — warnings fail the build
+      - name: Build (Release, zero warnings)
+        run: dotnet build DiarioDeBordo.sln --no-restore --configuration Release
+
+      # Unit and domain tests run without infrastructure
+      - name: Run unit tests
+        run: >
+          dotnet test tests/Tests.Unit/Tests.Unit.csproj
+          --no-build
+          --configuration Release
+          --collect:"XPlat Code Coverage"
+          --results-directory ./coverage/unit
+          --logger "trx;LogFileName=unit-results.trx"
+
+      - name: Run domain invariant tests
+        run: >
+          dotnet test tests/Tests.Domain/Tests.Domain.csproj
+          --no-build
+          --configuration Release
+          --collect:"XPlat Code Coverage"
+          --results-directory ./coverage/domain
+          --logger "trx;LogFileName=domain-results.trx"
+
+      # Integration tests use Testcontainers — Docker must be available
+      # ubuntu-latest has Docker; windows-latest skips these (complex Docker config)
+      - name: Run integration tests (Linux)
+        if: runner.os == 'Linux'
+        run: >
+          dotnet test tests/Tests.Integration/Tests.Integration.csproj
+          --no-build
+          --configuration Release
+          --collect:"XPlat Code Coverage"
+          --results-directory ./coverage/integration
+          --logger "trx;LogFileName=integration-results.trx"
+
+      - name: Run E2E tests (Linux)
+        if: runner.os == 'Linux'
+        run: >
+          dotnet test tests/Tests.E2E/Tests.E2E.csproj
+          --no-build
+          --configuration Release
+          --collect:"XPlat Code Coverage"
+          --results-directory ./coverage/e2e
+          --logger "trx;LogFileName=e2e-results.trx"
+
+      # Merge coverage reports from all test runs.
+      # Exclude Desktop (entry-point bootstrapper) and UI (view layer) assemblies:
+      # these are tested via E2E smoke test and manual validation, not unit coverage.
+      # Business logic coverage gate applies to: Core, Infrastructure, Module.Acervo, Module.Shared.
+      - name: Generate coverage report
+        run: >
+          dotnet tool run reportgenerator
+          -reports:"./coverage/**/coverage.cobertura.xml"
+          -targetdir:"./coverage/report"
+          -reporttypes:"HtmlInline;Cobertura;Badges"
+          "-assemblyfilters:-DiarioDeBordo.Desktop;-DiarioDeBordo.UI"
+
+      # Coverage gate: fail if line coverage < 95%
+      # Linux: all test suites run (Unit + Domain + Integration + E2E) — full coverage gate applies
+      # Windows: Integration/E2E require Docker (not available) — coverage gate skipped to avoid false negatives
+      - name: Check coverage threshold (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          COVERAGE=$(python3 -c "
+          import xml.etree.ElementTree as ET
+          tree = ET.parse('./coverage/report/Cobertura.xml')
+          print(tree.getroot().attrib['line-rate'])
+          ")
+          echo "Line coverage: $COVERAGE"
+          python3 -c "
+          rate = float('$COVERAGE')
+          if rate < 0.95:
+              raise SystemExit(f'::error::Coverage {rate} is below the 95% threshold.')
+          print(f'::notice::Coverage {rate} meets the >=95% threshold.')
+          "
+
+      # Upload coverage for review (does not fail the build)
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: coverage-report-${{ matrix.os }}
+          path: ./coverage/report/
+          retention-days: 14
+
+      # Upload test results for review
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-results-${{ matrix.os }}
+          path: ./coverage/**/*.trx
+          retention-days: 7
+
+      # Publish to Codecov (optional, needs CODECOV_TOKEN secret)
+      - name: Upload to Codecov
+        uses: codecov/codecov-action@v4
+        if: runner.os == 'Linux'
+        with:
+          files: ./coverage/report/Cobertura.xml
+          fail_ci_if_error: false   # Don't break CI if Codecov is down
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
