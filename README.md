@@ -6,9 +6,9 @@
 
 [![CI](https://github.com/Lucas3995/DiarioDeBordo/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/Lucas3995/DiarioDeBordo/actions/workflows/ci.yml)
 [![Status](https://img.shields.io/badge/status-em%20desenvolvimento-orange?style=flat-square)](https://github.com)
-[![Fase atual](https://img.shields.io/badge/fase-2%20Walking%20Skeleton-blue?style=flat-square)](#roadmap)
+[![Fase atual](https://img.shields.io/badge/fase-4%20Curadoria-blue?style=flat-square)](#roadmap)
 [![Plataforma](https://img.shields.io/badge/plataforma-Windows%20%7C%20Linux-informational?style=flat-square)](#stack)
-[![.NET](https://img.shields.io/badge/.NET-9%20LTS-512BD4?style=flat-square&logo=dotnet)](https://dotnet.microsoft.com)
+[![.NET](https://img.shields.io/badge/.NET-10-512BD4?style=flat-square&logo=dotnet)](https://dotnet.microsoft.com)
 [![Licença](https://img.shields.io/badge/licen%C3%A7a-a%20definir-lightgrey?style=flat-square)](#)
 
 </div>
@@ -42,32 +42,42 @@ Diário de Bordo inverte essa lógica. Cada decisão de design é guiada por **t
 
 ---
 
-## Funcionalidades planejadas
+## Funcionalidades
 
-### 📚 Acervo pessoal
+### 📚 Acervo pessoal ✅ (fase 3)
 - Registre qualquer conteúdo: vídeos, livros, artigos, podcasts, cadernos físicos, jogos — o que for
-- Anotações, notas pessoais, classificações (1–5), progresso rastreado por tipo de mídia
-- Coletâneas ordenadas ou não, com relações entre conteúdos (sequência, derivado de, baseado em)
-- Categorias hierárquicas com detecção automática de ciclo
+- Anotações, notas pessoais, classificação (Gostei/Não gostei), nota [0–10], progresso
+- Histórico de consumo como sessões filhas com timeline cronológica
+- Categorias livres com autocompletar e deduplicação case-insensitive
+- Relações bidirecionais entre conteúdos com tipos configuráveis
+- Disclosure progressivo: apenas o campo obrigatório (título) visível por padrão
 - Funciona **100% offline**
 
-### 📡 Agregador de fontes
+### 🗂️ Coletâneas e fontes ⏳ (fase 4 — em andamento)
+- Coletâneas Guiada (ordenada, progresso sequencial) e Miscelânea (livre)
+- Composição de coletâneas com proteção automática contra ciclos
+- Anotações contextuais por item dentro de cada coletânea
+- Fontes com prioridade e fallback — metadados manuais prevalecem sobre automáticos
+- Imagens de capa por conteúdo
+- Deduplicação: aviso na criação com dois níveis de confiança (URL exata / título similar)
+
+### 📡 Agregador de fontes ⏳ (fases 5–6)
 - Subscreva canais RSS e canais do YouTube
 - Feed por fonte ou agregado — ordenação cronológica, alfabética ou manual. Nunca algorítmica.
 - Um item do feed só vai para o acervo quando **você** decidir — sem persistência automática
 - Comportamento gracioso offline: o que já foi interagido está disponível
 
-### 🔍 Busca e operações em lote
+### 🔍 Busca e operações em lote ⏳ (fase 7)
 - Busca full-text com filtros combinados
 - Operações em lote sobre resultados de busca
 
-### 🔒 Privacidade e segurança by default
+### 🔒 Privacidade e segurança by default ✅ (em vigor desde fase 1)
 - Sem rastreamento, sem telemetria, sem conta obrigatória
 - Senhas com Argon2id, credenciais no Secure Storage do SO (DPAPI / libsecret)
 - Queries sempre parametrizadas, sempre filtradas por `usuario_id`
 - Threat model STRIDE completo antes de qualquer camada de rede
 
-### 🖥️ Multi-usuário local
+### 🖥️ Multi-usuário local ⏳ (fase 9)
 - Vários perfis no mesmo computador com dados completamente independentes
 - Área admin invisível para não-admins em todas as camadas — não só na UI
 
@@ -77,8 +87,8 @@ Diário de Bordo inverte essa lógica. Cada decisão de design é guiada por **t
 
 | Camada | Tecnologia |
 |---|---|
-| Linguagem / Runtime | C# / .NET 9 LTS |
-| UI | Avalonia UI + SukiUI (MVVM via CommunityToolkit.Mvvm) |
+| Linguagem / Runtime | C# / .NET 10 |
+| UI | Avalonia UI + FluentTheme (MVVM via CommunityToolkit.Mvvm) |
 | Mensageria in-process | MediatR |
 | Banco de dados | PostgreSQL bundled (porta 15432) via EF Core + Npgsql |
 | Hash de senhas | Argon2id (Konscious.Security.Cryptography) |
@@ -133,17 +143,17 @@ Solution/
 
 | # | Fase | Status |
 |---|---|---|
-| 0 | Modelagem tática DDD | ✅ Concluída |
-| **1** | **Walking skeleton** — criar conteúdo, persistir, exibir | 🔄 **Em planejamento** |
-| 2 | CRUD completo de conteúdo, dashboard | ⏳ Pendente |
-| 3 | Coletâneas, fontes, deduplicação | ⏳ Pendente |
-| 4 | Adaptadores RSS e YouTube | ⏳ Pendente |
-| 5 | Subscrição, feed, agregador, persistência seletiva | ⏳ Pendente |
-| 6 | Busca full-text, filtros combinados, operações em lote | ⏳ Pendente |
-| 7 | Reprodutor interno, abertura externa | ⏳ Pendente |
-| 8 | Multi-usuário, autenticação, roles, área admin | ⏳ Pendente |
-| 9 | Exportação/importação, portabilidade cross-OS | ⏳ Pendente |
-| 10 | Intervenções de uso saudável (monitoramento, lembretes opt-in) | ⏳ Pendente |
+| 1 | Modelagem tática DDD | ✅ Concluída (2026-04-02) |
+| 2 | Walking Skeleton — arquitetura de ponta a ponta com CI | ✅ Concluída (2026-04-03) |
+| 3 | Acervo Básico — CRUD completo, categorias, relações, histórico | ✅ Concluída (2026-04-04) |
+| **4** | **Curadoria — Coletâneas, fontes, deduplicação, imagens de capa** | 🔄 **Em andamento** |
+| 5 | Integração Externa — adaptadores RSS e YouTube | ⏳ Pendente |
+| 6 | Agregação — feeds, agregador consolidado, persistência seletiva | ⏳ Pendente |
+| 7 | Busca e Navegação — full-text, filtros combinados, operações em lote | ⏳ Pendente |
+| 8 | Reprodução — leitor de texto, player de áudio, embed de vídeo | ⏳ Pendente |
+| 9 | Identidade, Preferências e Acessibilidade — multi-usuário, WCAG 2.2 AAA | ⏳ Pendente |
+| 10 | Portabilidade — exportação/importação cross-OS | ⏳ Pendente |
+| 11 | Refinamento e Robustez — pentest, intervenções de uso saudável, instalador | ⏳ Pendente |
 
 ---
 
