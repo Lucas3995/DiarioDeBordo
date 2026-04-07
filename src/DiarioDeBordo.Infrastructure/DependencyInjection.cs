@@ -17,11 +17,17 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddDbContext<DiarioDeBordoDbContext>(options =>
             options.UseNpgsql(connectionString));
 
+        // Repositories
         services.AddScoped<IConteudoRepository, ConteudoRepository>();
         services.AddScoped<ICategoriaRepository, CategoriaRepository>();
         services.AddScoped<ITipoRelacaoRepository, TipoRelacaoRepository>();
         services.AddScoped<IRelacaoRepository, RelacaoRepository>();
+        services.AddScoped<IColetaneaRepository, ColetaneaRepository>();
+
+        // Query services (CQRS read-side)
         services.AddScoped<IConteudoQueryService, ConteudoQueryService>();
+        services.AddScoped<IColetaneaQueryService, ColetaneaQueryService>();
+        services.AddScoped<IDeduplicacaoService, DeduplicacaoService>();
 
         return services;
     }

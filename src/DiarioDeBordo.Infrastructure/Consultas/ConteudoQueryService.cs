@@ -42,8 +42,20 @@ internal sealed class ConteudoQueryService : IConteudoQueryService
             .Select(c => new ConteudoResumoData(
                 c.Id, c.Titulo, c.Formato, c.Papel, c.CriadoEm, c.Classificacao, c.Subtipo,
                 c.TipoColetaneaValor,
-                c.Papel == PapelConteudo.Coletanea ? (int?)0 : null, // QuantidadeItens: computed in later plan
-                c.Papel == PapelConteudo.Coletanea ? (decimal?)0m : null, // ProgressoPercentual: computed in later plan
+                // QuantidadeItens: count of items via ConteudoColetanea join table
+                c.Papel == PapelConteudo.Coletanea
+                    ? _context.ConteudoColetaneas.Count(cc => cc.ColetaneaId == c.Id)
+                    : (int?)null,
+                // ProgressoPercentual: computed from items with EstadoProgresso.Concluido
+                c.Papel == PapelConteudo.Coletanea
+                    ? _context.ConteudoColetaneas
+                        .Where(cc => cc.ColetaneaId == c.Id)
+                        .Join(_context.Conteudos, cc => cc.ConteudoId, item => item.Id, (cc, item) => item)
+                        .Count(item => item.Progresso.Estado == EstadoProgresso.Concluido) * 100m /
+                      (_context.ConteudoColetaneas.Count(cc => cc.ColetaneaId == c.Id) == 0
+                          ? 1
+                          : _context.ConteudoColetaneas.Count(cc => cc.ColetaneaId == c.Id))
+                    : (decimal?)null,
                 c.Imagens.Where(i => i.Principal).Select(i => i.Caminho).FirstOrDefault()))
             .ToListAsync(ct)
             .ConfigureAwait(false);

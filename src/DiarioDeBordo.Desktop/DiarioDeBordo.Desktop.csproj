@@ -23,5 +23,7 @@
     <PackageReference Include="Avalonia.Desktop" Version="11.2.4" />
     <PackageReference Include="Avalonia.Themes.Fluent" Version="11.2.4" />
     <PackageReference Include="SukiUI" Version="2.1.0" />
+    <!-- Required for EF Core migrations CLI commands -->
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.4" PrivateAssets="all" />
   </ItemGroup>
 </Project>
