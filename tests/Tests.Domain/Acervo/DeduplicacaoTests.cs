@@ -11,7 +11,7 @@ public class DeduplicacaoTests
 {
     /// <summary>
     /// Normaliza título para detecção de duplicatas de média confiança.
-    /// Remove espaços, converte para maiúsculo (CA1308), remove diacríticos e pontuação.
+    /// Preserva espaços internos, converte para maiúsculo (CA1308), remove diacríticos e pontuação.
     /// </summary>
     private static string NormalizarTitulo(string titulo)
     {

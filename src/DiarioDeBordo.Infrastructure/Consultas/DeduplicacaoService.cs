@@ -91,11 +91,12 @@ internal sealed class DeduplicacaoService : IDeduplicacaoService
         if (string.IsNullOrEmpty(tituloNormalizado))
             return null;
 
-        // Pre-filter: get potential matches with case-insensitive title start
-        // This limits result set before in-memory normalization
-        var prefixo = tituloNormalizado.Length >= 3
-            ? tituloNormalizado[..3]
-            : tituloNormalizado;
+        // Pre-filter: use original trimmed title prefix (not normalized) to avoid
+        // accent-related false negatives in ILike against raw DB title.
+        var tituloOriginal = titulo.Trim();
+        var prefixo = tituloOriginal.Length >= 3
+            ? tituloOriginal[..3]
+            : tituloOriginal;
 
         var candidatos = await _context.Conteudos
             .Where(c => c.UsuarioId == usuarioId) // SEG-02

@@ -26,7 +26,7 @@ internal sealed class ObterColetaneaDetalheHandler
             .ConfigureAwait(false);
 
         if (data is null)
-            return Resultado<ColetaneaDetalheDto>.Failure(new Erro("NAO_ENCONTRADO", "Coletanea nao encontrada"));
+            return Resultado<ColetaneaDetalheDto>.Failure(Erros.ColetaneaNaoEncontrada);
 
         var dto = new ColetaneaDetalheDto(
             data.Id,

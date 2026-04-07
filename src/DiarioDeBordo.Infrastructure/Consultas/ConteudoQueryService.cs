@@ -44,17 +44,28 @@ internal sealed class ConteudoQueryService : IConteudoQueryService
                 c.TipoColetaneaValor,
                 // QuantidadeItens: count of items via ConteudoColetanea join table
                 c.Papel == PapelConteudo.Coletanea
-                    ? _context.ConteudoColetaneas.Count(cc => cc.ColetaneaId == c.Id)
+                    ? _context.ConteudoColetaneas
+                        .Where(cc => cc.ColetaneaId == c.Id)
+                        .Join(_context.Conteudos,
+                            cc => cc.ConteudoId, item => item.Id,
+                            (cc, item) => item.UsuarioId)
+                        .Count(uid => uid == usuarioId)
                     : (int?)null,
                 // ProgressoPercentual: computed from items with EstadoProgresso.Concluido
                 c.Papel == PapelConteudo.Coletanea
                     ? _context.ConteudoColetaneas
                         .Where(cc => cc.ColetaneaId == c.Id)
                         .Join(_context.Conteudos, cc => cc.ConteudoId, item => item.Id, (cc, item) => item)
-                        .Count(item => item.Progresso.Estado == EstadoProgresso.Concluido) * 100m /
-                      (_context.ConteudoColetaneas.Count(cc => cc.ColetaneaId == c.Id) == 0
-                          ? 1
-                          : _context.ConteudoColetaneas.Count(cc => cc.ColetaneaId == c.Id))
+                        .Count(item => item.UsuarioId == usuarioId && item.Progresso.Estado == EstadoProgresso.Concluido) * 100m /
+                      (_context.ConteudoColetaneas
+                          .Where(cc => cc.ColetaneaId == c.Id)
+                          .Join(_context.Conteudos, cc => cc.ConteudoId, item => item.Id, (cc, item) => item.UsuarioId)
+                          .Count(uid => uid == usuarioId) == 0
+                           ? 1
+                           : _context.ConteudoColetaneas
+                               .Where(cc => cc.ColetaneaId == c.Id)
+                               .Join(_context.Conteudos, cc => cc.ConteudoId, item => item.Id, (cc, item) => item.UsuarioId)
+                               .Count(uid => uid == usuarioId))
                     : (decimal?)null,
                 c.Imagens.Where(i => i.Principal).Select(i => i.Caminho).FirstOrDefault()))
             .ToListAsync(ct)

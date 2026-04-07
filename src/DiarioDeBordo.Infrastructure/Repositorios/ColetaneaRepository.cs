@@ -57,7 +57,7 @@ internal sealed class ColetaneaRepository : IColetaneaRepository
             .ConfigureAwait(false);
 
         if (!pertenceAoUsuario)
-            return Array.Empty<Guid>().ToList().AsReadOnly();
+            return Array.Empty<Guid>();
 
         var visited = new HashSet<Guid>();
         var queue = new Queue<Guid>();

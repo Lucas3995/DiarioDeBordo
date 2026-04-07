@@ -37,7 +37,8 @@ internal sealed class ColetaneaQueryService : IColetaneaQueryService
             .Where(cc => cc.ColetaneaId == coletaneaId)
             .Join(_context.Conteudos,
                 cc => cc.ConteudoId, c => c.Id,
-                (cc, c) => new { cc, c });
+                (cc, c) => new { cc, c })
+            .Where(x => x.c.UsuarioId == usuarioId);
 
         var total = await query.CountAsync(ct).ConfigureAwait(false);
 
@@ -87,7 +88,10 @@ internal sealed class ColetaneaQueryService : IColetaneaQueryService
 
         // Count total items in collection
         var quantidadeItens = await _context.ConteudoColetaneas
-            .CountAsync(cc => cc.ColetaneaId == coletaneaId, ct)
+            .Join(_context.Conteudos,
+                cc => cc.ConteudoId, c => c.Id,
+                (cc, c) => new { cc, c })
+            .CountAsync(x => x.cc.ColetaneaId == coletaneaId && x.c.UsuarioId == usuarioId, ct)
             .ConfigureAwait(false);
 
         // Calculate progress percentage: count of items with EstadoProgresso == Concluido
@@ -96,8 +100,9 @@ internal sealed class ColetaneaQueryService : IColetaneaQueryService
                 .Where(cc => cc.ColetaneaId == coletaneaId)
                 .Join(_context.Conteudos,
                     cc => cc.ConteudoId, c => c.Id,
-                    (cc, c) => c.Progresso.Estado)
-                .CountAsync(e => e == EstadoProgresso.Concluido, ct)
+                    (cc, c) => new { c.UsuarioId, Estado = c.Progresso.Estado })
+                .Where(x => x.UsuarioId == usuarioId)
+                .CountAsync(x => x.Estado == EstadoProgresso.Concluido, ct)
                 .ConfigureAwait(false)
             : 0;
 

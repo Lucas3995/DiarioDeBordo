@@ -26,24 +26,24 @@ internal sealed class AdicionarItemNaColetaneaHandler : IRequestHandler<Adiciona
     {
         var coletanea = await _coletaneaRepo.ObterPorIdAsync(cmd.ColetaneaId, cmd.UsuarioId, ct).ConfigureAwait(false);
         if (coletanea is null)
-            return Resultado<Unit>.Failure(new Erro("COLETANEA_NAO_ENCONTRADA", "Coletanea nao encontrada"));
+            return Resultado<Unit>.Failure(Erros.ColetaneaNaoEncontrada);
 
         var conteudo = await _conteudoRepo.ObterPorIdAsync(cmd.ConteudoId, cmd.UsuarioId, ct).ConfigureAwait(false);
         if (conteudo is null)
-            return Resultado<Unit>.Failure(new Erro("CONTEUDO_NAO_ENCONTRADO", "Conteudo nao encontrado"));
+            return Resultado<Unit>.Failure(Erros.ConteudoNaoEncontrado);
 
         if (cmd.ColetaneaId == cmd.ConteudoId)
-            return Resultado<Unit>.Failure(new Erro("AUTO_REFERENCIA_COLETANEA", "Nao e possivel adicionar uma coletanea a si mesma"));
+            return Resultado<Unit>.Failure(Erros.AutoReferenciaColetanea);
 
         var existe = await _coletaneaRepo.ItemExisteNaColetaneaAsync(cmd.ColetaneaId, cmd.ConteudoId, ct).ConfigureAwait(false);
         if (existe)
-            return Resultado<Unit>.Failure(new Erro("ITEM_JA_NA_COLETANEA", "Item ja na coletanea"));
+            return Resultado<Unit>.Failure(Erros.ItemJaNaColetanea);
 
         if (conteudo.Papel == PapelConteudo.Coletanea)
         {
             var descendentes = await _coletaneaRepo.ObterDescendentesAsync(cmd.ConteudoId, cmd.UsuarioId, ct).ConfigureAwait(false);
             if (descendentes.Contains(cmd.ColetaneaId))
-                return Resultado<Unit>.Failure(new Erro("CICLO_COMPOSICAO", "Ciclo detectado na composicao"));
+                return Resultado<Unit>.Failure(Erros.CicloDetetadoNaComposicao);
         }
 
         var posicao = await _coletaneaRepo.ObterProximaPosicaoAsync(cmd.ColetaneaId, ct).ConfigureAwait(false);
