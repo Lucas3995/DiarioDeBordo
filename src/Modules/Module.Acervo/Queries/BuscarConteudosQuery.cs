@@ -34,7 +34,19 @@ internal sealed class BuscarConteudosHandler : IRequestHandler<BuscarConteudosQu
             .Where(c => c.Id != query.ExcluirId &&
                         c.Titulo.Contains(query.Prefixo, StringComparison.OrdinalIgnoreCase))
             .Take(10)
-            .Select(c => new ConteudoResumoDto(c.Id, c.Titulo, c.Formato.ToString(), c.Papel.ToString(), c.CriadoEm, c.Classificacao, c.Subtipo, null))
+            .Select(c => new ConteudoResumoDto(
+                c.Id,
+                c.Titulo,
+                c.Formato.ToString(),
+                c.Papel.ToString(),
+                c.CriadoEm,
+                c.Classificacao,
+                c.Subtipo,
+                null,
+                c.TipoColetanea?.ToString(),
+                c.QuantidadeItens,
+                c.ProgressoPercentual,
+                c.ImagemCapaCaminho))
             .ToList()
             .AsReadOnly();
     }

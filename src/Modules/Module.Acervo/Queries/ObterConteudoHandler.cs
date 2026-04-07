@@ -43,10 +43,13 @@ internal sealed class ObterConteudoHandler
             data.Subtipo,
             data.EstadoProgresso.ToString(),
             data.PosicaoAtual,
+            data.TipoColetanea?.ToString(),
             data.Categorias.Select(c => new CategoriaDto(c.Id, c.Nome, c.IsAutomatica)).ToList().AsReadOnly(),
             data.Relacoes.Select(r => new RelacaoDto(r.Id, r.ConteudoDestinoId, r.TituloDestino, r.NomeTipo, r.IsInversa)).ToList().AsReadOnly(),
             data.Sessoes.Select(s => new SessaoDto(s.Id, s.Titulo, s.CriadoEm, s.Classificacao, s.Nota, s.Anotacoes)).ToList().AsReadOnly(),
-            data.SessoesContagem);
+            data.SessoesContagem,
+            data.Fontes.Select(f => new FonteDto(f.Id, f.Tipo.ToString(), f.Valor, f.Plataforma, f.Prioridade)).ToList().AsReadOnly(),
+            data.Imagens.Select(i => new ImagemDto(i.Id, i.Caminho, i.Origem.ToString(), i.Principal)).ToList().AsReadOnly());
 
         return Resultado<ConteudoDetalheDto>.Success(dto);
     }

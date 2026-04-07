@@ -12,4 +12,8 @@ public sealed record ConteudoResumoDto(
     DateTimeOffset CriadoEm,
     Classificacao? Classificacao,
     string? Subtipo,
-    decimal? Nota);
+    decimal? Nota = null,
+    string? TipoColetanea = null,
+    int? QuantidadeItens = null,
+    decimal? ProgressoPercentual = null,
+    string? ImagemCapaCaminho = null);
