@@ -1,3 +1,4 @@
+using DiarioDeBordo.Core.Enums;
 using DiarioDeBordo.Core.Primitivos;
 using MediatR;
 
@@ -12,4 +13,8 @@ public sealed record CriarConteudoCommand(
     Guid UsuarioId,
     string Titulo,
     string? Descricao = null,
-    string? Anotacoes = null) : IRequest<Resultado<Guid>>;
+    string? Anotacoes = null,
+    PapelConteudo Papel = PapelConteudo.Item,
+    TipoColetanea? TipoColetanea = null,
+    FormatoMidia Formato = FormatoMidia.Nenhum,
+    bool IgnorarDuplicata = false) : IRequest<Resultado<Guid>>;
