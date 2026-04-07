@@ -43,7 +43,7 @@ public class BuscarHandlersTests
 
     private static ConteudoResumoData Item(Guid id, string titulo) =>
         new(id, titulo, FormatoMidia.Texto, PapelConteudo.Item,
-            DateTimeOffset.UtcNow, null, null);
+            DateTimeOffset.UtcNow, null, null, null, null, null, null);
 
     [Fact]
     public async Task BuscarConteudos_ExcluiOProprioConteudo()
@@ -51,7 +51,7 @@ public class BuscarHandlersTests
         var queryService = Substitute.For<IConteudoQueryService>();
         var propioId = Guid.NewGuid();
         var outroId = Guid.NewGuid();
-        queryService.ListarAsync(_usuarioId, Arg.Any<PaginacaoParams>(), Arg.Any<CancellationToken>())
+        queryService.ListarAsync(_usuarioId, Arg.Any<PaginacaoParams>(), Arg.Any<PapelConteudo?>(), Arg.Any<CancellationToken>())
             .Returns(PaginaComItens(Item(propioId, "Alpha"), Item(outroId, "Alpha")));
 
         var result = await new BuscarConteudosHandler(queryService)
@@ -65,7 +65,7 @@ public class BuscarHandlersTests
     public async Task BuscarConteudos_FiltragемPorPrefixoCaseInsensitive()
     {
         var queryService = Substitute.For<IConteudoQueryService>();
-        queryService.ListarAsync(_usuarioId, Arg.Any<PaginacaoParams>(), Arg.Any<CancellationToken>())
+        queryService.ListarAsync(_usuarioId, Arg.Any<PaginacaoParams>(), Arg.Any<PapelConteudo?>(), Arg.Any<CancellationToken>())
             .Returns(PaginaComItens(
                 Item(Guid.NewGuid(), "DUNA"),
                 Item(Guid.NewGuid(), "Foundation"),
@@ -85,7 +85,7 @@ public class BuscarHandlersTests
         var itens = Enumerable.Range(1, 15)
             .Select(i => Item(Guid.NewGuid(), $"Livro {i}"))
             .ToArray();
-        queryService.ListarAsync(_usuarioId, Arg.Any<PaginacaoParams>(), Arg.Any<CancellationToken>())
+        queryService.ListarAsync(_usuarioId, Arg.Any<PaginacaoParams>(), Arg.Any<PapelConteudo?>(), Arg.Any<CancellationToken>())
             .Returns(PaginaComItens(itens));
 
         var result = await new BuscarConteudosHandler(queryService)

@@ -164,6 +164,39 @@ namespace DiarioDeBordo.Persistencia.Migrations
                     b.ToTable("conteudo_categorias", (string)null);
                 });
 
+            modelBuilder.Entity("DiarioDeBordo.Core.Entidades.ConteudoColetanea", b =>
+                {
+                    b.Property<Guid>("ColetaneaId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("coletanea_id");
+
+                    b.Property<Guid>("ConteudoId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("conteudo_id");
+
+                    b.Property<DateTimeOffset>("AdicionadoEm")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("adicionado_em");
+
+                    b.Property<string>("AnotacaoContextual")
+                        .HasMaxLength(10000)
+                        .HasColumnType("character varying(10000)")
+                        .HasColumnName("anotacao_contextual");
+
+                    b.Property<int>("Posicao")
+                        .HasColumnType("integer")
+                        .HasColumnName("posicao");
+
+                    b.HasKey("ColetaneaId", "ConteudoId");
+
+                    b.HasIndex("ConteudoId");
+
+                    b.HasIndex("ColetaneaId", "Posicao")
+                        .HasDatabaseName("idx_conteudo_coletanea_posicao");
+
+                    b.ToTable("conteudo_coletanea", (string)null);
+                });
+
             modelBuilder.Entity("DiarioDeBordo.Core.Entidades.Relacao", b =>
                 {
                     b.Property<Guid>("Id")
@@ -473,6 +506,21 @@ namespace DiarioDeBordo.Persistencia.Migrations
                         .WithMany()
                         .HasForeignKey("ConteudoId")
                         .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("DiarioDeBordo.Core.Entidades.ConteudoColetanea", b =>
+                {
+                    b.HasOne("DiarioDeBordo.Core.Entidades.Conteudo", null)
+                        .WithMany()
+                        .HasForeignKey("ColetaneaId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("DiarioDeBordo.Core.Entidades.Conteudo", null)
+                        .WithMany()
+                        .HasForeignKey("ConteudoId")
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
                 });
 

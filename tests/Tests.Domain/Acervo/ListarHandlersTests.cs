@@ -23,11 +23,11 @@ public class ListarHandlersTests
         var queryService = Substitute.For<IConteudoQueryService>();
         var data = new ResultadoPaginado<ConteudoResumoData>(
             [new(Guid.NewGuid(), "Duna", FormatoMidia.Texto, PapelConteudo.Item,
-                 DateTimeOffset.UtcNow, Classificacao.Gostei, "Livro")],
+                 DateTimeOffset.UtcNow, Classificacao.Gostei, "Livro", null, null, null, null)],
             totalItems: 57,
             paginaAtual: 3,
             tamanhoPagina: 20);
-        queryService.ListarAsync(_usuarioId, Arg.Any<PaginacaoParams>(), Arg.Any<CancellationToken>())
+        queryService.ListarAsync(_usuarioId, Arg.Any<PaginacaoParams>(), Arg.Any<PapelConteudo?>(), Arg.Any<CancellationToken>())
             .Returns(data);
 
         var result = await new ListarConteudosHandler(queryService)
@@ -44,10 +44,10 @@ public class ListarHandlersTests
     {
         // Nota é omitida na listagem por performance — apenas no detalhe (comentário do handler)
         var queryService = Substitute.For<IConteudoQueryService>();
-        queryService.ListarAsync(_usuarioId, Arg.Any<PaginacaoParams>(), Arg.Any<CancellationToken>())
+        queryService.ListarAsync(_usuarioId, Arg.Any<PaginacaoParams>(), Arg.Any<PapelConteudo?>(), Arg.Any<CancellationToken>())
             .Returns(new ResultadoPaginado<ConteudoResumoData>(
                 [new(Guid.NewGuid(), "Fundação", FormatoMidia.Texto, PapelConteudo.Item,
-                     DateTimeOffset.UtcNow, null, null)],
+                     DateTimeOffset.UtcNow, null, null, null, null, null, null)],
                 1, 1, 20));
 
         var result = await new ListarConteudosHandler(queryService)

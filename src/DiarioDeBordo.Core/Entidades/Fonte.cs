@@ -9,5 +9,5 @@ public sealed class Fonte
     public TipoFonte Tipo { get; init; }
     public required string Valor { get; init; }
     public string? Plataforma { get; init; }
-    public int Prioridade { get; init; }
+    public int Prioridade { get; set; }
 }

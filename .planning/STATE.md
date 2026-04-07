@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: executing
-stopped_at: "Completed 03-06 Task 1 — Session timeline; awaiting checkpoint:human-verify"
-last_updated: "2026-04-06T00:33:35.306Z"
-last_activity: 2026-04-05
+status: verifying
+stopped_at: Phase 4 verification passed
+last_updated: "2026-04-07T15:24:47.157Z"
+last_activity: 2026-04-07
 progress:
   total_phases: 11
-  completed_phases: 3
-  total_plans: 21
-  completed_plans: 21
+  completed_phases: 4
+  total_plans: 26
+  completed_plans: 26
   percent: 0
 ---
 
@@ -21,14 +21,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-02)
 
 **Core value:** O usuário decide o quê, como e quanto consome — em um sistema projetado para não sabotar seu bem-estar.
-**Current focus:** Phase null
+**Current focus:** Phase 04 — curadoria-colet-neas-e-fontes
 
 ## Current Position
 
-Phase: null — EXECUTING
-Plan: 1 of ?
-Status: Executing Phase null
-Last activity: 2026-04-05
+Phase: 04 (curadoria-colet-neas-e-fontes) — EXECUTING
+Plan: 5 of 5
+Status: Phase complete — ready for verification
+Last activity: 2026-04-07
 
 Progress: [░░░░░░░░░░] 0%
 
@@ -66,6 +66,11 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 02 P09 | 3 | 3 tasks | 8 files |
 | Phase 02 P10 | 6 | 4 tasks | 8 files |
 | Phase 02 P08 | 45 | 3 tasks | 15 files |
+| Phase 04 P01 | 9 | 2 tasks | 15 files |
+| Phase 04 P02 | 6 | 2 tasks | 8 files |
+| Phase 04 P03 | 20 min | 2 tasks | 21 files |
+| Phase 04 P04 | 2 min | 3 tasks | 18 files |
+| Phase 04 P05 | 35 min | 1 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -105,6 +110,16 @@ Recent decisions affecting current work:
 - [Phase 02]: SukiUI 2.1.0 is theme-only for Avalonia 0.10.12 — no SukiWindow exists; FluentTheme used instead
 - [Phase 02]: BuildConnectionStringAsync added to IPostgresBootstrap interface — required for two-phase DI startup in App.axaml.cs
 - [Phase 02]: Func<T> factory pattern in DI for ViewModel creation — avoids service locator anti-pattern
+- [Phase 04]: ConteudoColetanea join entity with composite PK for collection items
+- [Phase 04]: SEG-02 enforced at BFS entry: validate starting collection belongs to user before traversal
+- [Phase 04]: Cycle detection for nested collections runs only when item papel is Coletanea and uses ObterDescendentesAsync.
+- [Phase 04]: Source/image write operations mutate Conteudo aggregate methods and map DomainException to Resultado failure.
+- [Phase 04]: CriarConteudoCommand expanded with Papel, TipoColetanea, Formato and IgnorarDuplicata, with pre-create dedup check.
+- [Phase 04]: ListarConteudosQuery recebeu PapelFiltro opcional para compatibilidade de call sites
+- [Phase 04]: Novos campos de ConteudoResumoDto com defaults null para evitar quebra em testes existentes
+- [Phase 04]: Strings da fase 4 aplicadas no resource path real Module.Acervo/Resources/Strings.resx
+- [Phase 04]: Scenarios 1-5 validated via MediatR + Testcontainers PostgreSQL integration tests.
+- [Phase 04]: Owned collections Fonte/Imagem queried via SelectMany from Conteudo aggregate, avoiding invalid DbSet access.
 
 ### Pending Todos
 
@@ -116,6 +131,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-04T00:47:11.121Z
-Stopped at: Completed 03-06 Task 1 — Session timeline; awaiting checkpoint:human-verify
+Last session: 2026-04-07T15:24:47.155Z
+Stopped at: Phase 4 verification passed
 Resume file: None

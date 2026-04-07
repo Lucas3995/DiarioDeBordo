@@ -19,7 +19,10 @@ public sealed record ConteudoDetalheDto(
     string? Subtipo,
     string EstadoProgresso,
     string? PosicaoAtual,
+    string? TipoColetanea,
     IReadOnlyList<CategoriaDto> Categorias,
     IReadOnlyList<RelacaoDto> Relacoes,
     IReadOnlyList<SessaoDto> Sessoes,
-    int SessoesContagem);
+    int SessoesContagem,
+    IReadOnlyList<FonteDto> Fontes,
+    IReadOnlyList<ImagemDto> Imagens);

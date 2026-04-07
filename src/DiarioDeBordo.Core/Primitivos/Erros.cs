@@ -20,6 +20,11 @@ public static class Erros
     public static readonly Erro CicloDetetadoNaComposicao = new("CICLO_COMPOSICAO", "Operação criaria ciclo na composição da coletânea.");
     public static readonly Erro PosicaoDuplicadaOuComLacuna = new("POSICAO_INVALIDA", "Posição duplicada ou com lacuna na coletânea guiada.");
     public static readonly Erro TipoColetaneaImutavel = new("TIPO_COLETANEA_IMUTAVEL", "TipoColetanea não pode ser alterado após criação.");
+    public static readonly Erro ColetaneaNaoEncontrada = new("COLETANEA_NAO_ENCONTRADA", "Coletânea não encontrada.");
+    public static readonly Erro ConteudoNaoEncontrado = new("CONTEUDO_NAO_ENCONTRADO", "Conteúdo não encontrado.");
+    public static readonly Erro AutoReferenciaColetanea = new("AUTO_REFERENCIA_COLETANEA", "Não é possível adicionar uma coletânea a si mesma.");
+    public static readonly Erro ItemJaNaColetanea = new("ITEM_JA_NA_COLETANEA", "Item já está na coletânea.");
+    public static readonly Erro DuplicataDetectada = new("DUPLICATA_DETECTADA", "Duplicata detectada.");
 
     // Acervo — Categoria
     public static readonly Erro NomeCategoriaObrigatorio = new("NOME_CATEGORIA_OBRIGATORIO", "Nome de categoria é obrigatório.");

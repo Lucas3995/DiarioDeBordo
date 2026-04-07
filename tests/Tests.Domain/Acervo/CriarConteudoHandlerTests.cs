@@ -1,3 +1,4 @@
+using DiarioDeBordo.Core.Consultas;
 using DiarioDeBordo.Core.Repositorios;
 using DiarioDeBordo.Module.Acervo.Commands;
 using MediatR;
@@ -13,11 +14,12 @@ public class CriarConteudoHandlerTests
 {
     private readonly IConteudoRepository _repo = Substitute.For<IConteudoRepository>();
     private readonly IPublisher _publisher = Substitute.For<IPublisher>();
+    private readonly IDeduplicacaoService _deduplicacaoService = Substitute.For<IDeduplicacaoService>();
     private readonly CriarConteudoHandler _handler;
 
     public CriarConteudoHandlerTests()
     {
-        _handler = new CriarConteudoHandler(_repo, _publisher);
+        _handler = new CriarConteudoHandler(_repo, _publisher, _deduplicacaoService);
     }
 
     // ---- I-01: Título vazio → Resultado.Failure ----

@@ -238,4 +238,190 @@
   <data name="Erro_NotaForaDaFaixa" xml:space="preserve">
     <value>A nota deve estar entre 0 e 10.</value>
   </data>
+
+  <!-- Phase 4 — Curadoria: Coletâneas e Fontes -->
+  <!-- Primary Actions -->
+  <data name="Acervo_Filtro_Todos" xml:space="preserve">
+    <value>Todos</value>
+  </data>
+  <data name="Acervo_Filtro_Itens" xml:space="preserve">
+    <value>Itens</value>
+  </data>
+  <data name="Acervo_Filtro_Coletaneas" xml:space="preserve">
+    <value>Coletâneas</value>
+  </data>
+  <data name="Coletanea_BotaoAdicionarItem" xml:space="preserve">
+    <value>Adicionar item</value>
+  </data>
+  <data name="Coletanea_BotaoAdicionarPrimeiroItem" xml:space="preserve">
+    <value>Adicionar primeiro item</value>
+  </data>
+  <data name="Fonte_BotaoAdicionar" xml:space="preserve">
+    <value>Adicionar fonte</value>
+  </data>
+  <data name="Imagem_BotaoEscolher" xml:space="preserve">
+    <value>Escolher imagem</value>
+  </data>
+  <data name="Imagem_BotaoRemover" xml:space="preserve">
+    <value>Remover</value>
+  </data>
+  <data name="Dedup_BotaoCriarMesmoAssim" xml:space="preserve">
+    <value>Criar mesmo assim</value>
+  </data>
+  <data name="Dedup_BotaoVerEste" xml:space="preserve">
+    <value>Ver este</value>
+  </data>
+  <data name="Modal_BotaoSalvarColetanea" xml:space="preserve">
+    <value>Salvar coletânea</value>
+  </data>
+  <data name="Modal_BotaoSalvarConteudo" xml:space="preserve">
+    <value>Salvar conteúdo</value>
+  </data>
+  <data name="Modal_BotaoCancelarEdicao" xml:space="preserve">
+    <value>Cancelar edição</value>
+  </data>
+
+  <!-- Empty States -->
+  <data name="Coletanea_EstadoVazio_Titulo" xml:space="preserve">
+    <value>Esta coletânea está vazia</value>
+  </data>
+  <data name="Coletanea_EstadoVazio_Descricao" xml:space="preserve">
+    <value>Adicione itens do acervo para organizar sua coleção.</value>
+  </data>
+  <data name="Fontes_EstadoVazio" xml:space="preserve">
+    <value>Nenhuma fonte registrada</value>
+  </data>
+  <data name="Acervo_EstadoVazio_Coletaneas_Titulo" xml:space="preserve">
+    <value>Nenhuma coletânea criada</value>
+  </data>
+  <data name="Acervo_EstadoVazio_Coletaneas_Descricao" xml:space="preserve">
+    <value>Crie uma coletânea para organizar seus conteúdos em grupos temáticos ou sequenciais.</value>
+  </data>
+  <data name="Imagem_SemCapa" xml:space="preserve">
+    <value>Sem imagem de capa</value>
+  </data>
+  <data name="AnotacaoContextual_Vazia" xml:space="preserve">
+    <value>Sem anotação nesta coletânea</value>
+  </data>
+
+  <!-- Error States -->
+  <data name="Erro_CicloColetanea" xml:space="preserve">
+    <value>Não é possível adicionar: criaria um ciclo de coletâneas.</value>
+  </data>
+  <data name="Erro_ImagemGrande" xml:space="preserve">
+    <value>A imagem excede o limite de 10 MB. Escolha um arquivo menor.</value>
+  </data>
+  <data name="Erro_ImagemFormato" xml:space="preserve">
+    <value>Formato não suportado. Use JPG, PNG ou WebP.</value>
+  </data>
+  <data name="Erro_FonteVazia" xml:space="preserve">
+    <value>O valor da fonte é obrigatório.</value>
+  </data>
+  <data name="Erro_FonteDuplicada" xml:space="preserve">
+    <value>Essa fonte já está registrada neste conteúdo.</value>
+  </data>
+  <data name="Erro_FalhaCarregarColetanea" xml:space="preserve">
+    <value>Não foi possível carregar a coletânea. Tente novamente.</value>
+  </data>
+  <data name="Erro_ItemJaNaColetanea" xml:space="preserve">
+    <value>Este item já faz parte desta coletânea.</value>
+  </data>
+
+  <!-- Dedup Warnings -->
+  <data name="Dedup_Alta_Titulo" xml:space="preserve">
+    <value>Fonte idêntica detectada</value>
+  </data>
+  <data name="Dedup_Media_Titulo" xml:space="preserve">
+    <value>Título semelhante encontrado</value>
+  </data>
+  <data name="Dedup_Candidato_Info" xml:space="preserve">
+    <value>"{0}" criado em {1}</value>
+  </data>
+  <data name="Dedup_OutrosSemelhantes" xml:space="preserve">
+    <value>e {0} outro(s) semelhante(s)</value>
+  </data>
+
+  <!-- Destructive Confirmations -->
+  <data name="Dialog_ExcluirColetanea_Titulo" xml:space="preserve">
+    <value>Excluir coletânea</value>
+  </data>
+  <data name="Dialog_ExcluirColetanea_Mensagem" xml:space="preserve">
+    <value>"{0}" será excluída permanentemente. Os itens dentro da coletânea NÃO serão excluídos — apenas a organização será perdida.</value>
+  </data>
+  <data name="Dialog_RemoverItemColetanea_Titulo" xml:space="preserve">
+    <value>Remover item da coletânea</value>
+  </data>
+  <data name="Dialog_RemoverItemColetanea_Mensagem" xml:space="preserve">
+    <value>"{0}" será removido de "{1}". O conteúdo permanece no acervo.</value>
+  </data>
+  <data name="Dialog_RemoverFonte_Titulo" xml:space="preserve">
+    <value>Remover fonte</value>
+  </data>
+  <data name="Dialog_RemoverFonte_Mensagem" xml:space="preserve">
+    <value>A fonte "{0}" será removida deste conteúdo.</value>
+  </data>
+
+  <!-- Section Headers -->
+  <data name="Secao_Fontes" xml:space="preserve">
+    <value>Fontes</value>
+  </data>
+  <data name="Label_TipoFonte" xml:space="preserve">
+    <value>Tipo de fonte</value>
+  </data>
+  <data name="Label_ValorFonte" xml:space="preserve">
+    <value>Valor</value>
+  </data>
+  <data name="Label_TipoColetanea" xml:space="preserve">
+    <value>Tipo de coletânea</value>
+  </data>
+  <data name="Label_AnotacaoContextual" xml:space="preserve">
+    <value>Anotação nesta coletânea</value>
+  </data>
+  <data name="Fonte_Watermark_Url" xml:space="preserve">
+    <value>https://...</value>
+  </data>
+  <data name="Fonte_Watermark_Arquivo" xml:space="preserve">
+    <value>/caminho/do/arquivo</value>
+  </data>
+  <data name="Fonte_Watermark_Rss" xml:space="preserve">
+    <value>URL do feed RSS</value>
+  </data>
+  <data name="Fonte_Watermark_Id" xml:space="preserve">
+    <value>Identificador único</value>
+  </data>
+  <data name="Coletanea_Watermark_Busca" xml:space="preserve">
+    <value>Buscar conteúdo do acervo...</value>
+  </data>
+  <data name="AnotacaoContextual_Watermark" xml:space="preserve">
+    <value>Escreva uma anotação sobre este item nesta coletânea...</value>
+  </data>
+  <data name="Coletanea_ProximoItem" xml:space="preserve">
+    <value>Próximo:</value>
+  </data>
+  <data name="Fontes_Resumo" xml:space="preserve">
+    <value>{0} fontes</value>
+  </data>
+  <data name="Fontes_Resumo_Vazio" xml:space="preserve">
+    <value>Sem fontes</value>
+  </data>
+  <data name="Coletanea_ResumoItens" xml:space="preserve">
+    <value>{0} itens</value>
+  </data>
+  <data name="Coletanea_Progresso" xml:space="preserve">
+    <value>{0} itens — {1}%</value>
+  </data>
+
+  <!-- Collection Type Labels -->
+  <data name="TipoColetanea_Guiada" xml:space="preserve">
+    <value>Guiada</value>
+  </data>
+  <data name="TipoColetanea_Miscelanea" xml:space="preserve">
+    <value>Miscelânea</value>
+  </data>
+  <data name="TipoColetanea_Guiada_Ajuda" xml:space="preserve">
+    <value>Itens em ordem sequencial com acompanhamento de progresso.</value>
+  </data>
+  <data name="TipoColetanea_Miscelanea_Ajuda" xml:space="preserve">
+    <value>Itens sem ordem definida.</value>
+  </data>
 </root>

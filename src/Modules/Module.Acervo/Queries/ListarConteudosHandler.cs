@@ -23,7 +23,7 @@ internal sealed class ListarConteudosHandler
         ListarConteudosQuery query, CancellationToken ct)
     {
         var data = await _queryService
-            .ListarAsync(query.UsuarioId, query.Paginacao, ct)
+            .ListarAsync(query.UsuarioId, query.Paginacao, query.PapelFiltro, ct)
             .ConfigureAwait(false);
 
         var dtos = data.Items
@@ -35,7 +35,11 @@ internal sealed class ListarConteudosHandler
                 d.CriadoEm,
                 d.Classificacao,
                 d.Subtipo,
-                null))  // Nota not included in list view for performance (detail view has it)
+                null,
+                d.TipoColetanea?.ToString(),
+                d.QuantidadeItens,
+                d.ProgressoPercentual,
+                d.ImagemCapaCaminho))
             .ToList()
             .AsReadOnly();
 

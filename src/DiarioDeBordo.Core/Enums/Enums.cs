@@ -9,3 +9,6 @@ public enum EstadoProgresso { NaoIniciado, EmAndamento, Concluido }
 
 /// <summary>Reação imediata do usuário ao conteúdo. Null = não classificado (D-08).</summary>
 public enum Classificacao { Gostei, NaoGostei }
+
+/// <summary>Nível de confiança na detecção de duplicata (D-07).</summary>
+public enum NivelConfiancaDuplicata { Alta, Media }

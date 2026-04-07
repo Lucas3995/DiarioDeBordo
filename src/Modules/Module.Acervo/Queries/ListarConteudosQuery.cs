@@ -1,4 +1,5 @@
 using DiarioDeBordo.Core.Primitivos;
+using DiarioDeBordo.Core.Enums;
 using DiarioDeBordo.Module.Acervo.DTOs;
 using DiarioDeBordo.Module.Shared.Paginacao;
 using MediatR;
@@ -11,7 +12,8 @@ namespace DiarioDeBordo.Module.Acervo.Queries;
 /// </summary>
 public sealed record ListarConteudosQuery(
     Guid UsuarioId,
-    PaginacaoParams Paginacao) : IRequest<Resultado<PaginatedList<ConteudoResumoDto>>>;
+    PaginacaoParams Paginacao,
+    PapelConteudo? PapelFiltro = null) : IRequest<Resultado<PaginatedList<ConteudoResumoDto>>>;
 
 /// <summary>Obtém o detalhe de um conteúdo específico do acervo do usuário.</summary>
 public sealed record ObterConteudoQuery(

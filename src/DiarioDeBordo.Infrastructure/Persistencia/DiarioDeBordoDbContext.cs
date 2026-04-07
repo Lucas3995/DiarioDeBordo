@@ -16,6 +16,7 @@ public sealed class DiarioDeBordoDbContext : DbContext
     public DbSet<TipoRelacao> TipoRelacoes => Set<TipoRelacao>();
     public DbSet<Relacao> Relacoes => Set<Relacao>();
     public DbSet<ConteudoCategoria> ConteudoCategorias => Set<ConteudoCategoria>();
+    public DbSet<ConteudoColetanea> ConteudoColetaneas => Set<ConteudoColetanea>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

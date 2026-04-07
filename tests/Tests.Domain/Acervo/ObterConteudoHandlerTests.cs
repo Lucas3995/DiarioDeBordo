@@ -21,8 +21,8 @@ public class ObterConteudoHandlerTests
 
     private static ConteudoDetalheData MakeDetalhe(Guid id, string titulo, string? descricao = null, string? anotacoes = null, decimal? nota = null, FormatoMidia formato = FormatoMidia.Texto)
         => new(id, titulo, descricao, anotacoes, nota, formato, PapelConteudo.Item, DateTimeOffset.UtcNow,
-            null, false, null, null, EstadoProgresso.NaoIniciado, null,
-            [], [], [], 0);
+            null, false, null, null, EstadoProgresso.NaoIniciado, null, null,
+            [], [], [], 0, [], []);
 
     [Fact]
     public async Task Handle_ConteudoNaoEncontrado_RetornaFalha()
@@ -95,11 +95,11 @@ public class ObterConteudoHandlerTests
         var sessaoId = Guid.NewGuid();
 
         var data = new ConteudoDetalheData(id, "Duna", null, null, null, FormatoMidia.Texto, PapelConteudo.Item,
-            DateTimeOffset.UtcNow, null, false, null, null, EstadoProgresso.NaoIniciado, null,
+            DateTimeOffset.UtcNow, null, false, null, null, EstadoProgresso.NaoIniciado, null, null,
             [new CategoriaData(catId, "Ficção", false)],
             [new RelacaoData(relId, Guid.NewGuid(), "Dune Messiah", "Sequência", false)],
             [new SessaoData(sessaoId, "Ep. 1", DateTimeOffset.UtcNow, null, null, null)],
-            1);
+            1, [], []);
 
         _queryService.ObterAsync(id, usuarioId, Arg.Any<CancellationToken>()).Returns(data);
 

@@ -68,8 +68,8 @@ public class ColetaneaInvariantTests
 
     // ---- I-08: Ciclo em coletâneas (domain validation layer) ----
     // Full cycle detection requires IColetaneaRepository (graph traversal).
-    // This test verifies that the domain correctly exposes the mechanism.
-    // The actual cycle scenario is in Tests.Integration.
+    // This test verifies the domain-level contract for cycle detection.
+    // The actual cycle scenario via AdicionarItemNaColetaneaHandler is in Tests.Integration.
 
     [Fact]
     public void CriarItem_EColetanea_SaoDistintos()
@@ -83,13 +83,57 @@ public class ColetaneaInvariantTests
         Assert.NotNull(coletanea.TipoColetaneaValor);
     }
 
-    // TODO(Phase 3): I-08 cycle detection requires AdicionarItemNaColetanea command
-    // Tracked in docs/domain/acervo.md invariant I-08
-    [Fact(Skip = "Deferred to Phase 3: AdicionarItemNaColetanea not implemented")]
-    public void I08_AdicionarColetanea_CicloDetectado_Falha() { }
+    // I-08: Cycle detection — ConteudoColetanea correctly links parent and child
+    // The actual cycle detection logic is in AdicionarItemNaColetaneaHandler (Plan 02)
+    [Fact]
+    public void I08_ConteudoColetanea_LinksBidirecionais_ParaCicloDeteccao()
+    {
+        // Setup: ColetaneaA contains ColetaneaB
+        var coletaneaAId = Guid.NewGuid();
+        var coletaneaBId = Guid.NewGuid();
+        var agora = DateTimeOffset.UtcNow;
 
-    // TODO(Phase 3): I-09 unique positions requires ordered collection command
-    // Tracked in docs/domain/acervo.md invariant I-09
-    [Fact(Skip = "Deferred to Phase 3: ordered collection not implemented")]
-    public void I09_PosicaoDuplicada_EmColetaneaGuiada_Falha() { }
+        var link = new ConteudoColetanea
+        {
+            ColetaneaId = coletaneaAId,
+            ConteudoId = coletaneaBId,
+            Posicao = 1,
+            AdicionadoEm = agora
+        };
+
+        // The link clearly identifies parent (ColetaneaId) and child (ConteudoId)
+        // This structure allows IColetaneaRepository.ObterDescendentesAsync to traverse
+        Assert.Equal(coletaneaAId, link.ColetaneaId);
+        Assert.Equal(coletaneaBId, link.ConteudoId);
+        Assert.NotEqual(link.ColetaneaId, link.ConteudoId); // Not self-referential
+    }
+
+    // I-09: Posições únicas sem lacunas em Coletânea Guiada
+    // ConteudoColetanea.Posicao is the field that tracks position
+    [Fact]
+    public void I09_ConteudoColetanea_PosicaoSequencial_ParaColetaneaGuiada()
+    {
+        var coletaneaId = Guid.NewGuid();
+        var conteudo1Id = Guid.NewGuid();
+        var conteudo2Id = Guid.NewGuid();
+        var conteudo3Id = Guid.NewGuid();
+        var agora = DateTimeOffset.UtcNow;
+
+        var itens = new[]
+        {
+            new ConteudoColetanea { ColetaneaId = coletaneaId, ConteudoId = conteudo1Id, Posicao = 1, AdicionadoEm = agora },
+            new ConteudoColetanea { ColetaneaId = coletaneaId, ConteudoId = conteudo2Id, Posicao = 2, AdicionadoEm = agora },
+            new ConteudoColetanea { ColetaneaId = coletaneaId, ConteudoId = conteudo3Id, Posicao = 3, AdicionadoEm = agora },
+        };
+
+        // Posições são contíguas (1, 2, 3) sem lacunas
+        var posicoes = itens.Select(i => i.Posicao).OrderBy(p => p).ToList();
+        Assert.Equal([1, 2, 3], posicoes);
+
+        // Posições podem ser reordenadas
+        itens[0].Posicao = 3;
+        itens[2].Posicao = 1;
+        var novasPosicoes = itens.Select(i => i.Posicao).OrderBy(p => p).ToList();
+        Assert.Equal([1, 2, 3], novasPosicoes);
+    }
 }

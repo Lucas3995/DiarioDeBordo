@@ -1,4 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
+using DiarioDeBordo.Core.Consultas;
 using DiarioDeBordo.Core.Entidades;
 using DiarioDeBordo.Core.Eventos;
 using DiarioDeBordo.Core.Primitivos;
@@ -13,11 +14,16 @@ internal sealed class CriarConteudoHandler : IRequestHandler<CriarConteudoComman
 {
     private readonly IConteudoRepository _repo;
     private readonly IPublisher _mediator;
+    private readonly IDeduplicacaoService _deduplicacaoService;
 
-    public CriarConteudoHandler(IConteudoRepository repo, IPublisher mediator)
+    public CriarConteudoHandler(
+        IConteudoRepository repo,
+        IPublisher mediator,
+        IDeduplicacaoService deduplicacaoService)
     {
         _repo = repo;
         _mediator = mediator;
+        _deduplicacaoService = deduplicacaoService;
     }
 
     public async Task<Resultado<Guid>> Handle(CriarConteudoCommand cmd, CancellationToken ct)
@@ -26,13 +32,27 @@ internal sealed class CriarConteudoHandler : IRequestHandler<CriarConteudoComman
         if (string.IsNullOrWhiteSpace(cmd.Titulo))
             return Resultado<Guid>.Failure(Erros.TituloObrigatorio);
 
+        if (!cmd.IgnorarDuplicata && cmd.Titulo.Trim().Length >= 3)
+        {
+            var duplicata = await _deduplicacaoService
+                .VerificarAsync(cmd.UsuarioId, cmd.Titulo, null, ct)
+                .ConfigureAwait(false);
+            if (duplicata is not null)
+                return Resultado<Guid>.Failure(new Erro(
+                    Erros.DuplicataDetectada.Codigo,
+                    $"{Erros.DuplicataDetectada.Mensagem} Use VerificarDuplicataQuery para inspecionar o candidato."));
+        }
+
         Conteudo conteudo;
         try
         {
             // Domain factory enforces invariants (I-01, I-02) via DomainException
             conteudo = Conteudo.Criar(
                 usuarioId: cmd.UsuarioId,
-                titulo: cmd.Titulo);
+                titulo: cmd.Titulo,
+                papel: cmd.Papel,
+                tipoColetanea: cmd.TipoColetanea,
+                formato: cmd.Formato);
 
             // Optional fields filled at creation via progressive disclosure
             if (!string.IsNullOrWhiteSpace(cmd.Descricao))
