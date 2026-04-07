@@ -18,15 +18,15 @@ Requirements for initial release. Each maps to roadmap phases.
 - [ ] **ACE-02**: Atributos completos: título (único obrigatório), descrição, anotações, nota (avaliação pessoal), classificação (rating), progresso (estado + campo manual), histórico de consumo
 - [ ] **ACE-03**: Categorias como tags livres com autocompletar e não-duplicação
 - [ ] **ACE-04**: Relações entre conteúdos com bidirecionalidade e tipos de relação (ex: sequência, derivado de, referenciado em)
-- [ ] **ACE-05**: Fontes com prioridade e fallback; hierarquia de autoridade de metadados (manual > automático)
+- [x] **ACE-05**: Fontes com prioridade e fallback; hierarquia de autoridade de metadados (manual > automático)
 - [x] **ACE-09**: Paginação obrigatória em todas as listagens *(validated Phase 2)*
-- [ ] **ACE-10**: Deduplicação de conteúdo
+- [x] **ACE-10**: Deduplicação de conteúdo
 
 ### Acervo — Coletâneas
 
-- [ ] **ACE-06**: Coletâneas: Guiada (sequencial com acompanhamento de progresso), Miscelânea (livre), Subscrição (alimentada por fontes externas via Agregação)
-- [ ] **ACE-07**: Composição de coletâneas (coletânea contendo coletâneas) com proteção contra ciclos
-- [ ] **ACE-08**: Anotações contextuais pertencentes à relação conteúdo-coletânea (não ao conteúdo em si)
+- [x] **ACE-06**: Coletâneas: Guiada (sequencial com acompanhamento de progresso), Miscelânea (livre), Subscrição (alimentada por fontes externas via Agregação)
+- [x] **ACE-07**: Composição de coletâneas (coletânea contendo coletâneas) com proteção contra ciclos
+- [x] **ACE-08**: Anotações contextuais pertencentes à relação conteúdo-coletânea (não ao conteúdo em si)
 
 ### Integração Externa
 
@@ -126,12 +126,12 @@ Explicitly excluded. Documented to prevent scope creep.
 | ACE-02 | Phase 3 | Pending |
 | ACE-03 | Phase 3 | Pending (partially validated Phase 2 — dedup, isolation, autocomplete) |
 | ACE-04 | Phase 3 | Pending |
-| ACE-05 | Phase 4 | Pending |
-| ACE-06 | Phase 4 | Pending |
-| ACE-07 | Phase 4 | Pending |
-| ACE-08 | Phase 4 | Pending |
+| ACE-05 | Phase 4 | Complete |
+| ACE-06 | Phase 4 | Complete |
+| ACE-07 | Phase 4 | Complete |
+| ACE-08 | Phase 4 | Complete |
 | ACE-09 | Phase 3 | **Validated** ✅ (Phase 2) |
-| ACE-10 | Phase 4 | Pending |
+| ACE-10 | Phase 4 | Complete |
 | INT-01 | Phase 5 | Pending |
 | INT-02 | Phase 5 | Pending |
 | INT-03 | Phase 5 | Pending |
