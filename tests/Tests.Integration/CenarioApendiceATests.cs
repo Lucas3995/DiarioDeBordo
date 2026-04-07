@@ -277,6 +277,65 @@ public sealed class CenarioApendiceATests : IAsyncLifetime
         Assert.True((await mediator.Send(new AdicionarItemNaColetaneaCommand(planoResult.Value, postMain.Value, _usuarioId))).IsSuccess);
         Assert.True((await mediator.Send(new AdicionarItemNaColetaneaCommand(planoResult.Value, cyberResult.Value, _usuarioId))).IsSuccess);
 
+        var itensOrdenadosInicial = await mediator.Send(new ListarItensColetaneaQuery(
+            planoResult.Value,
+            _usuarioId,
+            new PaginacaoParams(1, 10)));
+        Assert.True(itensOrdenadosInicial.IsSuccess);
+        Assert.Equal(4, itensOrdenadosInicial.Value!.TotalItems);
+        Assert.Equal("SOLID Principles", itensOrdenadosInicial.Value.Items[0].Titulo);
+        Assert.Equal("Clean Architecture Video", itensOrdenadosInicial.Value.Items[1].Titulo);
+        Assert.Equal("Refactoring Checklist", itensOrdenadosInicial.Value.Items[2].Titulo);
+        Assert.Equal("Fundamentos de Cybersecurity", itensOrdenadosInicial.Value.Items[3].Titulo);
+        Assert.Equal(1, itensOrdenadosInicial.Value.Items[0].Posicao);
+        Assert.Equal(2, itensOrdenadosInicial.Value.Items[1].Posicao);
+        Assert.Equal(3, itensOrdenadosInicial.Value.Items[2].Posicao);
+        Assert.Equal(4, itensOrdenadosInicial.Value.Items[3].Posicao);
+
+        var detalheInicial = await mediator.Send(new ObterColetaneaDetalheQuery(planoResult.Value, _usuarioId));
+        Assert.True(detalheInicial.IsSuccess);
+        Assert.Equal(0m, detalheInicial.Value!.ProgressoPercentual);
+
+        var progressoItem1 = await mediator.Send(new AtualizarConteudoCommand(
+            artigoMain.Value,
+            _usuarioId,
+            "SOLID Principles",
+            null,
+            null,
+            null,
+            null,
+            FormatoMidia.Texto,
+            null,
+            EstadoProgresso.Concluido,
+            null,
+            null,
+            []));
+        Assert.True(progressoItem1.IsSuccess);
+
+        var detalheAposPrimeiro = await mediator.Send(new ObterColetaneaDetalheQuery(planoResult.Value, _usuarioId));
+        Assert.True(detalheAposPrimeiro.IsSuccess);
+        Assert.Equal(25m, detalheAposPrimeiro.Value!.ProgressoPercentual);
+
+        var progressoItem2 = await mediator.Send(new AtualizarConteudoCommand(
+            videoMain.Value,
+            _usuarioId,
+            "Clean Architecture Video",
+            null,
+            null,
+            null,
+            null,
+            FormatoMidia.Video,
+            null,
+            EstadoProgresso.Concluido,
+            null,
+            null,
+            []));
+        Assert.True(progressoItem2.IsSuccess);
+
+        var detalheAposSegundo = await mediator.Send(new ObterColetaneaDetalheQuery(planoResult.Value, _usuarioId));
+        Assert.True(detalheAposSegundo.IsSuccess);
+        Assert.Equal(50m, detalheAposSegundo.Value!.ProgressoPercentual);
+
         var detalheResult = await mediator.Send(new ObterColetaneaDetalheQuery(planoResult.Value, _usuarioId));
         var itensResult = await mediator.Send(new ListarItensColetaneaQuery(
             planoResult.Value,
@@ -294,6 +353,54 @@ public sealed class CenarioApendiceATests : IAsyncLifetime
         Assert.Equal("Coletanea", nestedCollection.Papel);
         Assert.Equal("Guiada", nestedCollection.TipoColetanea);
         Assert.Equal(3, nestedCollection.SubItensContagem);
+    }
+
+    [Fact]
+    public async Task Cenario_ACE05_MetadadoManualPrevaleceSobreAutomatico()
+    {
+        using var scope = _services.CreateScope();
+        var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+
+        var conteudoResult = await mediator.Send(new CriarConteudoCommand(
+            _usuarioId,
+            "Faixa de Teste",
+            Descricao: "Descricao manual prioritaria",
+            Anotacoes: "Anotacao manual prioritaria",
+            Formato: FormatoMidia.Audio));
+        Assert.True(conteudoResult.IsSuccess);
+        var conteudoId = conteudoResult.Value;
+
+        var fonteLocal = await mediator.Send(new AdicionarFonteCommand(
+            conteudoId,
+            _usuarioId,
+            TipoFonte.ArquivoLocal,
+            "/mnt/musicas/faixa_teste.flac",
+            "Local"));
+        var fonteSpotify = await mediator.Send(new AdicionarFonteCommand(
+            conteudoId,
+            _usuarioId,
+            TipoFonte.Url,
+            "https://open.spotify.com/track/manual-priority-case",
+            "Spotify"));
+        var fonteYoutube = await mediator.Send(new AdicionarFonteCommand(
+            conteudoId,
+            _usuarioId,
+            TipoFonte.Url,
+            "https://youtube.com/watch?v=manualpriority",
+            "YouTube"));
+
+        Assert.True(fonteLocal.IsSuccess);
+        Assert.True(fonteSpotify.IsSuccess);
+        Assert.True(fonteYoutube.IsSuccess);
+
+        var detalhe = await mediator.Send(new ObterConteudoQuery(conteudoId, _usuarioId));
+        Assert.True(detalhe.IsSuccess);
+        Assert.Equal("Descricao manual prioritaria", detalhe.Value!.Descricao);
+        Assert.Equal("Anotacao manual prioritaria", detalhe.Value.Anotacoes);
+        Assert.Equal(3, detalhe.Value.Fontes.Count);
+        Assert.Equal("ArquivoLocal", detalhe.Value.Fontes[0].Tipo);
+        Assert.Equal("Spotify", detalhe.Value.Fontes[1].Plataforma);
+        Assert.Equal("YouTube", detalhe.Value.Fontes[2].Plataforma);
     }
 
     [Fact]
