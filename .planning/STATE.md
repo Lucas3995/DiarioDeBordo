@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 04-02-PLAN.md
-last_updated: "2026-04-07T14:09:26.483Z"
+stopped_at: Completed 04-03-PLAN.md
+last_updated: "2026-04-07T14:27:48.828Z"
 last_activity: 2026-04-07
 progress:
   total_phases: 11
   completed_phases: 3
   total_plans: 26
-  completed_plans: 23
+  completed_plans: 24
   percent: 0
 ---
 
@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (updated 2026-04-02)
 ## Current Position
 
 Phase: 04 (curadoria-colet-neas-e-fontes) — EXECUTING
-Plan: 3 of 5
+Plan: 4 of 5
 Status: Ready to execute
 Last activity: 2026-04-07
 
@@ -68,6 +68,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 02 P08 | 45 | 3 tasks | 15 files |
 | Phase 04 P01 | 9 | 2 tasks | 15 files |
 | Phase 04 P02 | 6 | 2 tasks | 8 files |
+| Phase 04 P03 | 20 min | 2 tasks | 21 files |
 
 ## Accumulated Context
 
@@ -109,6 +110,9 @@ Recent decisions affecting current work:
 - [Phase 02]: Func<T> factory pattern in DI for ViewModel creation — avoids service locator anti-pattern
 - [Phase 04]: ConteudoColetanea join entity with composite PK for collection items
 - [Phase 04]: SEG-02 enforced at BFS entry: validate starting collection belongs to user before traversal
+- [Phase 04]: Cycle detection for nested collections runs only when item papel is Coletanea and uses ObterDescendentesAsync.
+- [Phase 04]: Source/image write operations mutate Conteudo aggregate methods and map DomainException to Resultado failure.
+- [Phase 04]: CriarConteudoCommand expanded with Papel, TipoColetanea, Formato and IgnorarDuplicata, with pre-create dedup check.
 
 ### Pending Todos
 
@@ -120,6 +124,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-07T14:09:26.481Z
-Stopped at: Completed 04-02-PLAN.md
+Last session: 2026-04-07T14:27:48.826Z
+Stopped at: Completed 04-03-PLAN.md
 Resume file: None
