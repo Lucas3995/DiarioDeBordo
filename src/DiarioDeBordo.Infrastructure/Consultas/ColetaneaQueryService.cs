@@ -106,8 +106,10 @@ internal sealed class ColetaneaQueryService : IColetaneaQueryService
             : 0m;
 
         // Get primary cover image path
-        var imagemCapaCaminho = await _context.Set<Core.Entidades.ImagemConteudo>()
-            .Where(i => i.ConteudoId == coletaneaId && i.Principal)
+        var imagemCapaCaminho = await _context.Conteudos
+            .Where(c => c.Id == coletaneaId && c.UsuarioId == usuarioId)
+            .SelectMany(c => c.Imagens)
+            .Where(i => i.Principal)
             .Select(i => i.Caminho)
             .FirstOrDefaultAsync(ct)
             .ConfigureAwait(false);

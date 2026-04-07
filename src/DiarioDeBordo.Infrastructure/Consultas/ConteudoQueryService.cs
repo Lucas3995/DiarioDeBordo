@@ -124,16 +124,18 @@ internal sealed class ConteudoQueryService : IConteudoQueryService
             .ConfigureAwait(false);
 
         // Fontes query
-        var fontes = await _context.Set<Core.Entidades.Fonte>()
-            .Where(f => f.ConteudoId == id)
+        var fontes = await _context.Conteudos
+            .Where(c => c.Id == id && c.UsuarioId == usuarioId)
+            .SelectMany(c => c.Fontes)
             .OrderBy(f => f.Prioridade)
             .Select(f => new FonteData(f.Id, f.Tipo, f.Valor, f.Plataforma, f.Prioridade))
             .ToListAsync(ct)
             .ConfigureAwait(false);
 
         // Imagens query
-        var imagens = await _context.Set<Core.Entidades.ImagemConteudo>()
-            .Where(i => i.ConteudoId == id)
+        var imagens = await _context.Conteudos
+            .Where(c => c.Id == id && c.UsuarioId == usuarioId)
+            .SelectMany(c => c.Imagens)
             .Select(i => new ImagemData(i.Id, i.Caminho, i.OrigemTipo, i.Principal))
             .ToListAsync(ct)
             .ConfigureAwait(false);
