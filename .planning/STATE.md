@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: executing
-stopped_at: Completed 04-04-PLAN.md
-last_updated: "2026-04-07T14:44:32.109Z"
+status: verifying
+stopped_at: Completed 04-05-PLAN.md
+last_updated: "2026-04-07T14:53:43.244Z"
 last_activity: 2026-04-07
 progress:
   total_phases: 11
-  completed_phases: 3
+  completed_phases: 4
   total_plans: 26
-  completed_plans: 25
+  completed_plans: 26
   percent: 0
 ---
 
@@ -27,7 +27,7 @@ See: .planning/PROJECT.md (updated 2026-04-02)
 
 Phase: 04 (curadoria-colet-neas-e-fontes) — EXECUTING
 Plan: 5 of 5
-Status: Ready to execute
+Status: Phase complete — ready for verification
 Last activity: 2026-04-07
 
 Progress: [░░░░░░░░░░] 0%
@@ -70,6 +70,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 04 P02 | 6 | 2 tasks | 8 files |
 | Phase 04 P03 | 20 min | 2 tasks | 21 files |
 | Phase 04 P04 | 2 min | 3 tasks | 18 files |
+| Phase 04 P05 | 35 min | 1 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -117,6 +118,8 @@ Recent decisions affecting current work:
 - [Phase 04]: ListarConteudosQuery recebeu PapelFiltro opcional para compatibilidade de call sites
 - [Phase 04]: Novos campos de ConteudoResumoDto com defaults null para evitar quebra em testes existentes
 - [Phase 04]: Strings da fase 4 aplicadas no resource path real Module.Acervo/Resources/Strings.resx
+- [Phase 04]: Scenarios 1-5 validated via MediatR + Testcontainers PostgreSQL integration tests.
+- [Phase 04]: Owned collections Fonte/Imagem queried via SelectMany from Conteudo aggregate, avoiding invalid DbSet access.
 
 ### Pending Todos
 
@@ -128,6 +131,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-07T14:44:32.106Z
-Stopped at: Completed 04-04-PLAN.md
+Last session: 2026-04-07T14:53:43.241Z
+Stopped at: Completed 04-05-PLAN.md
 Resume file: None

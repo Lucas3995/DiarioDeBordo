@@ -85,7 +85,7 @@ Requirements for initial release. Each maps to roadmap phases.
 - [x] **SEG-01**: Threat model criado antes da implementação das camadas de rede e persistência
 - [ ] **SEG-02**: Cobertura de testes automatizados ≥ 95% (unitário + integração + e2e), mantida continuamente *(gate configured Phase 2 — enforced in CI; full measurement pending more phases)*
 - [x] **SEG-03**: 100% dos invariantes de domínio cobertos por testes automatizados *(44/44 active invariants validated Phase 2; I-08/I-09 are Phase 3 stubs)*
-- [ ] **SEG-04**: Todos os cenários do Apêndice A da Definição de Domínio v3 executáveis e testados de ponta a ponta
+- [x] **SEG-04**: Todos os cenários do Apêndice A da Definição de Domínio v3 executáveis e testados de ponta a ponta
 - [ ] **SEG-05**: Pentest full scope por milestone (superfícies locais, de rede, integrações externas, dados persistidos)
 - [ ] **SEG-06**: Conformidade WCAG 2.2 AAA em toda a interface
 - [x] **SEG-07**: ADRs documentados em docs/adr/ para cada decisão arquitetural relevante
@@ -166,7 +166,7 @@ Explicitly excluded. Documented to prevent scope creep.
 | SEG-01 | Phase 1 | Complete |
 | SEG-02 | Phase 2 | Gate configured ✅ (full measurement pending Phase 3+) |
 | SEG-03 | Phase 2 | **Validated** ✅ (44/44 active invariants; I-08/I-09 Phase 3 stubs) |
-| SEG-04 | Phase 4 | Pending |
+| SEG-04 | Phase 4 | Complete |
 | SEG-05 | Phase 11 | Pending |
 | SEG-06 | Phase 9 | Pending |
 | SEG-07 | Phase 1 | Complete |
