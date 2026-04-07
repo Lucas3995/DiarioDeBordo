@@ -38,7 +38,9 @@ internal sealed class CriarConteudoHandler : IRequestHandler<CriarConteudoComman
                 .VerificarAsync(cmd.UsuarioId, cmd.Titulo, null, ct)
                 .ConfigureAwait(false);
             if (duplicata is not null)
-                return Resultado<Guid>.Failure(Erros.DuplicataDetectada);
+                return Resultado<Guid>.Failure(new Erro(
+                    Erros.DuplicataDetectada.Codigo,
+                    $"{Erros.DuplicataDetectada.Mensagem} Use VerificarDuplicataQuery para inspecionar o candidato."));
         }
 
         Conteudo conteudo;

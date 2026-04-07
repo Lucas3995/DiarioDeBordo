@@ -35,41 +35,87 @@ internal sealed class ConteudoQueryService : IConteudoQueryService
             .CountAsync(ct)
             .ConfigureAwait(false);
 
-        var items = await query
+        var pageItems = await query
             .OrderByDescending(c => c.CriadoEm)
             .Skip(paginacao.Offset)
             .Take(paginacao.ItensPorPagina)
-            .Select(c => new ConteudoResumoData(
-                c.Id, c.Titulo, c.Formato, c.Papel, c.CriadoEm, c.Classificacao, c.Subtipo,
+            .Select(c => new
+            {
+                c.Id,
+                c.Titulo,
+                c.Formato,
+                c.Papel,
+                c.CriadoEm,
+                c.Classificacao,
+                c.Subtipo,
                 c.TipoColetaneaValor,
-                // QuantidadeItens: count of items via ConteudoColetanea join table
-                c.Papel == PapelConteudo.Coletanea
-                    ? _context.ConteudoColetaneas
-                        .Where(cc => cc.ColetaneaId == c.Id)
-                        .Join(_context.Conteudos,
-                            cc => cc.ConteudoId, item => item.Id,
-                            (cc, item) => item.UsuarioId)
-                        .Count(uid => uid == usuarioId)
-                    : (int?)null,
-                // ProgressoPercentual: computed from items with EstadoProgresso.Concluido
-                c.Papel == PapelConteudo.Coletanea
-                    ? _context.ConteudoColetaneas
-                        .Where(cc => cc.ColetaneaId == c.Id)
-                        .Join(_context.Conteudos, cc => cc.ConteudoId, item => item.Id, (cc, item) => item)
-                        .Count(item => item.UsuarioId == usuarioId && item.Progresso.Estado == EstadoProgresso.Concluido) * 100m /
-                      (_context.ConteudoColetaneas
-                          .Where(cc => cc.ColetaneaId == c.Id)
-                          .Join(_context.Conteudos, cc => cc.ConteudoId, item => item.Id, (cc, item) => item.UsuarioId)
-                          .Count(uid => uid == usuarioId) == 0
-                           ? 1
-                           : _context.ConteudoColetaneas
-                               .Where(cc => cc.ColetaneaId == c.Id)
-                               .Join(_context.Conteudos, cc => cc.ConteudoId, item => item.Id, (cc, item) => item.UsuarioId)
-                               .Count(uid => uid == usuarioId))
-                    : (decimal?)null,
-                c.Imagens.Where(i => i.Principal).Select(i => i.Caminho).FirstOrDefault()))
+                ImagemCapaCaminho = c.Imagens.Where(i => i.Principal).Select(i => i.Caminho).FirstOrDefault(),
+            })
             .ToListAsync(ct)
             .ConfigureAwait(false);
+
+        var coletaneaIds = pageItems
+            .Where(i => i.Papel == PapelConteudo.Coletanea)
+            .Select(i => i.Id)
+            .ToList();
+
+        var estatisticasPorColetanea = new Dictionary<Guid, (int TotalItens, int ItensConcluidos)>();
+        if (coletaneaIds.Count > 0)
+        {
+            var estatisticas = await _context.ConteudoColetaneas
+                .Where(cc => coletaneaIds.Contains(cc.ColetaneaId))
+                .Join(_context.Conteudos.Where(c => c.UsuarioId == usuarioId),
+                    cc => cc.ConteudoId, c => c.Id,
+                    (cc, c) => new { cc.ColetaneaId, c.Progresso.Estado })
+                .GroupBy(x => x.ColetaneaId)
+                .Select(g => new
+                {
+                    ColetaneaId = g.Key,
+                    TotalItens = g.Count(),
+                    ItensConcluidos = g.Count(x => x.Estado == EstadoProgresso.Concluido),
+                })
+                .ToListAsync(ct)
+                .ConfigureAwait(false);
+
+            estatisticasPorColetanea = estatisticas.ToDictionary(
+                e => e.ColetaneaId,
+                e => (e.TotalItens, e.ItensConcluidos));
+        }
+
+        var items = pageItems.Select(i =>
+        {
+            int? quantidadeItens = null;
+            decimal? progressoPercentual = null;
+
+            if (i.Papel == PapelConteudo.Coletanea)
+            {
+                if (estatisticasPorColetanea.TryGetValue(i.Id, out var stats))
+                {
+                    quantidadeItens = stats.TotalItens;
+                    progressoPercentual = stats.TotalItens > 0
+                        ? Math.Round(stats.ItensConcluidos * 100m / stats.TotalItens, 2)
+                        : 0m;
+                }
+                else
+                {
+                    quantidadeItens = 0;
+                    progressoPercentual = 0m;
+                }
+            }
+
+            return new ConteudoResumoData(
+                i.Id,
+                i.Titulo,
+                i.Formato,
+                i.Papel,
+                i.CriadoEm,
+                i.Classificacao,
+                i.Subtipo,
+                i.TipoColetaneaValor,
+                quantidadeItens,
+                progressoPercentual,
+                i.ImagemCapaCaminho);
+        }).ToList();
 
         return new ResultadoPaginado<ConteudoResumoData>(
             items.AsReadOnly(), total, paginacao.Pagina, paginacao.ItensPorPagina);
