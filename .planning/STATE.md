@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 04-03-PLAN.md
-last_updated: "2026-04-07T14:27:48.828Z"
+stopped_at: Completed 04-04-PLAN.md
+last_updated: "2026-04-07T14:44:32.109Z"
 last_activity: 2026-04-07
 progress:
   total_phases: 11
   completed_phases: 3
   total_plans: 26
-  completed_plans: 24
+  completed_plans: 25
   percent: 0
 ---
 
@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (updated 2026-04-02)
 ## Current Position
 
 Phase: 04 (curadoria-colet-neas-e-fontes) — EXECUTING
-Plan: 4 of 5
+Plan: 5 of 5
 Status: Ready to execute
 Last activity: 2026-04-07
 
@@ -69,6 +69,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 04 P01 | 9 | 2 tasks | 15 files |
 | Phase 04 P02 | 6 | 2 tasks | 8 files |
 | Phase 04 P03 | 20 min | 2 tasks | 21 files |
+| Phase 04 P04 | 2 min | 3 tasks | 18 files |
 
 ## Accumulated Context
 
@@ -113,6 +114,9 @@ Recent decisions affecting current work:
 - [Phase 04]: Cycle detection for nested collections runs only when item papel is Coletanea and uses ObterDescendentesAsync.
 - [Phase 04]: Source/image write operations mutate Conteudo aggregate methods and map DomainException to Resultado failure.
 - [Phase 04]: CriarConteudoCommand expanded with Papel, TipoColetanea, Formato and IgnorarDuplicata, with pre-create dedup check.
+- [Phase 04]: ListarConteudosQuery recebeu PapelFiltro opcional para compatibilidade de call sites
+- [Phase 04]: Novos campos de ConteudoResumoDto com defaults null para evitar quebra em testes existentes
+- [Phase 04]: Strings da fase 4 aplicadas no resource path real Module.Acervo/Resources/Strings.resx
 
 ### Pending Todos
 
@@ -124,6 +128,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-07T14:27:48.826Z
-Stopped at: Completed 04-03-PLAN.md
+Last session: 2026-04-07T14:44:32.106Z
+Stopped at: Completed 04-04-PLAN.md
 Resume file: None
