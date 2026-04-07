@@ -46,10 +46,19 @@ internal sealed class ColetaneaRepository : IColetaneaRepository
     /// <summary>
     /// BFS traversal to find all descendant collection IDs.
     /// Used for cycle detection before adding item to collection.
+    /// SEG-02: Returns empty if coletaneaId doesn't belong to usuarioId.
     /// </summary>
     public async Task<IReadOnlyList<Guid>> ObterDescendentesAsync(
         Guid coletaneaId, Guid usuarioId, CancellationToken ct)
     {
+        // SEG-02: Validate that the starting collection belongs to the user
+        var pertenceAoUsuario = await _context.Conteudos
+            .AnyAsync(c => c.Id == coletaneaId && c.UsuarioId == usuarioId, ct)
+            .ConfigureAwait(false);
+
+        if (!pertenceAoUsuario)
+            return Array.Empty<Guid>().ToList().AsReadOnly();
+
         var visited = new HashSet<Guid>();
         var queue = new Queue<Guid>();
         queue.Enqueue(coletaneaId);
