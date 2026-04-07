@@ -28,7 +28,7 @@ internal sealed class BuscarConteudosHandler : IRequestHandler<BuscarConteudosQu
         // Use listar with pagination to get all non-filho content, then filter client-side
         // Limited to 10 results for autocomplete
         var paginacao = new PaginacaoParams(1, 50);
-        var resultado = await _queryService.ListarAsync(query.UsuarioId, paginacao, ct).ConfigureAwait(false);
+        var resultado = await _queryService.ListarAsync(query.UsuarioId, paginacao, papelFiltro: null, ct).ConfigureAwait(false);
 
         return resultado.Items
             .Where(c => c.Id != query.ExcluirId &&

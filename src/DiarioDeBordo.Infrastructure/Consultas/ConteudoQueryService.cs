@@ -23,18 +23,28 @@ internal sealed class ConteudoQueryService : IConteudoQueryService
     }
 
     public async Task<ResultadoPaginado<ConteudoResumoData>> ListarAsync(
-        Guid usuarioId, PaginacaoParams paginacao, CancellationToken ct)
+        Guid usuarioId, PaginacaoParams paginacao, PapelConteudo? papelFiltro, CancellationToken ct)
     {
-        var total = await _context.Conteudos
-            .CountAsync(c => c.UsuarioId == usuarioId && !c.IsFilho, ct)
+        var query = _context.Conteudos
+            .Where(c => c.UsuarioId == usuarioId && !c.IsFilho); // SEG-02 + D-19: filhos ocultos
+
+        if (papelFiltro.HasValue)
+            query = query.Where(c => c.Papel == papelFiltro.Value);
+
+        var total = await query
+            .CountAsync(ct)
             .ConfigureAwait(false);
 
-        var items = await _context.Conteudos
-            .Where(c => c.UsuarioId == usuarioId && !c.IsFilho) // SEG-02 + D-19: filhos ocultos
+        var items = await query
             .OrderByDescending(c => c.CriadoEm)
             .Skip(paginacao.Offset)
             .Take(paginacao.ItensPorPagina)
-            .Select(c => new ConteudoResumoData(c.Id, c.Titulo, c.Formato, c.Papel, c.CriadoEm, c.Classificacao, c.Subtipo))
+            .Select(c => new ConteudoResumoData(
+                c.Id, c.Titulo, c.Formato, c.Papel, c.CriadoEm, c.Classificacao, c.Subtipo,
+                c.TipoColetaneaValor,
+                c.Papel == PapelConteudo.Coletanea ? (int?)0 : null, // QuantidadeItens: computed in later plan
+                c.Papel == PapelConteudo.Coletanea ? (decimal?)0m : null, // ProgressoPercentual: computed in later plan
+                c.Imagens.Where(i => i.Principal).Select(i => i.Caminho).FirstOrDefault()))
             .ToListAsync(ct)
             .ConfigureAwait(false);
 
@@ -51,6 +61,7 @@ internal sealed class ConteudoQueryService : IConteudoQueryService
             {
                 c.Id, c.Titulo, c.Descricao, c.Anotacoes, c.Nota, c.Formato, c.Papel,
                 c.CriadoEm, c.Classificacao, c.IsFilho, c.TotalEsperadoSessoes, c.Subtipo,
+                c.TipoColetaneaValor,
                 c.Progresso.Estado, c.Progresso.PosicaoAtual,
             })
             .FirstOrDefaultAsync(ct)
@@ -100,6 +111,21 @@ internal sealed class ConteudoQueryService : IConteudoQueryService
             .ToListAsync(ct)
             .ConfigureAwait(false);
 
+        // Fontes query
+        var fontes = await _context.Set<Core.Entidades.Fonte>()
+            .Where(f => f.ConteudoId == id)
+            .OrderBy(f => f.Prioridade)
+            .Select(f => new FonteData(f.Id, f.Tipo, f.Valor, f.Plataforma, f.Prioridade))
+            .ToListAsync(ct)
+            .ConfigureAwait(false);
+
+        // Imagens query
+        var imagens = await _context.Set<Core.Entidades.ImagemConteudo>()
+            .Where(i => i.ConteudoId == id)
+            .Select(i => new ImagemData(i.Id, i.Caminho, i.OrigemTipo, i.Principal))
+            .ToListAsync(ct)
+            .ConfigureAwait(false);
+
         return new ConteudoDetalheData(
             conteudo.Id,
             conteudo.Titulo,
@@ -115,10 +141,13 @@ internal sealed class ConteudoQueryService : IConteudoQueryService
             conteudo.Subtipo,
             conteudo.Estado,
             conteudo.PosicaoAtual,
+            conteudo.TipoColetaneaValor,
             categorias.AsReadOnly(),
             relacoes.AsReadOnly(),
             sessoes.AsReadOnly(),
-            sessoesIds.Count);
+            sessoesIds.Count,
+            fontes.AsReadOnly(),
+            imagens.AsReadOnly());
     }
 
     public async Task<ResultadoPaginado<SessaoData>> ListarSessoesAsync(

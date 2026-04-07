@@ -23,7 +23,7 @@ internal sealed class ListarConteudosHandler
         ListarConteudosQuery query, CancellationToken ct)
     {
         var data = await _queryService
-            .ListarAsync(query.UsuarioId, query.Paginacao, ct)
+            .ListarAsync(query.UsuarioId, query.Paginacao, papelFiltro: null, ct)
             .ConfigureAwait(false);
 
         var dtos = data.Items

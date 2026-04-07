@@ -9,9 +9,16 @@ public interface IFeatureFlags
     bool IsEnabled(string flagName);
 }
 
-/// <summary>Placeholder: all flags off by default until Phase 3 implements feature flag storage.</summary>
+/// <summary>Placeholder: Phase 4 flags enabled. Full feature flag storage in Phase 3.</summary>
 [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage(Justification = "Phase 3 placeholder — feature flag storage not yet implemented.")]
 public sealed class FeatureFlagsPlaceholder : IFeatureFlags
 {
-    public bool IsEnabled(string flagName) => false;
+    private static readonly HashSet<string> _enabledFlags = new(StringComparer.OrdinalIgnoreCase)
+    {
+        "coletaneas",
+        "fontes_com_fallback",
+        "deduplicacao"
+    };
+
+    public bool IsEnabled(string flagName) => _enabledFlags.Contains(flagName);
 }

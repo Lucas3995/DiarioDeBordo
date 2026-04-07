@@ -200,4 +200,43 @@ public sealed class Conteudo
         // TipoColetanea is set once at Criar() and cannot be changed
         throw new DomainException("TIPO_COLETANEA_IMUTAVEL", "TipoColetanea não pode ser alterado após criação.");
     }
+
+    /// <summary>Remove uma fonte pelo ID. Throws DomainException se não encontrada.</summary>
+    public void RemoverFonte(Guid fonteId)
+    {
+        var fonte = _fontes.FirstOrDefault(f => f.Id == fonteId)
+            ?? throw new DomainException("NAO_ENCONTRADO", "Fonte não encontrada neste conteúdo.");
+        _fontes.Remove(fonte);
+        AtualizadoEm = DateTimeOffset.UtcNow;
+    }
+
+    /// <summary>
+    /// Reordena fontes na sequência fornecida. Atribui prioridades 1..N.
+    /// Throws DomainException se os IDs não correspondem exatamente às fontes existentes (I-07).
+    /// </summary>
+    public void ReordenarFontes(IReadOnlyList<Guid> fonteIdsOrdenados)
+    {
+        ArgumentNullException.ThrowIfNull(fonteIdsOrdenados);
+
+        if (fonteIdsOrdenados.Count != _fontes.Count ||
+            !fonteIdsOrdenados.ToHashSet().SetEquals(_fontes.Select(f => f.Id)))
+            throw new DomainException("FONTES_INCONSISTENTES",
+                "A lista de IDs fornecida não corresponde às fontes existentes deste conteúdo.");
+
+        for (var i = 0; i < fonteIdsOrdenados.Count; i++)
+        {
+            var fonte = _fontes.First(f => f.Id == fonteIdsOrdenados[i]);
+            fonte.Prioridade = i + 1;
+        }
+        AtualizadoEm = DateTimeOffset.UtcNow;
+    }
+
+    /// <summary>Remove uma imagem pelo ID. Throws DomainException se não encontrada.</summary>
+    public void RemoverImagem(Guid imagemId)
+    {
+        var imagem = _imagens.FirstOrDefault(i => i.Id == imagemId)
+            ?? throw new DomainException("NAO_ENCONTRADO", "Imagem não encontrada neste conteúdo.");
+        _imagens.Remove(imagem);
+        AtualizadoEm = DateTimeOffset.UtcNow;
+    }
 }
